@@ -1,21 +1,13 @@
-<style>
-.home {
-  height: 100%;
-  width: 100%;
-}
-</style>
 <template>
-  <div class='home d-flex justify-center align-center'>
-  </div>
+  <div></div>
 </template>
-
 <script lang='ts'>
 import {Component, Vue} from 'vue-property-decorator'
 
 @Component({
   components: {}
 })
-export default class Home extends Vue {
+export default class Demo extends Vue {
   mounted() {
   }
 
@@ -23,3 +15,6 @@ export default class Home extends Vue {
   }
 }
 </script>
+<style scoped>
+
+</style>
