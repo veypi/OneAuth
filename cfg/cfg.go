@@ -11,15 +11,16 @@ import (
 var Path = cmd.GetCfgPath("OneAuth", "oa")
 
 var CFG = &struct {
-	AdminUser   string
-	Host        string
-	LoggerPath  string
-	LoggerLevel string
-	Key         string
-	TimeFormat  string
-	Debug       bool
-	EXEDir      string
-	DB          struct {
+	AdminUser      string
+	Host           string
+	LoggerPath     string
+	LoggerLevel    string
+	Key            string
+	TimeFormat     string
+	Debug          bool
+	EXEDir         string
+	EnableRegister bool
+	DB             struct {
 		Type string
 		Addr string
 		User string
@@ -27,13 +28,14 @@ var CFG = &struct {
 		DB   string
 	}
 }{
-	AdminUser:   "admin",
-	Host:        "0.0.0.0:19528",
-	LoggerPath:  "",
-	LoggerLevel: "debug",
-	TimeFormat:  "2006/01/02 15:04:05",
-	Debug:       true,
-	EXEDir:      "./",
+	AdminUser:      "admin",
+	Host:           "0.0.0.0:4001",
+	LoggerPath:     "",
+	LoggerLevel:    "debug",
+	TimeFormat:     "2006/01/02 15:04:05",
+	Debug:          true,
+	EXEDir:         "./",
+	EnableRegister: true,
 	DB: struct {
 		Type string
 		Addr string
@@ -41,9 +43,9 @@ var CFG = &struct {
 		Pass string
 		DB   string
 	}{
-		Type: "sqlite",
-		//Addr: "127.0.0.1:3306",
-		Addr: "oa.db",
+		//Type: "sqlite",
+		Addr: "127.0.0.1:3306",
+		//Addr: "oa.db",
 		User: "root",
 		Pass: "123456",
 		DB:   "one_auth",

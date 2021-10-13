@@ -31,7 +31,7 @@ func (h *appHandler) Get() (interface{}, error) {
 	}
 	h.query = &models.App{}
 	h.query.UUID = id
-	err := cfg.DB().Where(h.query).Preload("Wx").First(h.query).Error
+	err := cfg.DB().Where(h.query).First(h.query).Error
 	if err != nil {
 		return nil, err
 	}

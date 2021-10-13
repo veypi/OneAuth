@@ -20,7 +20,7 @@ import (
 func Router(r OneBD.Router) {
 	pool := OneBD.NewHandlerPool(func() OneBD.Handler {
 		h := &handler{}
-		h.Ignore(rfc.MethodHead)
+		h.Ignore(rfc.MethodHead, rfc.MethodPost)
 		return h
 	})
 	r.Set("/", pool, rfc.MethodGet, rfc.MethodPost) // list
@@ -68,8 +68,8 @@ func (h *handler) Get() (interface{}, error) {
 
 // Post register user
 func (h *handler) Post() (interface{}, error) {
-	if !h.CheckAuth("user").CanCreate() {
-		return nil, oerr.NoAuth
+	if !cfg.CFG.EnableRegister {
+		return nil, oerr.NoAuth.AttachStr("register disabled.")
 	}
 	var userdata = struct {
 		Username string `json:"username"`
@@ -138,7 +138,7 @@ func (h *handler) Patch() (interface{}, error) {
 	if err := cfg.DB().Where(&target).First(&target).Error; err != nil {
 		return nil, err
 	}
-	if target.ID != h.Payload.ID && !h.CheckAuth("admin").CanDoAny() {
+	if target.ID != h.Payload.ID {
 		return nil, oerr.NoAuth
 	}
 	if len(opts.Password) >= 6 {
@@ -187,6 +187,10 @@ func (h *handler) Head() (interface{}, error) {
 	if len(uid) == 0 || len(password) == 0 {
 		return nil, oerr.ApiArgsError
 	}
+	appID, err := strconv.Atoi(h.Meta().Query("app_id"))
+	if err != nil || appID <= 0 {
+		return nil, oerr.ApiArgsMissing
+	}
 	h.User = new(models.User)
 	uidType := h.Meta().Query("uid_type")
 	switch uidType {
@@ -198,6 +202,12 @@ func (h *handler) Head() (interface{}, error) {
 		h.User.Email = uid
 	default:
 		h.User.Username = uid
+	}
+	app := &models.App{}
+	app.ID = uint(appID)
+	err = cfg.DB().Where(app).Find(app).Error
+	if err != nil {
+		return nil, oerr.DBErr.Attach(err)
 	}
 	if err := cfg.DB().Preload("Roles").Where(h.User).First(h.User).Error; err != nil {
 		if err.Error() == gorm.ErrRecordNotFound.Error() {
@@ -221,7 +231,7 @@ func (h *handler) Head() (interface{}, error) {
 			}
 		} else {
 			log.HandlerErrs(err)
-			return nil, err
+			return nil, oerr.DBErr.Attach(err)
 		}
 	}
 	isAuth, err := h.User.CheckLogin(password)
@@ -231,7 +241,7 @@ func (h *handler) Head() (interface{}, error) {
 	if h.User.Status == "disabled" {
 		return nil, oerr.DisableLogin
 	}
-	token, err := h.User.GetToken(cfg.CFG.Key)
+	token, err := h.User.GetToken(app.Key, app.ID)
 	if err != nil {
 		log.HandlerErrs(err)
 		return nil, oerr.Unknown.Attach(err)

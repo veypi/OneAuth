@@ -10,7 +10,7 @@ module.exports = {
   outputDir: '../sub/static',
   devServer: {
     host: '0.0.0.0',
-    port: 19528,
+    port: 19520,
     disableHostCheck: true,
     proxy: {
       '^/api': {

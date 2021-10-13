@@ -76,7 +76,6 @@ func runSyncDB(*cli.Context) error {
 	log.HandlerErrs(
 		db.SetupJoinTable(&models.User{}, "Roles", &models.UserRole{}),
 		db.SetupJoinTable(&models.Role{}, "Users", &models.UserRole{}),
-		db.SetupJoinTable(&models.Role{}, "Auths", &models.RoleAuth{}),
 		db.AutoMigrate(&models.User{}, &models.Role{}, &models.Auth{}),
 	)
 	log.HandlerErrs(

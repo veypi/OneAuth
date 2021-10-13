@@ -19,7 +19,7 @@ type userRoleHandler struct {
 }
 
 func (h *userRoleHandler) Post() (interface{}, error) {
-	if !h.CheckAuth("role").CanCreate() {
+	if !h.GetAuth("role").CanCreate() {
 		return nil, oerr.NoAuth
 	}
 	uid := h.Meta().ParamsInt("user_id")
@@ -67,7 +67,7 @@ func (h *userRoleHandler) Post() (interface{}, error) {
 }
 
 func (h *userRoleHandler) Delete() (interface{}, error) {
-	if !h.CheckAuth("role").CanDelete() {
+	if !h.GetAuth("role").CanDelete() {
 		return nil, oerr.NoAuth
 	}
 	uid := h.Meta().ParamsInt("user_id")

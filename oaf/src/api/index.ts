@@ -4,9 +4,13 @@
  * Distributed under terms of the MIT license.
  */
 
+import Vue from 'vue'
 import {Base64} from 'js-base64'
 import ajax from './ajax'
 import store from '@/store'
+
+export type SuccessFunction<T> = (e: any) => void;
+export type FailedFunction<T> = (e: any) => void;
 
 const Code = {
   42011: '无操作权限',
@@ -24,15 +28,16 @@ class Interface {
     this.data = data
   }
 
-  Start(success: Function, fail?: Function) {
+  Start(success: SuccessFunction<any>, fail?: FailedFunction<any>) {
     const newFail = function (data: any) {
       if (data && data.code === 40001) {
         // no login
         store.dispatch('handleLogOut')
         return
       }
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
       if (data && data.code > 0 && Code[data.code]) {
-        // Message.warning({message: Code[data.code] || data.err, offset: 100})
       }
       if (fail) {
         fail(data)
@@ -103,12 +108,32 @@ const app = {
   local: '/api/app/',
   get(id: string) {
     return new Interface(ajax.get, this.local + id)
+  },
+  list() {
+    return new Interface(ajax.get, this.local)
+  }
+}
+
+const user = {
+  local: '/api/user/',
+  register(username: string, password: string, prop?: any) {
+    const data = Object.assign({
+      username: username,
+      password: Base64.encode(password)
+    }, prop)
+    return new Interface(ajax.post, this.local, data)
+  },
+  login(username: string, password: string) {
+    return new Interface(ajax.head, this.local + username, {
+      password: Base64.encode(password)
+    })
   }
 }
 
 const api = {
   role: role,
   app: app,
+  user: user,
   admin: {
     auths() {
       return new Interface(ajax.get, '/api/auth/')
@@ -192,8 +217,8 @@ const api = {
 }
 
 const Api = {
-  install(Vue: any) {
-    Vue.prototype.api = api
+  install(vue: typeof Vue): void {
+    vue.prototype.$api = api
   }
 }
 export {Api}

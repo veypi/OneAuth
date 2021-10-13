@@ -8,12 +8,12 @@ import (
 	"github.com/veypi/OneBD/rfc"
 )
 
-type Auth struct {
+type UserHandler struct {
 	Payload      *models.PayLoad
 	ignoreMethod map[rfc.Method]bool
 }
 
-func (a *Auth) Init(m OneBD.Meta) error {
+func (a *UserHandler) Init(m OneBD.Meta) error {
 	if a.ignoreMethod != nil && a.ignoreMethod[m.Method()] {
 		return nil
 	}
@@ -29,7 +29,7 @@ func (a *Auth) Init(m OneBD.Meta) error {
 	return oerr.NotLogin.Attach(err)
 }
 
-func (a *Auth) Ignore(methods ...rfc.Method) {
+func (a *UserHandler) Ignore(methods ...rfc.Method) {
 	if a.ignoreMethod == nil {
 		a.ignoreMethod = make(map[rfc.Method]bool)
 	}
@@ -38,6 +38,6 @@ func (a *Auth) Ignore(methods ...rfc.Method) {
 	}
 }
 
-func (a *Auth) CheckAuth(name string, tags ...string) models.AuthLevel {
-	return a.Payload.CheckAuth(name, tags...)
+func (a *UserHandler) GetAuth(ResourceID string, ResourceUUID ...string) models.AuthLevel {
+	return a.Payload.GetAuth(ResourceID, ResourceUUID...)
 }

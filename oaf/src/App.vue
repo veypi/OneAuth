@@ -21,6 +21,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import util from '@/libs/util'
 
 export default Vue.extend({
   name: 'App',
@@ -32,7 +33,7 @@ export default Vue.extend({
   }),
 
   mounted() {
-    document.title = '统一认证'
+    util.title('统一认证')
   }
 })
 </script>

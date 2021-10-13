@@ -15,7 +15,7 @@ func Router(r OneBD.Router) {
 	r.SetInternalErrorFunc(func(m core.Meta) {
 		m.Write([]byte("{\"status\": 0}"))
 	})
-	user.Router(r.SubRouter("/auth/user"))
+	user.Router(r.SubRouter("/user"))
 	wx.Router(r.SubRouter("wx"))
 	app.Router(r.SubRouter("app"))
 	//message.Router(r.SubRouter("/message"))

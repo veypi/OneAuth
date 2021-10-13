@@ -52,7 +52,7 @@ export default class Wx extends Vue {
 
   created() {
     if (this.uuid) {
-      this.api.app.get(this.uuid).Start(e => {
+      this.$api.app.get(this.uuid as string).Start(e => {
         this.url = e.wx.url + '/api/wx/login/' + this.uuid
         this.aid = e.wx.corp_id
         this.agentID = e.wx.agent_id

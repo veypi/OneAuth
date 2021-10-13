@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/veypi/utils"
-	"github.com/veypi/utils/log"
 	"strings"
 	"time"
 )
@@ -27,33 +26,47 @@ type User struct {
 
 	Icon  string  `json:"icon"`
 	Roles []*Role `json:"roles" gorm:"many2many:user_role;"`
+	Auths []*Auth `json:"auths" gorm:"foreignkey:UserID;references:ID"`
+}
+
+type simpleAuth struct {
+	RID string `json:"rid"`
+	// 具体某个资源的id
+	RUID  string    `json:"ruid"`
+	Level AuthLevel `json:"level"`
 }
 
 // TODO:: roles 是否会造成token过大 ?
 type PayLoad struct {
-	ID       uint   `json:"id"`
-	Username string `json:"username"`
-	Nickname string `json:"nickname"`
-	Icon     string `json:"icon"`
-	Iat      int64  `json:"iat"` //token time
-	Exp      int64  `json:"exp"`
-	Roles    []uint `json:"roles"`
+	ID   uint                 `json:"id"`
+	Iat  int64                `json:"iat"` //token time
+	Exp  int64                `json:"exp"`
+	Auth map[uint]*simpleAuth `json:"auth"`
 }
 
-func (p *PayLoad) CheckAuth(name string, tags ...string) AuthLevel {
+// GetAuth resource_uuid 缺省或仅第一个有效 权限会被更高权限覆盖
+func (p *PayLoad) GetAuth(ResourceID string, ResourceUUID ...string) AuthLevel {
 	res := AuthNone
-	if p == nil || p.Roles == nil {
+	if p == nil || p.Auth == nil {
 		return res
 	}
-	for _, id := range p.Roles {
-		r := GlobalRoles[id]
-		if r == nil {
-			log.Warn().Msgf("not found role id: %d", id)
-			continue
-		}
-		t := r.CheckAuth(name, tags...)
-		if t > res {
-			res = t
+	ruid := ""
+	if len(ResourceUUID) > 0 {
+		ruid = ResourceUUID[0]
+	}
+	for _, a := range p.Auth {
+		if a.RID == ResourceID {
+			if a.RUID != "" {
+				if a.RUID == ruid {
+					if a.Level > res {
+						res = a.Level
+					}
+				} else {
+					continue
+				}
+			} else if a.Level > res {
+				res = a.Level
+			}
 		}
 	}
 	return res
@@ -63,26 +76,7 @@ func (u *User) String() string {
 	return u.Username + ":" + u.Nickname
 }
 
-func (u *User) CheckAuth(name string, tags ...string) AuthLevel {
-	res := AuthNone
-	if u == nil || u.Roles == nil {
-		return res
-	}
-	for _, t := range u.Roles {
-		r := GlobalRoles[t.ID]
-		if r == nil {
-			log.Warn().Msgf("not found role id: %d", t.ID)
-			continue
-		}
-		t := r.CheckAuth(name, tags...)
-		if t > res {
-			res = t
-		}
-	}
-	return res
-}
-
-func (u *User) GetToken(key string) (string, error) {
+func (u *User) GetToken(key string, appID uint) (string, error) {
 	header := map[string]string{
 		"typ": "JWT",
 		"alg": "HS256",
@@ -90,15 +84,30 @@ func (u *User) GetToken(key string) (string, error) {
 	//header := "{\"typ\": \"JWT\", \"alg\": \"HS256\"}"
 	now := time.Now().Unix()
 	payload := PayLoad{
-		ID:       u.ID,
-		Username: u.Username,
-		Nickname: u.Nickname,
-		Icon:     u.Icon,
-		Iat:      now,
-		Exp:      now + 60*60*24,
+		ID:   u.ID,
+		Iat:  now,
+		Exp:  now + 60*60*24,
+		Auth: map[uint]*simpleAuth{},
 	}
 	for _, r := range u.Roles {
-		payload.Roles = append(payload.Roles, r.ID)
+		for _, a := range r.Auths {
+			if appID == a.AppID {
+				payload.Auth[a.ID] = &simpleAuth{
+					RID:   a.RID,
+					RUID:  a.RUID,
+					Level: a.Level,
+				}
+			}
+		}
+	}
+	for _, a := range u.Auths {
+		if appID == a.AppID {
+			payload.Auth[a.ID] = &simpleAuth{
+				RID:   a.RID,
+				RUID:  a.RUID,
+				Level: a.Level,
+			}
+		}
 	}
 	a, err := json.Marshal(header)
 	if err != nil {

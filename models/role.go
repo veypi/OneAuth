@@ -1,74 +1,44 @@
 package models
 
-import (
-	"OneAuth/cfg"
-	"github.com/veypi/utils/log"
-)
-
-var GlobalRoles = make(map[uint]*Role)
-
-func SyncGlobalRoles() {
-	roles := make([]*Role, 0, 10)
-	err := cfg.DB().Preload("Auths").Find(&roles).Error
-	if err != nil {
-		log.Warn().Msgf("sync global roles error: %s", err.Error())
-		return
-	}
-	for _, r := range roles {
-		GlobalRoles[r.ID] = r
-	}
-}
-
 type UserRole struct {
 	BaseModel
 	UserID uint `json:"user_id"`
 	RoleID uint `json:"role_id"`
 }
 
-type RoleAuth struct {
-	BaseModel
-	RoleID uint `json:"role_id"`
-	AuthID uint `json:"auth_id"`
-}
-
 type Role struct {
 	BaseModel
 	Name string `json:"name"`
 	// 角色类型
-	// 0: 系统角色   1: 用户角色
-	Category uint `json:"category" gorm:"default:0"`
+	// 1: 系统定义角色   2: 用户自定义角色
+	Category uint `json:"category" gorm:"default:1"`
 	// 角色标签
 	Tag   string  `json:"tag" gorm:"default:''"`
 	Users []*User `json:"users" gorm:"many2many:user_role;"`
 	// 具体权限
-	Auths    []*Auth `json:"auths" gorm:"many2many:role_auth;"`
+	Auths    []*Auth `json:"auths" gorm:"foreignkey:RoleID;references:ID"`
 	IsUnique bool    `json:"is_unique" gorm:"default:false"`
 }
 
-func (r Role) CheckAuth(name string, tags ...string) AuthLevel {
-	res := AuthNone
-	tag := ""
-	if len(tags) > 0 {
-		tag = tags[0]
-	}
-	for _, a := range r.Auths {
-		if a.Name == "admin" && a.Tag == "" || (a.Name == "admin" && a.Tag == tag) || (a.Name == name && a.Tag == tag) {
-			if a.Level > res {
-				res = a.Level
-			}
-		}
-	}
-	return res
-}
-
+// AuthLevel 权限等级
+// 0 相当于没有
+// 1 有限读权限
+// 2 读权限
+// 3 创建权限
+// 4 修改权限
+// 5 删除权限
+// 6 赋予其余人权限
 type AuthLevel uint
 
 const (
-	AuthNone   AuthLevel = 0
-	AuthRead   AuthLevel = 1
-	AuthCreate AuthLevel = 2
-	AuthUpdate AuthLevel = 3
-	AuthDelete AuthLevel = 4
+	AuthNone AuthLevel = 0
+	// AuthPart TODO: 临时权限
+	AuthPart   AuthLevel = 1
+	AuthRead   AuthLevel = 2
+	AuthCreate AuthLevel = 3
+	AuthUpdate AuthLevel = 4
+	AuthDelete AuthLevel = 5
+	AuthAll    AuthLevel = 6
 )
 
 func (a AuthLevel) CanRead() bool {
@@ -88,17 +58,25 @@ func (a AuthLevel) CanDelete() bool {
 }
 
 func (a AuthLevel) CanDoAny() bool {
-	return a >= AuthDelete
+	return a >= AuthAll
 }
 
 // 资源权限
 
 type Auth struct {
 	BaseModel
-	Name  string `json:"name"`
-	AppID uint   `json:"app_id"`
+	Name string `json:"name"`
+	// 该权限作用的应用
+	AppID uint `json:"app_id"`
+	// 权限绑定只能绑定一个
+	RoleID uint `json:"role_id"`
+	UserID uint `json:"user_id"`
+	// 资源id
+	RID string `json:"rid" gorm:""`
+	// 具体某个资源的id
+	RUID string `json:"ruid"`
 	// 权限标签
-	Tag string `json:"tag"`
-	// 权限等级 0 相当于没有 1 读权限  2 创建权限  3 修改权限  4 删除权限
+	Tag   string    `json:"tag"`
 	Level AuthLevel `json:"level"`
+	Des   string    `json:"des"`
 }

@@ -17,11 +17,11 @@ var json = jsoniter.ConfigFastest
 
 type ApiHandler struct {
 	OneBD.BaseHandler
-	auth.Auth
+	auth.UserHandler
 }
 
 func (h *ApiHandler) Init(m OneBD.Meta) error {
-	return tools.MultiIniter(m, &h.BaseHandler, &h.Auth)
+	return tools.MultiIniter(m, &h.BaseHandler, &h.UserHandler)
 }
 
 func (h *ApiHandler) OnResponse(data interface{}) {
