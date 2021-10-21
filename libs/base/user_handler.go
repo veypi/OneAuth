@@ -1,15 +1,15 @@
-package auth
+package base
 
 import (
-	"OneAuth/cfg"
 	"OneAuth/libs/oerr"
+	"OneAuth/libs/token"
 	"OneAuth/models"
 	"github.com/veypi/OneBD"
 	"github.com/veypi/OneBD/rfc"
 )
 
 type UserHandler struct {
-	Payload      *models.PayLoad
+	Payload      *token.PayLoad
 	ignoreMethod map[rfc.Method]bool
 }
 
@@ -17,12 +17,16 @@ func (a *UserHandler) Init(m OneBD.Meta) error {
 	if a.ignoreMethod != nil && a.ignoreMethod[m.Method()] {
 		return nil
 	}
-	a.Payload = new(models.PayLoad)
-	token := m.GetHeader("auth_token")
-	if token == "" {
+	return a.ParsePayload(m)
+}
+
+func (a *UserHandler) ParsePayload(m OneBD.Meta) error {
+	a.Payload = new(token.PayLoad)
+	tokenStr := m.GetHeader("auth_token")
+	if tokenStr == "" {
 		return oerr.NotLogin
 	}
-	ok, err := models.ParseToken(token, cfg.CFG.Key, a.Payload)
+	ok, err := token.ParseToken(tokenStr, a.Payload)
 	if ok {
 		return nil
 	}

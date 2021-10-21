@@ -3,7 +3,6 @@ package sub
 import (
 	"OneAuth/api"
 	"OneAuth/cfg"
-	"OneAuth/models"
 	"embed"
 	"github.com/urfave/cli/v2"
 	"github.com/veypi/OneBD"
@@ -20,7 +19,7 @@ var staticFiles embed.FS
 //go:embed static/index.html
 var indexFile []byte
 
-var Web = cli.Command{
+var Web = &cli.Command{
 	Name:        "web",
 	Usage:       "",
 	Description: "oa 核心http服务",
@@ -29,7 +28,6 @@ var Web = cli.Command{
 }
 
 func RunWeb(c *cli.Context) error {
-	_ = runSyncDB(c)
 	ll := log.InfoLevel
 	if l, err := log.ParseLevel(cfg.CFG.LoggerLevel); err == nil {
 		ll = l
@@ -69,17 +67,4 @@ func RunWeb(c *cli.Context) error {
 
 	log.Info().Msg("\nRouting Table\n" + app.Router().String())
 	return app.Run()
-}
-
-func runSyncDB(*cli.Context) error {
-	db := cfg.DB()
-	log.HandlerErrs(
-		db.SetupJoinTable(&models.User{}, "Roles", &models.UserRole{}),
-		db.SetupJoinTable(&models.Role{}, "Users", &models.UserRole{}),
-		db.AutoMigrate(&models.User{}, &models.Role{}, &models.Auth{}),
-	)
-	log.HandlerErrs(
-		db.AutoMigrate(&models.App{}, &models.Wechat{}),
-	)
-	return nil
 }

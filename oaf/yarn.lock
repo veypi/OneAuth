@@ -1155,6 +1155,16 @@
     semver "^7.3.2"
     tsutils "^3.17.1"
 
+"@veypi/one-icon@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@veypi/one-icon/-/one-icon-1.0.1.tgz#138adbbcf0738ac40cad44552a20e211da8087c6"
+  integrity sha512-VEjK/SRpGTYKaqXu6FAVUXZtQy4hdZ886OI2eoMqMfMnt1pPExr9Vjz2NQOL1DZgMGT3mwlQHJyR3iJdz/eE1w==
+  dependencies:
+    core-js "^3.6.5"
+    vue "^2.6.11"
+    vue-class-component "^7.2.3"
+    vue-property-decorator "^9.1.2"
+
 "@vue/babel-helper-vue-jsx-merge-props@^1.2.1":
   version "1.2.1"
   resolved "https://registry.npm.taobao.org/@vue/babel-helper-vue-jsx-merge-props/download/@vue/babel-helper-vue-jsx-merge-props-1.2.1.tgz?cache=0&sync_timestamp=1602853295839&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40vue%2Fbabel-helper-vue-jsx-merge-props%2Fdownload%2F%40vue%2Fbabel-helper-vue-jsx-merge-props-1.2.1.tgz#31624a7a505fb14da1d58023725a4c5f270e6a81"
@@ -8875,6 +8885,11 @@ vue-loader@^15.9.2:
     loader-utils "^1.1.0"
     vue-hot-reload-api "^2.3.0"
     vue-style-loader "^4.1.0"
+
+vue-m-message@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/vue-m-message/-/vue-m-message-3.1.0.tgz#8061720ac777b624fad95375594ea142c7d55dc7"
+  integrity sha512-Mu9ykD7vrUFfhGWTbevHoX1JNTAkOl6X6jDzqVoF5eB9dQHG4jSLmKwlHMZLlnT45lwwSze6vuvi8q5dxCWLQw==
 
 vue-property-decorator@^9.1.2:
   version "9.1.2"

@@ -35,9 +35,8 @@ func (h *userRoleHandler) Post() (interface{}, error) {
 		err = cfg.DB().First(query, query.ID).Error
 	} else if query.Name != "" {
 		err = cfg.DB().Where(map[string]interface{}{
-			"name":     query.Name,
-			"category": query.Category,
-			"tag":      query.Tag,
+			"name": query.Name,
+			"tag":  query.Tag,
 		}).First(query).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = cfg.DB().Create(query).Error

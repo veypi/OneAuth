@@ -90,20 +90,26 @@ export default class Register extends Vue {
     ]
   }
 
+  get app_uuid() {
+    return this.$route.params.uuid || this.$store.state.oauuid
+  }
+
   handleSubmit() {
+    // eslint-disable-next-line
+    // @ts-ignore
     if (!this.$refs.form.validate()) {
       return
     }
-    this.$api.user.register(this.form.username, this.form.passwd).Start(
+    this.$api.user.register(this.form.username, this.form.passwd, this.app_uuid).Start(
       (data) => {
-        // this.$message.success('注册成功!')
-        this.$router.push({name: 'login'})
+        this.$message.success('注册成功!')
+        this.$router.push({name: 'login', params: this.$route.params, query: this.$route.query})
       },
       (data) => {
         if (data && data.code === '31011') {
-          // this.$message.error('用户名重复')
+          this.$message.error('用户名重复')
         } else {
-          // this.$message.error('注册失败')
+          this.$message.error('注册失败')
         }
       }
     )

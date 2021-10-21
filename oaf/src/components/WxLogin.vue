@@ -9,7 +9,9 @@ import '@/libs/wwLogin.js'
   components: {}
 })
 export default class WxLogin extends Vue {
-  goto(id: string, app: string, url: string, state?: string, href?: string) {
+  goto(id: string, app: string, url: string, state?: number, href?: string) {
+    // eslint-disable-next-line
+    // @ts-ignore
     window.WwLogin({
       id: 'wx_reg',
       appid: id,
@@ -21,13 +23,13 @@ export default class WxLogin extends Vue {
   }
 
   @Prop({default: ''})
-  aid: ''
+  aid = ''
 
   @Prop({default: ''})
-  app: ''
+  app = ''
 
   @Prop({default: ''})
-  url: ''
+  url = ''
 
   mounted() {
     this.goto(this.aid, this.app, this.url, new Date().getTime())

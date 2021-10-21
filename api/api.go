@@ -2,6 +2,7 @@ package api
 
 import (
 	"OneAuth/api/app"
+	"OneAuth/api/role"
 	"OneAuth/api/user"
 	"OneAuth/api/wx"
 	"github.com/veypi/OneBD"
@@ -18,5 +19,7 @@ func Router(r OneBD.Router) {
 	user.Router(r.SubRouter("/user"))
 	wx.Router(r.SubRouter("wx"))
 	app.Router(r.SubRouter("app"))
+	role.Router(r)
+
 	//message.Router(r.SubRouter("/message"))
 }

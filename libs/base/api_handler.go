@@ -1,7 +1,6 @@
 package base
 
 import (
-	"OneAuth/libs/auth"
 	"OneAuth/libs/oerr"
 	"OneAuth/libs/tools"
 	"github.com/json-iterator/go"
@@ -17,7 +16,7 @@ var json = jsoniter.ConfigFastest
 
 type ApiHandler struct {
 	OneBD.BaseHandler
-	auth.UserHandler
+	UserHandler
 }
 
 func (h *ApiHandler) Init(m OneBD.Meta) error {

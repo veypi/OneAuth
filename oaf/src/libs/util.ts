@@ -4,7 +4,7 @@ function padLeftZero(str: string): string {
 
 const util = {
   title: function (title: string) {
-    window.document.title = title ? title + ' - Home' : 'veypi project'
+    window.document.title = title ? title + ' - oa' : 'veypi project'
   },
   getCookie(name: string) {
     const reg = new RegExp('(^| )' + name + '=([^;]*)(;|$)')

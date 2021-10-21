@@ -54,7 +54,8 @@
         <v-card-actions>
           <v-spacer/>
           <v-btn type="primary" @click="handleSubmit">登录</v-btn>
-          <router-link to="/register" style="text-decoration: none;">
+          <router-link :to="{name: 'register', query:$route.query, params: $route.params}"
+                       style="text-decoration: none;">
             <v-btn type="primary" style="margin-left:8px">注册</v-btn>
           </router-link>
         </v-card-actions>
@@ -87,13 +88,26 @@ export default class Login extends Vue {
     ]
   }
 
+  get app_uuid() {
+    return this.$route.params.uuid || this.$store.state.oauuid
+  }
+
   handleSubmit() {
-    this.$api.auth.login(this.formInline.user, this.formInline.password).Start(
+    // eslint-disable-next-line
+    // @ts-ignore
+    if (!this.$refs.form.validate()) {
+      return
+    }
+    this.$api.user.login(this.formInline.user, this.formInline.password, this.app_uuid).Start(
       data => {
+        console.log(data)
         if (util.checkLogin()) {
           // this.$message.success('登录成功')
           // EventBus.$emit('login', true)
           this.$nextTick(() => {
+            if (this.$route.query.redirect) {
+              window.location.href = this.$route.query.redirect as string
+            }
             this.$router.push({name: 'home'})
           })
         } else {
@@ -104,13 +118,6 @@ export default class Login extends Vue {
         // this.$message.error('网络错误！')
       }
     )
-  }
-
-  mounted() {
-  }
-
-  created() {
-    console.log(this.formInline)
   }
 }
 </script>

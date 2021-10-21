@@ -35,10 +35,15 @@ func main() {
 			Value:       cfg.CFG.LoggerPath,
 			Destination: &cfg.CFG.LoggerPath,
 		},
+		&cli.UintFlag{
+			Name:        "id",
+			Value:       cfg.CFG.APPID,
+			Destination: &cfg.CFG.APPID,
+		},
 		&cli.StringFlag{
 			Name:        "key",
-			Value:       cfg.CFG.Key,
-			Destination: &cfg.CFG.Key,
+			Value:       cfg.CFG.APPKey,
+			Destination: &cfg.CFG.APPKey,
 		},
 		&cli.StringFlag{
 			Name:        "exe_dir",
@@ -52,7 +57,11 @@ func main() {
 		},
 	}
 	app.Commands = []*cli.Command{
-		&sub.Web,
+		sub.Web,
+		sub.App,
+		sub.Role,
+		sub.Resource,
+		sub.Init,
 	}
 	srv, err := cmd.NewSrv(app, sub.RunWeb, cfg.CFG, cfg.Path)
 	if err != nil {

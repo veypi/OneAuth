@@ -8,19 +8,19 @@ import (
 	"gorm.io/gorm"
 )
 
-var Path = cmd.GetCfgPath("OneAuth", "oa")
+var Path = cmd.GetCfgPath("oa", "settings")
 
 var CFG = &struct {
-	AdminUser      string
-	Host           string
-	LoggerPath     string
-	LoggerLevel    string
-	Key            string
-	TimeFormat     string
-	Debug          bool
-	EXEDir         string
-	EnableRegister bool
-	DB             struct {
+	AdminUser   string
+	Host        string
+	LoggerPath  string
+	LoggerLevel string
+	APPID       uint
+	APPKey      string
+	TimeFormat  string
+	Debug       bool
+	EXEDir      string
+	DB          struct {
 		Type string
 		Addr string
 		User string
@@ -28,14 +28,14 @@ var CFG = &struct {
 		DB   string
 	}
 }{
-	AdminUser:      "admin",
-	Host:           "0.0.0.0:4001",
-	LoggerPath:     "",
-	LoggerLevel:    "debug",
-	TimeFormat:     "2006/01/02 15:04:05",
-	Debug:          true,
-	EXEDir:         "./",
-	EnableRegister: true,
+	APPID:       1,
+	AdminUser:   "admin",
+	Host:        "0.0.0.0:4001",
+	LoggerPath:  "",
+	LoggerLevel: "debug",
+	TimeFormat:  "2006/01/02 15:04:05",
+	Debug:       true,
+	EXEDir:      "./",
 	DB: struct {
 		Type string
 		Addr string

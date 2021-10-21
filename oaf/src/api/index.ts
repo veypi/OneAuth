@@ -32,7 +32,7 @@ class Interface {
     const newFail = function (data: any) {
       if (data && data.code === 40001) {
         // no login
-        store.dispatch('handleLogOut')
+        store.dispatch('handleLogout')
         return
       }
       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
@@ -52,7 +52,7 @@ class Interface {
       } else {
         newFail(data)
         if (data.code === 41001) {
-          store.dispatch('handleLogOut')
+          store.dispatch('handleLogout')
           // bus.$emit('log_out')
         }
       }
@@ -106,6 +106,9 @@ const role = {
 
 const app = {
   local: '/api/app/',
+  self() {
+    return new Interface(ajax.get, this.local, {is_self: true})
+  },
   get(id: string) {
     return new Interface(ajax.get, this.local + id)
   },
@@ -116,15 +119,18 @@ const app = {
 
 const user = {
   local: '/api/user/',
-  register(username: string, password: string, prop?: any) {
+  register(username: string, password: string, uuid: string, prop?: any) {
     const data = Object.assign({
       username: username,
+      uuid: uuid,
       password: Base64.encode(password)
     }, prop)
     return new Interface(ajax.post, this.local, data)
   },
-  login(username: string, password: string) {
+  login(username: string, password: string, uuid: string) {
     return new Interface(ajax.head, this.local + username, {
+      uid_type: 'username',
+      uuid: uuid,
       password: Base64.encode(password)
     })
   }
@@ -195,21 +201,6 @@ const api = {
     search(username: string) {
       return new Interface(ajax.get, '/api/user/', {
         username
-      })
-    },
-    login(username: string, password: string) {
-      return new Interface(ajax.head, '/api/user/' + username, {
-        password: Base64.encode(password)
-      })
-    },
-    // @title 职位
-    // @domain 部门
-    register(username: string, password: string, domain?: string, title?: string) {
-      return new Interface(ajax.post, '/api/user/', {
-        username: username,
-        password: Base64.encode(password),
-        domain: domain,
-        title: title
       })
     }
   },

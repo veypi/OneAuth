@@ -2,6 +2,7 @@ package role
 
 import (
 	"OneAuth/cfg"
+	"OneAuth/libs/auth"
 	"OneAuth/libs/base"
 	"OneAuth/libs/oerr"
 	"OneAuth/models"
@@ -20,29 +21,15 @@ type roleHandler struct {
 
 func (h *roleHandler) Get() (interface{}, error) {
 	id := h.Meta().ParamsInt("id")
-	aid := h.Meta().ParamsInt("aid")
-	act := h.Meta().Params("action")
+	if !h.GetAuth(auth.Role, h.Meta().Params("id")).CanRead() {
+		return nil, oerr.NoAuth
+	}
 	if id > 0 {
 		role := &models.Role{}
 		role.ID = uint(id)
 		err := cfg.DB().Preload("Auths").Preload("Users").First(role).Error
 		if err != nil {
 			return nil, err
-		}
-		if aid <= 0 {
-			return role, nil
-		}
-		if !h.CheckAuth("admin", "").CanDoAny() {
-			return nil, oerr.NoAuth
-		}
-		at := &models.RoleAuth{}
-		at.RoleID = role.ID
-		at.AuthID = uint(aid)
-		defer models.SyncGlobalRoles()
-		if act == "bind" {
-			err = cfg.DB().Where(at).FirstOrCreate(at).Error
-		} else if act == "unbind" {
-			err = cfg.DB().Where(at).Delete(at).Error
 		}
 		return role, nil
 	}
@@ -52,7 +39,7 @@ func (h *roleHandler) Get() (interface{}, error) {
 }
 
 func (h *roleHandler) Post() (interface{}, error) {
-	if !h.CheckAuth("role", "").CanCreate() {
+	if !h.GetAuth(auth.Role).CanCreate() {
 		return nil, oerr.NoAuth
 	}
 	role := &models.Role{}
@@ -61,15 +48,14 @@ func (h *roleHandler) Post() (interface{}, error) {
 		return nil, err
 	}
 	role.ID = 0
-	if role.Category == 0 || role.Name == "" {
+	if role.Name == "" {
 		return nil, oerr.ApiArgsMissing
 	}
-	defer models.SyncGlobalRoles()
 	return role, cfg.DB().Where(role).FirstOrCreate(role).Error
 }
 
 func (h *roleHandler) Patch() (interface{}, error) {
-	if !h.CheckAuth("role", "").CanUpdate() {
+	if !h.GetAuth(auth.Role).CanUpdate() {
 		return nil, oerr.NoAuth
 	}
 	query := &struct {
@@ -120,7 +106,7 @@ func (h *roleHandler) Patch() (interface{}, error) {
 }
 
 func (h *roleHandler) Delete() (interface{}, error) {
-	if !h.CheckAuth("role").CanDelete() {
+	if !h.GetAuth(auth.Role).CanDelete() {
 		return nil, oerr.NoAuth
 	}
 	rid := h.Meta().ParamsInt("id")
@@ -133,6 +119,5 @@ func (h *roleHandler) Delete() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer models.SyncGlobalRoles()
 	return nil, cfg.DB().Delete(role).Error
 }

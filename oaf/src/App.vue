@@ -6,11 +6,10 @@
       dark
     >
       <div class="d-flex align-center">
+        <one-icon style="color: aqua;font-size: 56px">glassdoor</one-icon>
+        <span class="font-italic font-weight-bold" style="font-size: 20px">统一认证</span>
       </div>
       <v-spacer></v-spacer>
-      <v-btn text class="font-italic" style="font-size: 20px">
-        统一认证
-      </v-btn>
     </v-app-bar>
 
     <v-main>
@@ -32,8 +31,9 @@ export default Vue.extend({
     //
   }),
 
-  mounted() {
+  beforeCreate() {
     util.title('统一认证')
+    this.$store.dispatch('fetchSelf')
   }
 })
 </script>

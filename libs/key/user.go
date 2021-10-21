@@ -1,24 +1,24 @@
-package auth
+package key
 
 import (
-	"OneAuth/models"
+	"OneAuth/cfg"
 	"github.com/veypi/utils"
 	"sync"
 )
 
 var keyCache = sync.Map{}
 
-func GetUserKey(uid uint, app *models.App) string {
-	if app.ID == 1 {
+func User(uid uint, appID uint) string {
+	if appID == cfg.CFG.APPID {
 		key, _ := keyCache.LoadOrStore(uid, utils.RandSeq(16))
-		return key.(string)
+		return cfg.CFG.APPKey + key.(string)
 	}
 	// TODO: 获取其他应用user_key
 	return ""
 }
 
-func RefreshUserKey(uid uint, app *models.App) string {
-	if app.ID == 1 {
+func RefreshUser(uid uint, appID uint) string {
+	if appID == cfg.CFG.APPID {
 		key := utils.RandSeq(16)
 		keyCache.Store(uid, key)
 		return key

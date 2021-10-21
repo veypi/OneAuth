@@ -2,9 +2,13 @@ package user
 
 import (
 	"OneAuth/cfg"
+	"OneAuth/libs/app"
 	"OneAuth/libs/base"
 	"OneAuth/libs/oerr"
+	"OneAuth/libs/token"
 	"OneAuth/models"
+	"errors"
+
 	//"OneAuth/ws"
 	"encoding/base64"
 	"fmt"
@@ -68,10 +72,17 @@ func (h *handler) Get() (interface{}, error) {
 
 // Post register user
 func (h *handler) Post() (interface{}, error) {
-	if !cfg.CFG.EnableRegister {
-		return nil, oerr.NoAuth.AttachStr("register disabled.")
+	self := &models.App{}
+	self.ID = cfg.CFG.APPID
+	err := cfg.DB().Where(self).First(self).Error
+	if err != nil {
+		return nil, oerr.DBErr.Attach(err)
+	}
+	if !self.EnableRegister {
+		return nil, oerr.NoAuth.AttachStr("register disabled")
 	}
 	var userdata = struct {
+		UUID     string `json:"uuid"`
 		Username string `json:"username"`
 		Password string `json:"password"`
 		Nickname string `json:"nickname"`
@@ -101,16 +112,40 @@ func (h *handler) Post() (interface{}, error) {
 	h.User.Username = userdata.Username
 	h.User.Email = userdata.Email
 	h.User.Position = userdata.Position
-	if err := h.User.UpdateAuth(string(pass)); err != nil {
+	if err := h.User.UpdatePass(string(pass)); err != nil {
 		log.HandlerErrs(err)
 		return nil, oerr.ResourceCreatedFailed
 	}
-	tx := cfg.DB().Begin()
-	if err := tx.Create(&h.User).Error; err != nil {
-		tx.Rollback()
-		return nil, oerr.ResourceDuplicated
+	err = cfg.DB().Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&h.User).Error; err != nil {
+			return oerr.ResourceDuplicated
+		}
+		err := app.AddUser(tx, self.ID, h.User.ID, self.InitRoleID)
+		if err != nil {
+			return err
+		}
+		if userdata.UUID != self.UUID && userdata.UUID != "" {
+			target := &models.App{}
+			target.UUID = userdata.UUID
+			err = tx.Where(target).First(target).Error
+			if err != nil {
+				return err
+			}
+			if target.EnableRegister {
+				err := app.AddUser(tx, target.ID, h.User.ID, target.InitRoleID)
+				if err != nil {
+					return err
+				}
+			} else {
+				// TODO
+			}
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
-	tx.Commit()
 	return h.User, nil
 }
 
@@ -142,7 +177,7 @@ func (h *handler) Patch() (interface{}, error) {
 		return nil, oerr.NoAuth
 	}
 	if len(opts.Password) >= 6 {
-		if err := target.UpdateAuth(opts.Password); err != nil {
+		if err := target.UpdatePass(opts.Password); err != nil {
 			log.HandlerErrs(err)
 			return nil, oerr.ApiArgsError.AttachStr(err.Error())
 		}
@@ -187,9 +222,9 @@ func (h *handler) Head() (interface{}, error) {
 	if len(uid) == 0 || len(password) == 0 {
 		return nil, oerr.ApiArgsError
 	}
-	appID, err := strconv.Atoi(h.Meta().Query("app_id"))
-	if err != nil || appID <= 0 {
-		return nil, oerr.ApiArgsMissing
+	appUUID := h.Meta().Query("uuid")
+	if appUUID == "" {
+		return nil, oerr.ApiArgsMissing.AttachStr("uuid")
 	}
 	h.User = new(models.User)
 	uidType := h.Meta().Query("uid_type")
@@ -203,32 +238,15 @@ func (h *handler) Head() (interface{}, error) {
 	default:
 		h.User.Username = uid
 	}
-	app := &models.App{}
-	app.ID = uint(appID)
-	err = cfg.DB().Where(app).Find(app).Error
+	target := &models.App{}
+	target.UUID = appUUID
+	err = cfg.DB().Where(target).Find(target).Error
 	if err != nil {
 		return nil, oerr.DBErr.Attach(err)
 	}
-	if err := cfg.DB().Preload("Roles").Where(h.User).First(h.User).Error; err != nil {
+	if err := cfg.DB().Preload("Roles.Auths").Preload("Auths").Where(h.User).First(h.User).Error; err != nil {
 		if err.Error() == gorm.ErrRecordNotFound.Error() {
-			// admin 登录自动注册
-			if h.User.Username == "admin" {
-				r := rand.New(rand.NewSource(time.Now().UnixNano()))
-				h.User.Icon = fmt.Sprintf("/media/icon/default/%04d.jpg", r.Intn(230))
-				err = h.User.UpdateAuth(password)
-				if err != nil {
-					return nil, err
-				}
-				role := &models.Role{}
-				role.ID = 1
-				h.User.Roles = []*models.Role{role}
-				err = cfg.DB().Create(h.User).Error
-				if err != nil {
-					return nil, err
-				}
-			} else {
-				return nil, oerr.AccountNotExist
-			}
+			return nil, oerr.AccountNotExist
 		} else {
 			log.HandlerErrs(err)
 			return nil, oerr.DBErr.Attach(err)
@@ -238,15 +256,27 @@ func (h *handler) Head() (interface{}, error) {
 	if err != nil || !isAuth {
 		return nil, oerr.PassError.Attach(err)
 	}
-	if h.User.Status == "disabled" {
+	au := &models.AppUser{}
+	au.UserID = h.User.ID
+	au.AppID = target.ID
+	err = cfg.DB().Where(au).First(au).Error
+	appID := target.ID
+	h.Meta().SetHeader("content", target.UserRefreshUrl)
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
+		}
+		appID = cfg.CFG.APPID
+		h.Meta().SetHeader("content", "/app/"+target.UUID)
+	} else if au.Disabled {
 		return nil, oerr.DisableLogin
 	}
-	token, err := h.User.GetToken(app.Key, app.ID)
+	tokenStr, err := token.GetToken(h.User, appID)
 	if err != nil {
 		log.HandlerErrs(err)
 		return nil, oerr.Unknown.Attach(err)
 	}
-	h.Meta().SetHeader("auth_token", token)
+	h.Meta().SetHeader("auth_token", tokenStr)
 	log.Info().Msg(h.User.Username + " login")
 	return nil, nil
 }
