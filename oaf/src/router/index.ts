@@ -19,7 +19,7 @@ const router = createRouter({
             meta: {
                 requiresAuth: true,
             },
-            component: () => import('../view/home.vue')
+            component: () => import('../views/home.vue')
         },
         {
             path: '/app',
@@ -27,27 +27,27 @@ const router = createRouter({
             meta: {
                 requiresAuth: true,
             },
-            component: () => import('../view/demo.vue')
+            component: () => import('../views/demo.vue')
         },
         {
             path: '/wx',
             name: 'wx',
-            component: () => import('../view/wx.vue')
+            component: () => import('../views/wx.vue')
         },
         {
             path: '/login/:uuid?',
             name: 'login',
-            component: () => import('../view/login.vue')
+            component: () => import('../views/login.vue')
         },
         {
             path: '/register/:uuid?',
             name: 'register',
-            component: () => import('../view/register.vue')
+            component: () => import('../views/register.vue')
         },
         {
             path: '/:path(.*)',
             name: '404',
-            component: () => import('../view/404.vue')
+            component: () => import('../views/404.vue')
         }
         //...
     ],
