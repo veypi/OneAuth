@@ -29,14 +29,17 @@ type App struct {
 	UserRefreshUrl string `json:"user_refresh_url"`
 	// app 校验用户token时使用
 	Key string `json:"-"`
-	// 是否允许用户自主注册
-	EnableRegister bool    `json:"enable_register"`
-	EnableUserKey  bool    `json:"enable_user_key"`
-	EnableUser     bool    `json:"enable_user"`
-	EnableWx       bool    `json:"enable_wx"`
-	EnablePhone    bool    `json:"enable_phone"`
-	EnableEmail    bool    `json:"enable_email"`
-	Wx             *Wechat `json:"wx" gorm:"foreignkey:AppID;references:ID"`
+	// 是否允许用户自动加入应用
+	EnableRegister bool `json:"enable_register"`
+	//
+	EnableUserKey bool   `json:"enable_user_key"`
+	UserKeyUrl    string `json:"user_key_url"`
+	// 允许登录方式
+	EnableUser  bool    `json:"enable_user"`
+	EnableWx    bool    `json:"enable_wx"`
+	EnablePhone bool    `json:"enable_phone"`
+	EnableEmail bool    `json:"enable_email"`
+	Wx          *Wechat `json:"wx" gorm:"foreignkey:AppID;references:ID"`
 }
 
 type AppUser struct {

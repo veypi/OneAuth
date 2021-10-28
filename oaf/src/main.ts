@@ -1,24 +1,17 @@
-import Vue from 'vue'
+import {createApp} from 'vue'
 import App from './App.vue'
 import router from './router'
-import store from './store'
-import vuetify from './plugins/vuetify'
-import {Api} from '@/api'
+import {store, key} from './store'
 import OneIcon from '@veypi/one-icon'
-import Message from 'vue-m-message'
-import 'vue-m-message/dist/index.css'
+import naive from 'naive-ui'
+import './index.css'
+import {Api} from './api'
 
-Vue.use(Message) // will mount `Vue.prototype.$message`
+const app = createApp(App)
 
-// Vue.use(OneIcon, {href: 'https://at.alicdn.com/t/font_2872366_7aws02sx9bl.js'})
-Vue.use(OneIcon, {href: './icon.js'})
-Vue.use(Api)
-
-Vue.config.productionTip = false
-
-new Vue({
-  router,
-  store,
-  vuetify,
-  render: h => h(App)
-}).$mount('#app')
+app.use(Api)
+app.use(naive)
+app.use(OneIcon, {href: './icon.js'})
+app.use(router)
+app.use(store, key)
+app.mount('#app')

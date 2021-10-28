@@ -1,57 +1,70 @@
-import Vue from 'vue'
-import VueRouter, {RouteConfig} from 'vue-router'
-import Home from '../views/Home.vue'
-import Demo from '@/views/demo.vue'
-import Login from '@/views/login.vue'
-import Register from '@/views/register.vue'
-import NotFound from '@/views/404.vue'
+import {createRouter, createWebHistory} from 'vue-router'
+import util from '../libs/util'
 
-Vue.use(VueRouter)
-// 避免push到相同路径报错
-// 获取原型对象上的push函数
-const originalPush = VueRouter.prototype.push
-// 修改原型对象中的push方法
-VueRouter.prototype.push = function push(location: any) {
-  // eslint-disable-next-line
-  // @ts-ignore
-  return originalPush.call(this, location).catch(err => err)
+declare module 'vue-router' {
+    interface RouteMeta {
+        // 是可选的
+        isAdmin?: boolean
+        // 每个路由都必须声明
+        requiresAuth: boolean
+    }
 }
 
-const routes: Array<RouteConfig> = [
-  {
-    path: '/',
-    name: 'home',
-    component: Home
-  },
-  {
-    path: '/app',
-    name: 'app',
-    component: Demo
-  },
-  {
-    path: '/login/:uuid?',
-    name: 'login',
-    component: Login
-  },
-  {
-    path: '/register/:uuid?',
-    name: 'register',
-    component: Register
-  },
-  {
-    path: '/wx',
-    name: 'wx',
-    component: () => import('../views/wx.vue')
-  },
-  {
-    path: '*',
-    name: '404',
-    component: NotFound
-  }
-]
+const router = createRouter({
+    history: createWebHistory(),
+    routes: [
+        {
+            path: '/',
+            name: 'home',
+            meta: {
+                requiresAuth: true,
+            },
+            component: () => import('../view/home.vue')
+        },
+        {
+            path: '/app',
+            name: 'app',
+            meta: {
+                requiresAuth: true,
+            },
+            component: () => import('../view/demo.vue')
+        },
+        {
+            path: '/wx',
+            name: 'wx',
+            component: () => import('../view/wx.vue')
+        },
+        {
+            path: '/login/:uuid?',
+            name: 'login',
+            component: () => import('../view/login.vue')
+        },
+        {
+            path: '/register/:uuid?',
+            name: 'register',
+            component: () => import('../view/register.vue')
+        },
+        {
+            path: '/:path(.*)',
+            name: '404',
+            component: () => import('../view/404.vue')
+        }
+        //...
+    ],
+})
 
-const router = new VueRouter({
-  routes
+router.beforeEach((to, from) => {
+    // 而不是去检查每条路由记录
+    // to.matched.some(record => record.meta.requiresAuth)
+    if (to.meta.requiresAuth && !util.checkLogin()) {
+        // 此路由需要授权，请检查是否已登录
+        // 如果没有，则重定向到登录页面
+        return {
+            name: 'login',
+            // 保存我们所在的位置，以便以后再来
+            query: {redirect: to.fullPath},
+        }
+    }
 })
 
 export default router

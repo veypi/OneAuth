@@ -3,18 +3,7 @@ package token
 import (
 	"OneAuth/libs/key"
 	"OneAuth/models"
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/base64"
-	"encoding/json"
-	"errors"
-	"strings"
-	"time"
-)
-
-var (
-	InvalidToken = errors.New("invalid token")
-	ExpiredToken = errors.New("expired token")
+	"github.com/veypi/utils/jwt"
 )
 
 type simpleAuth struct {
@@ -26,10 +15,9 @@ type simpleAuth struct {
 
 // TODO:: roles 是否会造成token过大 ?
 type PayLoad struct {
+	jwt.Payload
 	ID    uint                 `json:"id"`
 	AppID uint                 `json:"app_id"`
-	Iat   int64                `json:"iat"` //token time
-	Exp   int64                `json:"exp"`
 	Auth  map[uint]*simpleAuth `json:"auth"`
 }
 
@@ -62,17 +50,9 @@ func (p *PayLoad) GetAuth(ResourceID string, ResourceUUID ...string) models.Auth
 }
 
 func GetToken(u *models.User, appID uint) (string, error) {
-	header := map[string]string{
-		"typ": "JWT",
-		"alg": "HS256",
-	}
-	//header := "{\"typ\": \"JWT\", \"alg\": \"HS256\"}"
-	now := time.Now().Unix()
-	payload := PayLoad{
+	payload := &PayLoad{
 		ID:    u.ID,
 		AppID: appID,
-		Iat:   now,
-		Exp:   now + 60*60*24,
 		Auth:  map[uint]*simpleAuth{},
 	}
 	for _, a := range u.GetAuths() {
@@ -84,44 +64,9 @@ func GetToken(u *models.User, appID uint) (string, error) {
 			}
 		}
 	}
-	a, err := json.Marshal(header)
-	if err != nil {
-		return "", err
-	}
-	b, err := json.Marshal(payload)
-	if err != nil {
-		return "", err
-	}
-	A := base64.StdEncoding.EncodeToString(a)
-	B := base64.StdEncoding.EncodeToString(b)
-	hmacCipher := hmac.New(sha256.New, []byte(key.User(payload.ID, payload.AppID)))
-	hmacCipher.Write([]byte(A + "." + B))
-	C := hmacCipher.Sum(nil)
-	return A + "." + B + "." + base64.StdEncoding.EncodeToString(C), nil
+	return jwt.GetToken(payload, []byte(key.User(payload.ID, payload.AppID)))
 }
 
 func ParseToken(token string, payload *PayLoad) (bool, error) {
-	var A, B, C string
-	if seqs := strings.Split(token, "."); len(seqs) == 3 {
-		A, B, C = seqs[0], seqs[1], seqs[2]
-	} else {
-		return false, InvalidToken
-	}
-	tempPayload, err := base64.StdEncoding.DecodeString(B)
-	if err != nil {
-		return false, err
-	}
-	if err := json.Unmarshal(tempPayload, payload); err != nil {
-		return false, err
-	}
-	hmacCipher := hmac.New(sha256.New, []byte(key.User(payload.ID, payload.AppID)))
-	hmacCipher.Write([]byte(A + "." + B))
-	tempC := hmacCipher.Sum(nil)
-	if !hmac.Equal([]byte(C), []byte(base64.StdEncoding.EncodeToString(tempC))) {
-		return false, nil
-	}
-	if time.Now().Unix() > payload.Exp {
-		return false, ExpiredToken
-	}
-	return true, nil
+	return jwt.ParseToken(token, payload, []byte(key.User(payload.ID, payload.AppID)))
 }
