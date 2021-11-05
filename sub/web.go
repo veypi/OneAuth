@@ -6,15 +6,14 @@ import (
 	"embed"
 	"github.com/urfave/cli/v2"
 	"github.com/veypi/OneBD"
-	"github.com/veypi/OneBD/core"
-	"github.com/veypi/OneBD/rfc"
 	"github.com/veypi/utils/log"
-	"net/http"
-	"os"
 )
 
-//go:embed static
+//go:embed static/static
 var staticFiles embed.FS
+
+//go:embed static/favicon.ico
+var icon []byte
 
 //go:embed static/index.html
 var indexFile []byte
@@ -37,33 +36,14 @@ func RunWeb(c *cli.Context) error {
 		LoggerPath:  cfg.CFG.LoggerPath,
 		LoggerLevel: ll,
 	})
-	app.Router().EmbedFile("/", indexFile)
-	app.Router().EmbedDir("/", staticFiles, "static/")
-
-	// TODO media 文件需要检验权限
-	//app.Router().SubRouter("/media/").Static("/", cfg.CFG.EXEDir+"/media")
-
-	app.Router().SetNotFoundFunc(func(m core.Meta) {
-		f, err := os.Open(cfg.CFG.EXEDir + "/static/index.html")
-		if err != nil {
-			m.WriteHeader(rfc.StatusNotFound)
-			return
-		}
-		defer f.Close()
-		info, err := f.Stat()
-		if err != nil {
-			m.WriteHeader(rfc.StatusNotFound)
-			return
-		}
-		if info.IsDir() {
-			// TODO:: dir list
-			m.WriteHeader(rfc.StatusNotFound)
-			return
-		}
-		http.ServeContent(m, m.Request(), info.Name(), info.ModTime(), f)
-	})
 
 	api.Router(app.Router().SubRouter("api"))
+
+	// TODO media 文件需要检验权限
+	app.Router().SubRouter("/media/").Static("/", cfg.CFG.MediaDir)
+	app.Router().EmbedDir("/static", staticFiles, "static/static/")
+	app.Router().EmbedFile("/favicon.ico", icon)
+	app.Router().EmbedFile("/*", indexFile)
 
 	log.Info().Msg("\nRouting Table\n" + app.Router().String())
 	return app.Run()

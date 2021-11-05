@@ -1,7 +1,6 @@
 package oerr
 
 import (
-	"errors"
 	"gorm.io/gorm"
 	"strconv"
 )
@@ -42,11 +41,13 @@ type Code uint
 	- 9 : 本不可能发生的错误，例如被人攻击导致数据异常产生的逻辑错误
 
 */
+
+// Unknown error
 const (
 	Unknown Code = 0
 )
 const (
-	// 2 数据库错误
+	// DBErr 2 数据库错误
 	//		-1 系统错误
 	// 		-2 数据读写错误
 	DBErr                 Code = 20001
@@ -56,10 +57,13 @@ const (
 )
 
 const (
-// 3
+	// LogicErr 3 系统内逻辑错误
+	LogicErr   Code = 30000
+	AppNotJoin Code = 30001
 )
 
 const (
+	// NotLogin
 	// 4 权限类型错误
 	// 1: 登录权限
 	// 2: 资源操作权限
@@ -130,6 +134,8 @@ var codeMap = map[Code]string{
 	NoAuth:                "no auth to access",
 	AccessErr:             "access error",
 	AccessTooFast:         "access too fast",
+	LogicErr:              "logic error",
+	AppNotJoin:            "not join in app",
 }
 
 func (c Code) Error() string {
@@ -144,7 +150,7 @@ func (c Code) String() string {
 	return codeMap[Unknown]
 }
 
-// 附加错误详细原因
+// Attach 附加错误详细原因
 func (c Code) Attach(errs ...error) (e error) {
 	e = c
 	for _, err := range errs {
@@ -194,17 +200,4 @@ func (w *wrapErr) Error() string {
 
 func (w *wrapErr) UnWrap() error {
 	return w.err
-}
-
-func CheckMultiErr(errs ...error) error {
-	msg := ""
-	for _, e := range errs {
-		if e != nil {
-			msg += e.Error() + "\n"
-		}
-	}
-	if msg != "" {
-		return errors.New(msg)
-	}
-	return nil
 }

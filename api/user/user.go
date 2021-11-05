@@ -3,13 +3,11 @@ package user
 import (
 	"OneAuth/cfg"
 	"OneAuth/libs/app"
+	"OneAuth/libs/auth"
 	"OneAuth/libs/base"
 	"OneAuth/libs/oerr"
 	"OneAuth/libs/token"
 	"OneAuth/models"
-	"errors"
-
-	//"OneAuth/ws"
 	"encoding/base64"
 	"fmt"
 	"github.com/veypi/OneBD"
@@ -43,10 +41,13 @@ type handler struct {
 
 // Get get user data
 func (h *handler) Get() (interface{}, error) {
+	if !h.Payload.GetAuth(auth.User, "").CanRead() {
+		return nil, oerr.NoAuth.AttachStr("to read user list")
+	}
 	username := h.Meta().Query("username")
 	if username != "" {
 		users := make([]*models.User, 0, 10)
-		err := cfg.DB().Preload("Scores").Preload("Roles.Auths").Where("username LIKE ? OR nickname LIKE ?", "%"+username+"%", "%"+username+"%").Find(&users).Error
+		err := cfg.DB().Where("username LIKE ? OR nickname LIKE ?", "%"+username+"%", "%"+username+"%").Find(&users).Error
 		if err != nil {
 			return nil, err
 		}
@@ -56,14 +57,14 @@ func (h *handler) Get() (interface{}, error) {
 	if userID != 0 {
 		user := &models.User{}
 		user.ID = uint(userID)
-		return user, cfg.DB().Where(user).Preload("Scores").Preload("Roles.Auths").Preload("Favorites").First(user).Error
+		return user, cfg.DB().Where(user).First(user).Error
 	} else {
 		users := make([]models.User, 10)
 		skip, err := strconv.Atoi(h.Meta().Query("skip"))
 		if err != nil || skip < 0 {
 			skip = 0
 		}
-		if err := cfg.DB().Preload("Scores").Preload("Roles.Auths").Offset(skip).Find(&users).Error; err != nil {
+		if err := cfg.DB().Offset(skip).Find(&users).Error; err != nil {
 			return nil, err
 		}
 		return users, nil
@@ -73,16 +74,15 @@ func (h *handler) Get() (interface{}, error) {
 // Post register user
 func (h *handler) Post() (interface{}, error) {
 	self := &models.App{}
-	self.ID = cfg.CFG.APPID
+	self.UUID = cfg.CFG.APPUUID
 	err := cfg.DB().Where(self).First(self).Error
 	if err != nil {
 		return nil, oerr.DBErr.Attach(err)
 	}
-	if !self.EnableRegister {
+	if !self.EnableRegister && !h.Payload.GetAuth(auth.User, "").CanCreate() {
 		return nil, oerr.NoAuth.AttachStr("register disabled")
 	}
 	var userdata = struct {
-		UUID     string `json:"uuid"`
 		Username string `json:"username"`
 		Password string `json:"password"`
 		Nickname string `json:"nickname"`
@@ -120,25 +120,8 @@ func (h *handler) Post() (interface{}, error) {
 		if err := tx.Create(&h.User).Error; err != nil {
 			return oerr.ResourceDuplicated
 		}
-		err := app.AddUser(tx, self.ID, h.User.ID, self.InitRoleID)
+		err := app.AddUser(tx, self.ID, h.User.ID, self.InitRoleID, models.AUOK)
 		if err != nil {
-			return err
-		}
-		if userdata.UUID != self.UUID && userdata.UUID != "" {
-			target := &models.App{}
-			target.UUID = userdata.UUID
-			err = tx.Where(target).First(target).Error
-			if err != nil {
-				return err
-			}
-			if target.EnableRegister {
-				err := app.AddUser(tx, target.ID, h.User.ID, target.InitRoleID)
-				if err != nil {
-					return err
-				}
-			} else {
-				// TODO
-			}
 			return err
 		}
 		return nil
@@ -169,11 +152,10 @@ func (h *handler) Patch() (interface{}, error) {
 	} else {
 		target.ID = uint(tempID)
 	}
-	tx := cfg.DB().Begin()
 	if err := cfg.DB().Where(&target).First(&target).Error; err != nil {
 		return nil, err
 	}
-	if target.ID != h.Payload.ID {
+	if target.ID != h.Payload.ID && h.Payload.GetAuth(auth.User, strconv.Itoa(int(target.ID))).CanUpdate() {
 		return nil, oerr.NoAuth
 	}
 	if len(opts.Password) >= 6 {
@@ -197,11 +179,9 @@ func (h *handler) Patch() (interface{}, error) {
 	if opts.Status != "" {
 		target.Status = opts.Status
 	}
-	if err := tx.Updates(&target).Error; err != nil {
-		tx.Rollback()
+	if err := cfg.DB().Updates(&target).Error; err != nil {
 		return nil, err
 	}
-	tx.Commit()
 	return nil, nil
 }
 
@@ -222,10 +202,6 @@ func (h *handler) Head() (interface{}, error) {
 	if len(uid) == 0 || len(password) == 0 {
 		return nil, oerr.ApiArgsError
 	}
-	appUUID := h.Meta().Query("uuid")
-	if appUUID == "" {
-		return nil, oerr.ApiArgsMissing.AttachStr("uuid")
-	}
 	h.User = new(models.User)
 	uidType := h.Meta().Query("uid_type")
 	switch uidType {
@@ -239,7 +215,7 @@ func (h *handler) Head() (interface{}, error) {
 		h.User.Username = uid
 	}
 	target := &models.App{}
-	target.UUID = appUUID
+	target.UUID = cfg.CFG.APPUUID
 	err = cfg.DB().Where(target).Find(target).Error
 	if err != nil {
 		return nil, oerr.DBErr.Attach(err)
@@ -261,17 +237,12 @@ func (h *handler) Head() (interface{}, error) {
 	au.AppID = target.ID
 	err = cfg.DB().Where(au).First(au).Error
 	appID := target.ID
-	h.Meta().SetHeader("content", target.UserRefreshUrl)
 	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, err
-		}
-		appID = cfg.CFG.APPID
-		h.Meta().SetHeader("content", "/app/"+target.UUID)
-	} else if au.Disabled {
+		return nil, err
+	} else if au.Status != models.AUOK {
 		return nil, oerr.DisableLogin
 	}
-	tokenStr, err := token.GetToken(h.User, appID)
+	tokenStr, err := token.GetToken(h.User, appID, cfg.CFG.APPKey)
 	if err != nil {
 		log.HandlerErrs(err)
 		return nil, oerr.Unknown.Attach(err)

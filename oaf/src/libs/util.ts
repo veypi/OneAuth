@@ -27,6 +27,9 @@ const util = {
     document.cookie =
       name + '=' + escape(value) + ';expires=' + exp.toLocaleString()
   },
+  getToken() {
+    return localStorage.auth_token
+  },
   checkLogin() {
     // return parseInt(this.getCookie('stat')) === 1
     return Boolean(localStorage.auth_token)

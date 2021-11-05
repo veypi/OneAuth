@@ -10,7 +10,6 @@ import {store} from '../store'
 import {Base64} from 'js-base64'
 
 
-
 export type SuccessFunction<T> = (e: any) => void;
 export type FailedFunction<T> = (e: any) => void;
 
@@ -34,15 +33,15 @@ class Interface {
         const newFail = function (data: any) {
             if (data && data.code === 40001) {
                 // no login
-                store.dispatch('handleLogout')
+                store.commit('user/logout')
                 return
             }
             // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
             // @ts-ignore
-            if (data && data.code > 0 && Code[data.code]) {
+            if (data && data.code && Code[data.code]) {
             }
             if (fail) {
-                fail(data)
+                fail(data.err)
             }
         }
 
@@ -54,7 +53,7 @@ class Interface {
             } else {
                 newFail(data)
                 if (data.code === 41001) {
-                    store.dispatch('handleLogout')
+                    store.commit('user/logout')
                     // bus.$emit('log_out')
                 }
             }
@@ -92,6 +91,15 @@ const user = {
             uuid: uuid,
             password: Base64.encode(password)
         })
+    },
+    get(id: number) {
+        return new Interface(ajax.get, this.local + id)
+    },
+    list() {
+        return new Interface(ajax.get, this.local)
+    },
+    update(id: number, props: any) {
+        return new Interface(ajax.patch, this.local + id, props)
     }
 }
 

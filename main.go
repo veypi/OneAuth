@@ -7,7 +7,6 @@ import (
 	"github.com/veypi/utils/cmd"
 	"github.com/veypi/utils/log"
 	"os"
-	"path/filepath"
 )
 
 const Version = "v0.1.0"
@@ -35,21 +34,6 @@ func main() {
 			Value:       cfg.CFG.LoggerPath,
 			Destination: &cfg.CFG.LoggerPath,
 		},
-		&cli.UintFlag{
-			Name:        "id",
-			Value:       cfg.CFG.APPID,
-			Destination: &cfg.CFG.APPID,
-		},
-		&cli.StringFlag{
-			Name:        "key",
-			Value:       cfg.CFG.APPKey,
-			Destination: &cfg.CFG.APPKey,
-		},
-		&cli.StringFlag{
-			Name:        "exe_dir",
-			Value:       cfg.CFG.EXEDir,
-			Destination: &cfg.CFG.EXEDir,
-		},
 		&cli.StringFlag{
 			Name:        "host",
 			Value:       cfg.CFG.Host,
@@ -72,11 +56,6 @@ func main() {
 	srv.SetStopFunc(func() {
 	})
 	app.Before = func(c *cli.Context) error {
-		var err error
-		cfg.CFG.EXEDir, err = filepath.Abs(cfg.CFG.EXEDir)
-		if err != nil {
-			return err
-		}
 		if cfg.CFG.Debug {
 			cfg.CFG.LoggerLevel = "debug"
 		}

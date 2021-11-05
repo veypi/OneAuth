@@ -1,61 +1,98 @@
 <template>
   <div class="flex items-center justify-center">
-    <div class="p-3" style="">
-      <n-form ref="formRef" label-placement="left">
-        <n-form-item required label="username" :validation-status="rules.username[0]" :feedback="rules.username[1]">
-          <n-input v-model:value="data.username"></n-input>
+    <div
+      :style="{background:Theme.me.lightBox, 'box-shadow': Theme.me.lightBoxShadow}"
+      class="px-10 pb-9 pt-28 rounded-xl w-96">
+      <n-form label-width="70px" label-align="left" :model="data" ref="form_ref" label-placement="left" :rules="rules">
+        <n-form-item required label="用户名" path="username">
+          <n-input @keydown.enter="divs[1].focus()" :ref="el => {if (el)divs[0]=el}"
+                   v-model:value="data.username"></n-input>
         </n-form-item>
-        <n-form-item required label="username" :validation-status="rules.username[0]" :feedback="rules.username[1]">
-          <n-input v-model:value="data.username"></n-input>
+        <n-form-item required label="密码" path="password">
+          <n-input @keydown.enter="login" :ref="el => {if (el) divs[1]=el}" v-model:value="data.password"
+                   type="password"></n-input>
         </n-form-item>
-        <n-button @click="login">登录</n-button>
+        <div class="flex justify-around mt-4">
+          <n-button @click="login">登录</n-button>
+          <n-button @click="router.push({name:'register'})">注册</n-button>
+        </div>
       </n-form>
     </div>
   </div>
 </template>
-
 <script lang="ts" setup>
-import {computed, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
+import {Theme} from "../theme";
+import {useMessage} from 'naive-ui'
+import api from "../api"
+import {useRoute, useRouter} from "vue-router";
+import {store} from "../store";
 
-let formRef = ref(null)
+let msg = useMessage()
+const route = useRoute()
+const router = useRouter()
+
+const divs = ref([])
+let form_ref = ref(null)
 let data = ref({
-  username: null,
-  password: null
+  username: '',
+  password: ''
 })
-let ruleInline = {
+let rules = {
   username: [
-    (v: string) => !!v || 'required',
-    (v: string) => (v && v.length >= 3 && v.length <= 16) || '长度要求3~16'
-  ],
-  password: [
-    (v: string) => !!v || 'required',
-    (v: string) => (v && v.length >= 6 && v.length <= 16) || '长度要求6~16'
-  ]
-}
-
-function check(rs: [], v: any) {
-  for (let r of rs) {
-    let res = r(v)
-    if (res !== true) {
-      return ['error', res]
+    {
+      required: true,
+      validator(r: any, v: any) {
+        return (v && v.length >= 3 && v.length <= 16) || new Error('长度要求3~16')
+      },
+      trigger: ['input', 'blur']
     }
-  }
-  return ['', '']
+  ],
+  password: [{
+    required: true,
+    validator(r: any, v: any) {
+      return (v && v.length >= 6 && v.length <= 16) || new Error('长度要求6~16')
+    }
+  }]
 }
 
-let rules = ref({
-  username: computed(() => {
-    return check(ruleInline.username, data.value.username)
-  })
+let uuid = computed(() => {
+  return route.params.uuid || store.state.oauuid
 })
 
 function login() {
-  formRef.value.validate(e => {
-    console.log(e)
+  // @ts-ignore
+  form_ref.value.validate((e:any) => {
+    if (!e) {
+      api.user.login(data.value.username, data.value.password, uuid.value as string).Start((url: string) => {
+        msg.success('登录成功')
+        store.dispatch('user/fetchUserData')
+        let target = url
+        if (route.query.redirect) {
+          target = route.query.redirect as string
+        }
+        if (target && target.startsWith('http')) {
+          window.location.href = target
+        } else if (target) {
+          router.push(target)
+        } else {
+          router.push({name: 'home'})
+        }
+      }, e => {
+        console.log(e)
+        msg.warning('登录失败：' + e)
+      })
+    }
   })
 }
+
+onMounted(() => {
+  if (divs.value[0]) {
+    // @ts-ignore
+    divs.value[0].focus()
+  }
+})
 </script>
 
 <style scoped>
-
 </style>

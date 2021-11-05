@@ -3,16 +3,53 @@ package base
 import (
 	"OneAuth/libs/oerr"
 	"OneAuth/libs/tools"
+	"errors"
 	"github.com/json-iterator/go"
 	"github.com/veypi/OneBD"
 	"github.com/veypi/OneBD/rfc"
 	"github.com/veypi/utils/log"
+	"gorm.io/gorm"
 	"strconv"
 	"sync"
 	"time"
 )
 
 var json = jsoniter.ConfigFastest
+
+func JSONResponse(m OneBD.Meta, data interface{}, err error) {
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = oerr.ResourceNotExist
+		}
+	}
+	if m.Method() == rfc.MethodHead {
+		if err != nil {
+			m.SetHeader("status", "0")
+			m.SetHeader("code", strconv.Itoa(int(oerr.OfType(err.Error()))))
+			m.SetHeader("err", err.Error())
+		} else {
+			m.SetHeader("status", "1")
+		}
+		return
+	}
+	res := map[string]interface{}{
+		"status": 1,
+	}
+	if err != nil {
+		res["status"] = 0
+		res["code"] = oerr.OfType(err.Error())
+		res["err"] = err.Error()
+	} else {
+		res["status"] = 1
+		res["content"] = data
+	}
+	p, err := json.Marshal(res)
+	if err != nil {
+		log.Warn().Err(err).Msg("encode json data error")
+		return
+	}
+	_, _ = m.Write(p)
+}
 
 type ApiHandler struct {
 	OneBD.BaseHandler
@@ -24,29 +61,12 @@ func (h *ApiHandler) Init(m OneBD.Meta) error {
 }
 
 func (h *ApiHandler) OnResponse(data interface{}) {
-	if h.Meta().Method() == rfc.MethodHead {
-		h.Meta().SetHeader("status", "1")
-		return
-	}
-	p, err := json.Marshal(map[string]interface{}{"status": 1, "content": data})
-	if err != nil {
-		log.Warn().Err(err).Msg("encode json data error")
-		return
-	}
-	h.Meta().Write(p)
+	JSONResponse(h.Meta(), data, nil)
 }
 
 func (h *ApiHandler) OnError(err error) {
 	log.WithNoCaller.Warn().Err(err).Msg(h.Meta().RequestPath())
-	msg := err.Error()
-	if h.Meta().Method() == rfc.MethodHead {
-		h.Meta().SetHeader("status", "0")
-		h.Meta().SetHeader("code", strconv.Itoa(int(oerr.OfType(msg))))
-		h.Meta().SetHeader("err", msg)
-	} else {
-		p, _ := json.Marshal(map[string]interface{}{"status": 0, "code": oerr.OfType(msg), "err": msg})
-		h.Meta().Write(p)
-	}
+	JSONResponse(h.Meta(), nil, err)
 }
 
 var ioNumLimit = make(map[string]time.Time)

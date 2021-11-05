@@ -1,58 +1,45 @@
 import {InjectionKey} from 'vue'
 import {createStore, useStore as baseUseStore, Store} from 'vuex'
 import api from "../api";
-import router from "../router";
-import {darkTheme} from 'naive-ui'
+import {User, UserState} from './user'
 
-export interface State {
+export interface State extends Object {
     oauuid: string
-    user: object
-    theme: string
-
+    user: UserState
+    apps: []
 }
 
 export const key: InjectionKey<Store<State>> = Symbol()
 
 export const store = createStore<State>({
+    modules: {
+        user: User
+    },
+// @ts-ignore
     state: {
-        theme: 'light',
         oauuid: '',
-        user: {}
+        apps: []
     },
-    getters: {
-        IsDark(state: any) {
-            return state.theme === 'dark'
-        },
-        GetTheme(state: any, getters) {
-            return getters.IsDark ? darkTheme : null
-        }
-    },
+    getters: {},
     mutations: {
         setOA(state: any, data: any) {
             state.oauuid = data.uuid
         },
-        setTheme(state: any, t: string) {
-            state.theme = t
+        setApps(state: State, data: any) {
+            state.apps = data
         }
     },
     actions: {
-        changeTheme(context) {
-            if (context.getters.IsDark) {
-                context.commit('setTheme', 'light')
-            } else {
-                context.commit('setTheme', 'dark')
-            }
-        },
         fetchSelf({commit}) {
             api.app.self().Start(d => {
                 commit('setOA', d)
             })
         },
-        handleLogout() {
-            localStorage.removeItem('auth_token')
-            router.push({name: 'login'})
+        fetchApps({commit}) {
+            api.app.list().Start(e => {
+                commit('setApps', e)
+            })
         }
-
     }
 })
 

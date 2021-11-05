@@ -42,12 +42,22 @@ type App struct {
 	Wx          *Wechat `json:"wx" gorm:"foreignkey:AppID;references:ID"`
 }
 
+type AUStatus string
+
+const (
+	AUOK      AUStatus = "ok"
+	AUDisable AUStatus = "disabled"
+	AUApply   AUStatus = "apply"
+	AUDeny    AUStatus = "deny"
+)
+
 type AppUser struct {
 	BaseModel
-	AppID    uint   `json:"app_id"`
-	UserID   uint   `json:"user_id"`
-	Disabled bool   `json:"disabled"`
-	Status   string `json:"status"`
+	AppID  uint     `json:"app_id"`
+	APP    *App     `json:"app"`
+	UserID uint     `json:"user_id"`
+	User   *User    `json:"user"`
+	Status AUStatus `json:"status"`
 }
 
 type Wechat struct {

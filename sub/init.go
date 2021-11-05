@@ -5,7 +5,6 @@ import (
 	"OneAuth/libs/auth"
 	"OneAuth/models"
 	"github.com/urfave/cli/v2"
-	"github.com/veypi/utils/cmd"
 	"github.com/veypi/utils/log"
 	"strconv"
 )
@@ -20,6 +19,7 @@ func runInit(c *cli.Context) error {
 }
 
 // 初始化项目
+var appid uint
 
 func InitSystem() error {
 	db()
@@ -27,15 +27,9 @@ func InitSystem() error {
 	if err != nil {
 		return err
 	}
-	cfg.CFG.APPID = self.ID
-	cfg.CFG.APPKey = self.Key
-	err = cmd.DumpCfg(cfg.Path, cfg.CFG)
-	// TODO
-	//if err != nil {
-	//	return err
-	//}
+	appid = self.ID
 	err = role(self.InitRoleID == 0)
-	return nil
+	return err
 }
 
 func db() {
@@ -56,14 +50,14 @@ func selfApp() (*models.App, error) {
 	self := &models.App{
 		Name:           "OA",
 		Icon:           "",
-		UUID:           "jU5Jo5hM",
+		UUID:           cfg.CFG.APPUUID,
 		Des:            "",
 		Creator:        0,
 		UserCount:      0,
 		Hide:           false,
 		Host:           "",
 		UserRefreshUrl: "/",
-		Key:            "cB43wF94MLTksyBK",
+		Key:            cfg.CFG.APPKey,
 		EnableRegister: true,
 		EnableUserKey:  true,
 		EnableUser:     true,
@@ -86,7 +80,7 @@ func role(reset_init_role bool) error {
 	}
 	var err error
 	adminRole := &models.Role{
-		AppID:    cfg.CFG.APPID,
+		AppID:    appid,
 		Name:     "admin",
 		IsUnique: false,
 	}
@@ -96,7 +90,7 @@ func role(reset_init_role bool) error {
 	}
 	for _, na := range n {
 		a := &models.Resource{
-			AppID: cfg.CFG.APPID,
+			AppID: appid,
 			Name:  na,
 			Tag:   "",
 			Des:   "",
@@ -112,7 +106,7 @@ func role(reset_init_role bool) error {
 		}
 	}
 	userRole := &models.Role{
-		AppID:    cfg.CFG.APPID,
+		AppID:    appid,
 		Name:     "user",
 		IsUnique: false,
 	}
@@ -120,12 +114,12 @@ func role(reset_init_role bool) error {
 	if err != nil {
 		return err
 	}
-	err = auth.BindRoleAuth(cfg.DB(), userRole.ID, authMap[auth.APP].ID, models.AuthRead, strconv.Itoa(int(cfg.CFG.APPID)))
+	err = auth.BindRoleAuth(cfg.DB(), userRole.ID, authMap[auth.APP].ID, models.AuthRead, strconv.Itoa(int(appid)))
 	if err != nil {
 		return err
 	}
 	if reset_init_role {
-		return cfg.DB().Model(&models.App{}).Where("id = ?", cfg.CFG.APPID).Update("init_role_id", adminRole.ID).Error
+		return cfg.DB().Model(&models.App{}).Where("id = ?", appid).Update("init_role_id", adminRole.ID).Error
 	}
 	return nil
 }

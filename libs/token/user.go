@@ -1,7 +1,6 @@
 package token
 
 import (
-	"OneAuth/libs/key"
 	"OneAuth/models"
 	"github.com/veypi/utils/jwt"
 )
@@ -16,9 +15,8 @@ type simpleAuth struct {
 // TODO:: roles 是否会造成token过大 ?
 type PayLoad struct {
 	jwt.Payload
-	ID    uint                 `json:"id"`
-	AppID uint                 `json:"app_id"`
-	Auth  map[uint]*simpleAuth `json:"auth"`
+	ID   uint                 `json:"id"`
+	Auth map[uint]*simpleAuth `json:"auth"`
 }
 
 // GetAuth resource_uuid 缺省或仅第一个有效 权限会被更高权限覆盖
@@ -49,11 +47,10 @@ func (p *PayLoad) GetAuth(ResourceID string, ResourceUUID ...string) models.Auth
 	return res
 }
 
-func GetToken(u *models.User, appID uint) (string, error) {
+func GetToken(u *models.User, appID uint, key string) (string, error) {
 	payload := &PayLoad{
-		ID:    u.ID,
-		AppID: appID,
-		Auth:  map[uint]*simpleAuth{},
+		ID:   u.ID,
+		Auth: map[uint]*simpleAuth{},
 	}
 	for _, a := range u.GetAuths() {
 		if appID == a.AppID {
@@ -64,9 +61,9 @@ func GetToken(u *models.User, appID uint) (string, error) {
 			}
 		}
 	}
-	return jwt.GetToken(payload, []byte(key.User(payload.ID, payload.AppID)))
+	return jwt.GetToken(payload, []byte(key))
 }
 
-func ParseToken(token string, payload *PayLoad) (bool, error) {
-	return jwt.ParseToken(token, payload, []byte(key.User(payload.ID, payload.AppID)))
+func ParseToken(token string, payload *PayLoad, key string) (bool, error) {
+	return jwt.ParseToken(token, payload, []byte(key))
 }

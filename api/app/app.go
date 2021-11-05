@@ -8,15 +8,17 @@ import (
 	"OneAuth/models"
 	"github.com/veypi/OneBD"
 	"github.com/veypi/OneBD/rfc"
+	"github.com/veypi/utils"
 )
 
 func Router(r OneBD.Router) {
+	r.Set("/", appHandlerP, rfc.MethodPost, rfc.MethodGet)
 	r.Set("/:id", appHandlerP, rfc.MethodGet)
 }
 
 var appHandlerP = OneBD.NewHandlerPool(func() OneBD.Handler {
 	h := &appHandler{}
-	h.Ignore(rfc.MethodGet)
+	h.Ignore(rfc.MethodGet, rfc.MethodPost)
 	return h
 })
 
@@ -31,7 +33,7 @@ func (h *appHandler) Get() (interface{}, error) {
 	isSelf := h.Meta().Query("is_self")
 	if isSelf != "" {
 		// 无权限可以获取本系统基本信息
-		h.query.ID = cfg.CFG.APPID
+		h.query.UUID = cfg.CFG.APPUUID
 		err := cfg.DB().Where(h.query).First(h.query).Error
 		return h.query, err
 	}
@@ -63,4 +65,36 @@ func (h *appHandler) Get() (interface{}, error) {
 	list := make([]*models.App, 0, 10)
 	err = cfg.DB().Find(&list).Error
 	return list, err
+}
+
+func (h *appHandler) Post() (interface{}, error) {
+	data := &struct {
+		Name string `json:"name"`
+		UUID string `json:"uuid"`
+	}{}
+	err := h.Meta().ReadJson(data)
+	if err != nil {
+		return nil, err
+	}
+	if data.Name == "" {
+		return nil, oerr.ApiArgsMissing.AttachStr("name")
+	}
+	_ = h.ParsePayload(h.Meta())
+	a := &models.App{
+		UUID:    data.UUID,
+		Name:    data.Name,
+		Key:     utils.RandSeq(32),
+		Creator: h.Payload.ID,
+	}
+	a.Key = utils.RandSeq(32)
+	if data.UUID != "" {
+		err = cfg.DB().Where("uuid = ?", data.UUID).FirstOrCreate(a).Error
+	} else {
+		data.UUID = utils.RandSeq(16)
+		err = cfg.DB().Create(a).Error
+	}
+	if err != nil {
+		return nil, err
+	}
+	return a, nil
 }

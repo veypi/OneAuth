@@ -15,11 +15,11 @@ var CFG = &struct {
 	Host        string
 	LoggerPath  string
 	LoggerLevel string
-	APPID       uint
+	APPUUID     string
 	APPKey      string
 	TimeFormat  string
 	Debug       bool
-	EXEDir      string
+	MediaDir    string
 	DB          struct {
 		Type string
 		Addr string
@@ -28,14 +28,15 @@ var CFG = &struct {
 		DB   string
 	}
 }{
-	APPID:       1,
+	APPUUID:     "jU5Jo5hM",
+	APPKey:      "cB43wF94MLTksyBK",
 	AdminUser:   "admin",
 	Host:        "0.0.0.0:4001",
 	LoggerPath:  "",
 	LoggerLevel: "debug",
 	TimeFormat:  "2006/01/02 15:04:05",
 	Debug:       true,
-	EXEDir:      "./",
+	MediaDir:    "/Users/light/test/media/",
 	DB: struct {
 		Type string
 		Addr string

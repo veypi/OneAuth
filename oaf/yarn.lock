@@ -216,10 +216,10 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@veypi/one-icon@2":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@veypi/one-icon/-/one-icon-2.0.0.tgz#15262e87644903d90a2124fbc9c95fbb6bb6bcb8"
-  integrity sha512-zcUx3YzTIRiZe5XkJRZyKDgVzQThEWyZSCpQTreeYtKEObCl4B0Oa6CFYo4IToGD6uQmReM0R6oNPg5mhPjc2A==
+"@veypi/one-icon@2.0.5":
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/@veypi/one-icon/-/one-icon-2.0.5.tgz#1083be30fc3bbb89aaf19501b00110d3ae9b1c77"
+  integrity sha512-THnQh1zbH+glwDBLjP7rtcF3UtTQnzsxnUQEtUjAjv9Eo6rVSa1u4RsFA8CMDpoVcQiTMhqgRalbfjovdr11wg==
   dependencies:
     vue "^3.2.20"
 
@@ -395,6 +395,11 @@ acorn@^7.0.0, acorn@^7.1.1:
   version "7.4.1"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-7.4.1.tgz#feaed255973d2e77555b83dbc08851a6c63520fa"
   integrity sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==
+
+animate.css@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/animate.css/-/animate.css-4.1.1.tgz#614ec5a81131d7e4dc362a58143f7406abd68075"
+  integrity sha512-+mRmCTv6SbCmtYJCN4faJMNFVNN5EuCTTprDTAo7YzIGji2KADmakjVA3+8mVDkZ2Bf09vayB35lSQIex2+QaQ==
 
 ansi-regex@^5.0.0:
   version "5.0.1"

@@ -1,6 +1,7 @@
 package base
 
 import (
+	"OneAuth/cfg"
 	"OneAuth/libs/oerr"
 	"OneAuth/libs/token"
 	"OneAuth/models"
@@ -26,7 +27,7 @@ func (a *UserHandler) ParsePayload(m OneBD.Meta) error {
 	if tokenStr == "" {
 		return oerr.NotLogin
 	}
-	ok, err := token.ParseToken(tokenStr, a.Payload)
+	ok, err := token.ParseToken(tokenStr, a.Payload, cfg.CFG.APPKey)
 	if ok {
 		return nil
 	}

@@ -22,12 +22,25 @@ const router = createRouter({
             component: () => import('../views/home.vue')
         },
         {
-            path: '/app',
+            path: '/app/:uuid?',
             name: 'app',
             meta: {
                 requiresAuth: true,
             },
-            component: () => import('../views/demo.vue')
+            component: () => import('../views/app.vue')
+        },
+        {
+            path: '/user/setting',
+            name: 'user_setting',
+            meta: {
+                requiresAuth: true
+            },
+            component: () => import('../views/user_setting.vue')
+        },
+        {
+            path: '/about',
+            name: 'about',
+            component: () => import('../views/about.vue')
         },
         {
             path: '/wx',

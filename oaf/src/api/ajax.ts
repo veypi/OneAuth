@@ -13,19 +13,19 @@ function baseRequests(url: string, method: any = 'GET', query: any, data: any, s
             auth_token: localStorage.auth_token
         }
     }).then((res: any) => {
-            if ('auth_token' in res.headers) {
-                localStorage.auth_token = res.headers.auth_token
-            }
-            if (method === 'HEAD') {
-                success(res.headers)
-            } else {
-                success(res.data)
-            }
-        })
+        if ('auth_token' in res.headers) {
+            localStorage.auth_token = res.headers.auth_token
+        }
+        if (method === 'HEAD') {
+            success(res.headers)
+        } else {
+            success(res.data)
+        }
+    })
         .catch((e: any) => {
             if (e.response && e.response.status === 401) {
                 console.log(e)
-                store.dispatch('handleLogout')
+                store.commit('user/logout')
                 return
             }
             console.log(e)
