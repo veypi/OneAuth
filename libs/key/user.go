@@ -1,7 +1,7 @@
 package key
 
 import (
-	"OneAuth/cfg"
+	"github.com/veypi/OneAuth/cfg"
 	"github.com/veypi/utils"
 	"sync"
 )

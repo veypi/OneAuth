@@ -1,10 +1,10 @@
 package base
 
 import (
-	"OneAuth/libs/oerr"
-	"OneAuth/libs/tools"
 	"errors"
 	"github.com/json-iterator/go"
+	"github.com/veypi/OneAuth/libs/oerr"
+	"github.com/veypi/OneAuth/libs/tools"
 	"github.com/veypi/OneBD"
 	"github.com/veypi/OneBD/rfc"
 	"github.com/veypi/utils/log"

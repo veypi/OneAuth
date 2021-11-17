@@ -1,9 +1,9 @@
 package role
 
 import (
-	"OneAuth/libs/auth"
-	"OneAuth/libs/base"
-	"OneAuth/libs/oerr"
+	"github.com/veypi/OneAuth/libs/auth"
+	"github.com/veypi/OneAuth/libs/base"
+	"github.com/veypi/OneAuth/libs/oerr"
 	"github.com/veypi/OneBD"
 )
 

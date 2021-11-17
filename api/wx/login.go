@@ -1,11 +1,11 @@
 package wx
 
 import (
-	"OneAuth/cfg"
-	"OneAuth/libs/tools"
-	"OneAuth/models"
 	"errors"
 	"fmt"
+	"github.com/veypi/OneAuth/cfg"
+	"github.com/veypi/OneAuth/libs/tools"
+	"github.com/veypi/OneAuth/models"
 	"github.com/veypi/OneBD"
 	"github.com/veypi/OneBD/rfc"
 	"github.com/veypi/utils"

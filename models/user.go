@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/veypi/OneAuth/oalib"
 	"github.com/veypi/utils"
 	"gorm.io/gorm"
 )
@@ -45,8 +46,8 @@ func (u *User) GetAuths() []*Auth {
 	return list
 }
 
-func (u *User) GetAuth(uuid, ResourceID string, ResourceUUID ...string) AuthLevel {
-	var res = AuthNone
+func (u *User) GetAuth(uuid, ResourceID string, ResourceUUID ...string) oalib.AuthLevel {
+	var res = oalib.AuthNone
 	ruid := ""
 	if len(ResourceUUID) > 0 {
 		ruid = ResourceUUID[0]

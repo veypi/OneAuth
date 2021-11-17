@@ -1,6 +1,6 @@
 package key
 
-import "OneAuth/cfg"
+import "github.com/veypi/OneAuth/cfg"
 
 func App(uuid string) string {
 	if uuid == cfg.CFG.APPUUID {

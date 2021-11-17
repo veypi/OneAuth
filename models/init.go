@@ -1,11 +1,11 @@
 package models
 
 import (
-	"OneAuth/cfg"
 	"bytes"
 	"database/sql/driver"
 	"errors"
 	"fmt"
+	"github.com/veypi/OneAuth/cfg"
 	"time"
 )
 

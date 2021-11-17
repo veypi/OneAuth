@@ -1,9 +1,9 @@
 package main
 
 import (
-	"OneAuth/cfg"
-	"OneAuth/sub"
 	"github.com/urfave/cli/v2"
+	"github.com/veypi/OneAuth/cfg"
+	"github.com/veypi/OneAuth/sub"
 	"github.com/veypi/utils/cmd"
 	"github.com/veypi/utils/log"
 	"os"
@@ -14,7 +14,7 @@ const Version = "v0.1.0"
 func main() {
 	cmd.LoadCfg(cfg.Path, cfg.CFG)
 	app := cli.NewApp()
-	app.Name = "OneAuth"
+	app.Name = "github.com/veypi/OneAuth"
 	app.Usage = "one auth"
 	app.Version = Version
 	app.Flags = []cli.Flag{

@@ -1,11 +1,11 @@
 package user
 
 import (
-	"OneAuth/cfg"
-	"OneAuth/libs/base"
-	"OneAuth/libs/oerr"
-	"OneAuth/models"
 	"errors"
+	"github.com/veypi/OneAuth/cfg"
+	"github.com/veypi/OneAuth/libs/base"
+	"github.com/veypi/OneAuth/libs/oerr"
+	"github.com/veypi/OneAuth/models"
 	"github.com/veypi/OneBD"
 	"gorm.io/gorm"
 )

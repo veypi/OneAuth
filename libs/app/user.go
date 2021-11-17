@@ -1,10 +1,10 @@
 package app
 
 import (
-	"OneAuth/libs/auth"
-	"OneAuth/libs/oerr"
-	"OneAuth/models"
 	"errors"
+	"github.com/veypi/OneAuth/libs/auth"
+	"github.com/veypi/OneAuth/libs/oerr"
+	"github.com/veypi/OneAuth/models"
 	"gorm.io/gorm"
 )
 

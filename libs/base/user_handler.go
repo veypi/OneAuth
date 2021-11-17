@@ -1,16 +1,16 @@
 package base
 
 import (
-	"OneAuth/cfg"
-	"OneAuth/libs/oerr"
-	"OneAuth/libs/token"
-	"OneAuth/models"
+	"github.com/veypi/OneAuth/cfg"
+	"github.com/veypi/OneAuth/libs/oerr"
+	"github.com/veypi/OneAuth/libs/token"
+	"github.com/veypi/OneAuth/oalib"
 	"github.com/veypi/OneBD"
 	"github.com/veypi/OneBD/rfc"
 )
 
 type UserHandler struct {
-	Payload      *token.PayLoad
+	Payload      *oalib.PayLoad
 	ignoreMethod map[rfc.Method]bool
 }
 
@@ -22,7 +22,7 @@ func (a *UserHandler) Init(m OneBD.Meta) error {
 }
 
 func (a *UserHandler) ParsePayload(m OneBD.Meta) error {
-	a.Payload = new(token.PayLoad)
+	a.Payload = new(oalib.PayLoad)
 	tokenStr := m.GetHeader("auth_token")
 	if tokenStr == "" {
 		return oerr.NotLogin
@@ -43,6 +43,6 @@ func (a *UserHandler) Ignore(methods ...rfc.Method) {
 	}
 }
 
-func (a *UserHandler) GetAuth(ResourceID string, ResourceUUID ...string) models.AuthLevel {
+func (a *UserHandler) GetAuth(ResourceID string, ResourceUUID ...string) oalib.AuthLevel {
 	return a.Payload.GetAuth(ResourceID, ResourceUUID...)
 }

@@ -1,13 +1,13 @@
 package token
 
 import (
-	"OneAuth/cfg"
-	"OneAuth/libs/app"
-	"OneAuth/libs/base"
-	"OneAuth/libs/oerr"
-	"OneAuth/libs/token"
-	"OneAuth/models"
 	"errors"
+	"github.com/veypi/OneAuth/cfg"
+	"github.com/veypi/OneAuth/libs/app"
+	"github.com/veypi/OneAuth/libs/base"
+	"github.com/veypi/OneAuth/libs/oerr"
+	"github.com/veypi/OneAuth/libs/token"
+	"github.com/veypi/OneAuth/models"
 	"github.com/veypi/OneBD"
 	"github.com/veypi/OneBD/rfc"
 	"gorm.io/gorm"

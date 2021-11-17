@@ -1,9 +1,9 @@
 package sub
 
 import (
-	"OneAuth/api"
-	"OneAuth/cfg"
 	"github.com/urfave/cli/v2"
+	"github.com/veypi/OneAuth/api"
+	"github.com/veypi/OneAuth/cfg"
 	"github.com/veypi/OneBD"
 	"github.com/veypi/utils/log"
 )

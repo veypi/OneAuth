@@ -1,11 +1,11 @@
 package app
 
 import (
-	"OneAuth/cfg"
-	"OneAuth/libs/auth"
-	"OneAuth/libs/base"
-	"OneAuth/libs/oerr"
-	"OneAuth/models"
+	"github.com/veypi/OneAuth/cfg"
+	"github.com/veypi/OneAuth/libs/auth"
+	"github.com/veypi/OneAuth/libs/base"
+	"github.com/veypi/OneAuth/libs/oerr"
+	"github.com/veypi/OneAuth/models"
 	"github.com/veypi/OneBD"
 	"github.com/veypi/OneBD/rfc"
 	"github.com/veypi/utils"

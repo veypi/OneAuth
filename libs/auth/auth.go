@@ -1,7 +1,8 @@
 package auth
 
 import (
-	"OneAuth/models"
+	"github.com/veypi/OneAuth/models"
+	"github.com/veypi/OneAuth/oalib"
 	"github.com/veypi/utils"
 	"gorm.io/gorm"
 )
@@ -37,15 +38,15 @@ func BindUserRole(tx *gorm.DB, userID uint, roleID uint) error {
 	return err
 }
 
-func BindUserAuth(tx *gorm.DB, userID uint, resID uint, level models.AuthLevel, ruid string) error {
+func BindUserAuth(tx *gorm.DB, userID uint, resID uint, level oalib.AuthLevel, ruid string) error {
 	return bind(tx, userID, resID, level, ruid, false)
 }
 
-func BindRoleAuth(tx *gorm.DB, roleID uint, resID uint, level models.AuthLevel, ruid string) error {
+func BindRoleAuth(tx *gorm.DB, roleID uint, resID uint, level oalib.AuthLevel, ruid string) error {
 	return bind(tx, roleID, resID, level, ruid, true)
 }
 
-func bind(tx *gorm.DB, id uint, resID uint, level models.AuthLevel, ruid string, isRole bool) error {
+func bind(tx *gorm.DB, id uint, resID uint, level oalib.AuthLevel, ruid string, isRole bool) error {
 	r := &models.Resource{}
 	r.ID = resID
 	err := tx.Where(r).First(r).Error

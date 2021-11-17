@@ -1,10 +1,11 @@
 package sub
 
 import (
-	"OneAuth/cfg"
-	"OneAuth/libs/auth"
-	"OneAuth/models"
 	"github.com/urfave/cli/v2"
+	"github.com/veypi/OneAuth/cfg"
+	"github.com/veypi/OneAuth/libs/auth"
+	"github.com/veypi/OneAuth/models"
+	"github.com/veypi/OneAuth/oalib"
 	"github.com/veypi/utils"
 )
 
@@ -95,7 +96,7 @@ func role(reset_init_role bool) error {
 			return err
 		}
 		authMap[na] = a
-		err = auth.BindRoleAuth(cfg.DB(), adminRole.ID, a.ID, models.AuthAll, "")
+		err = auth.BindRoleAuth(cfg.DB(), adminRole.ID, a.ID, oalib.AuthAll, "")
 		if err != nil {
 			return err
 		}
@@ -108,7 +109,7 @@ func role(reset_init_role bool) error {
 	if err != nil {
 		return err
 	}
-	e1 := auth.BindRoleAuth(cfg.DB(), userRole.ID, authMap[auth.APP].ID, models.AuthRead, "")
+	e1 := auth.BindRoleAuth(cfg.DB(), userRole.ID, authMap[auth.APP].ID, oalib.AuthRead, "")
 	if err := utils.MultiErr(e1); err != nil {
 		return err
 	}

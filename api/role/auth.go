@@ -1,12 +1,12 @@
 package role
 
 import (
-	"OneAuth/cfg"
-	"OneAuth/libs/auth"
-	"OneAuth/libs/base"
-	"OneAuth/libs/oerr"
-	"OneAuth/libs/token"
-	"OneAuth/models"
+	"github.com/veypi/OneAuth/cfg"
+	"github.com/veypi/OneAuth/libs/auth"
+	"github.com/veypi/OneAuth/libs/base"
+	"github.com/veypi/OneAuth/libs/oerr"
+	"github.com/veypi/OneAuth/models"
+	"github.com/veypi/OneAuth/oalib"
 	"github.com/veypi/OneBD"
 	"github.com/veypi/OneBD/core"
 	"strconv"
@@ -46,10 +46,10 @@ func (h *authHandler) Get() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	l := make([]*token.SimpleAuth, 0, 10)
+	l := make([]*oalib.SimpleAuth, 0, 10)
 	for _, as := range u.GetAuths() {
 		if as.AppUUID == uuid {
-			l = append(l, &token.SimpleAuth{
+			l = append(l, &oalib.SimpleAuth{
 				RID:   as.RID,
 				RUID:  as.RUID,
 				Level: as.Level,
