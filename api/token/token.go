@@ -36,15 +36,16 @@ func (h *tokenHandler) Get() (interface{}, error) {
 		return nil, err
 	}
 	au := &models.AppUser{
-		UserID: h.Payload.ID,
-		AppID:  a.ID,
+		UserID:  h.Payload.ID,
+		AppUUID: a.UUID,
 	}
 	err = cfg.DB().Where(au).First(au).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			if a.EnableRegister {
 				err = cfg.DB().Transaction(func(tx *gorm.DB) error {
-					return app.AddUser(cfg.DB(), au.AppID, au.UserID, a.InitRoleID, models.AUOK)
+					_, err := app.AddUser(cfg.DB(), au.AppUUID, au.UserID, a.InitRoleID, models.AUOK)
+					return err
 				})
 				if err != nil {
 					return nil, err
@@ -64,6 +65,6 @@ func (h *tokenHandler) Get() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	t, err := token.GetToken(u, a.ID, a.Key)
+	t, err := token.GetToken(u, a.UUID, a.Key)
 	return t, err
 }

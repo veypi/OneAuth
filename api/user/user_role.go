@@ -47,21 +47,10 @@ func (h *userRoleHandler) Post() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	if query.IsUnique {
-	}
 	link := &models.UserRole{}
 	link.UserID = uint(uid)
 	link.RoleID = query.ID
-	err = cfg.DB().Transaction(func(tx *gorm.DB) (err error) {
-		if query.IsUnique {
-			err = tx.Where("role_id = ?", query.ID).Delete(models.UserRole{}).Error
-			if err != nil {
-				return err
-			}
-		}
-		return tx.Where(link).FirstOrCreate(link).Error
-	})
+	err = cfg.DB().Where(link).FirstOrCreate(link).Error
 	return link, err
 }
 

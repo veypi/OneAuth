@@ -1,6 +1,5 @@
-// @ts-ignore
 import axios from 'axios'
-import {store} from '../store'
+import {store} from '@/store'
 
 
 function baseRequests(url: string, method: any = 'GET', query: any, data: any, success: any, fail?: Function) {

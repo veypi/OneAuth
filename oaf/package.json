@@ -1,16 +1,18 @@
 {
   "name": "oaf",
   "version": "0.1.0",
+  "license": "Apache-2.0",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "serve": "vite preview"
   },
   "dependencies": {
-    "@veypi/one-icon": "2.0.5",
+    "@veypi/one-icon": "2.0.6",
     "animate.css": "^4.1.1",
     "axios": "^0.24.0",
     "js-base64": "^3.7.2",
+    "seamless-scroll-polyfill": "^2.1.5",
     "vue": "^3.2.16",
     "vue-router": "^4.0.12",
     "vuex": "^4.0.2"

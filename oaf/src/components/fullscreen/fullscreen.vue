@@ -5,8 +5,8 @@
 </template>
 
 <script lang="ts" setup>
-
-import {defineEmits, onMounted, defineProps} from "vue";
+// @ts-nocheck
+import {onMounted} from "vue";
 
 let emit = defineEmits<{
   (e: 'update:modelValue', v: boolean): void

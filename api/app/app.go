@@ -11,11 +11,6 @@ import (
 	"github.com/veypi/utils"
 )
 
-func Router(r OneBD.Router) {
-	r.Set("/", appHandlerP, rfc.MethodPost, rfc.MethodGet)
-	r.Set("/:id", appHandlerP, rfc.MethodGet)
-}
-
 var appHandlerP = OneBD.NewHandlerPool(func() OneBD.Handler {
 	h := &appHandler{}
 	h.Ignore(rfc.MethodGet, rfc.MethodPost)
@@ -28,10 +23,10 @@ type appHandler struct {
 }
 
 func (h *appHandler) Get() (interface{}, error) {
-	id := h.Meta().Params("id")
+	uuid := h.Meta().Params("uuid")
 	h.query = &models.App{}
-	isSelf := h.Meta().Query("is_self")
-	if isSelf != "" {
+	option := h.Meta().Query("option")
+	if option == "oa" {
 		// 无权限可以获取本系统基本信息
 		h.query.UUID = cfg.CFG.APPUUID
 		err := cfg.DB().Where(h.query).First(h.query).Error
@@ -41,11 +36,11 @@ func (h *appHandler) Get() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !h.GetAuth(auth.APP, id).CanRead() {
+	if !h.GetAuth(auth.APP, uuid).CanRead() {
 		return nil, oerr.NoAuth
 	}
-	if id != "" {
-		h.query.UUID = id
+	if uuid != "" {
+		h.query.UUID = uuid
 		err := cfg.DB().Where(h.query).First(h.query).Error
 		return h.query, err
 	}
@@ -97,4 +92,34 @@ func (h *appHandler) Post() (interface{}, error) {
 		return nil, err
 	}
 	return a, nil
+}
+
+func (h *appHandler) Patch() (interface{}, error) {
+	uid := h.Meta().Params("uuid")
+	opts := struct {
+		Icon string `json:"icon"`
+		Name string `json:"name"`
+	}{}
+	if err := h.Meta().ReadJson(&opts); err != nil {
+		return nil, err
+	}
+	target := models.App{
+		UUID: uid,
+	}
+	if err := cfg.DB().Where(&target).First(&target).Error; err != nil {
+		return nil, err
+	}
+	if !h.Payload.GetAuth(auth.APP, target.UUID).CanUpdate() {
+		return nil, oerr.NoAuth
+	}
+	if opts.Name != "" {
+		target.Name = opts.Name
+	}
+	if opts.Icon != "" {
+		target.Icon = opts.Icon
+	}
+	if err := cfg.DB().Updates(&target).Error; err != nil {
+		return nil, err
+	}
+	return nil, nil
 }

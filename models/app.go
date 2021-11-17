@@ -3,14 +3,16 @@ package models
 var AppKeys = map[string]string{}
 
 type App struct {
-	BaseModel
-	Name      string  `json:"name"`
-	Icon      string  `json:"icon"`
-	UUID      string  `json:"uuid" gorm:"unique"`
-	Des       string  `json:"des"`
-	Creator   uint    `json:"creator"`
-	UserCount uint    `json:"user_count"`
-	Users     []*User `json:"users" gorm:"many2many:app_users;"`
+	UUID      string    `json:"uuid" gorm:"primaryKey;size:32"`
+	CreatedAt JSONTime  `json:"created_at"`
+	UpdatedAt JSONTime  `json:"updated_at"`
+	DeletedAt *JSONTime `json:"deleted_at" sql:"index"`
+	Name      string    `json:"name"`
+	Icon      string    `json:"icon"`
+	Des       string    `json:"des"`
+	Creator   uint      `json:"creator"`
+	UserCount uint      `json:"user_count"`
+	Users     []*User   `json:"users" gorm:"many2many:app_users;"`
 	// 初始用户角色
 	InitRoleID uint  `json:"init_role_id"`
 	InitRole   *Role `json:"init_role"`
@@ -35,11 +37,12 @@ type App struct {
 	EnableUserKey bool   `json:"enable_user_key"`
 	UserKeyUrl    string `json:"user_key_url"`
 	// 允许登录方式
-	EnableUser  bool    `json:"enable_user"`
-	EnableWx    bool    `json:"enable_wx"`
-	EnablePhone bool    `json:"enable_phone"`
-	EnableEmail bool    `json:"enable_email"`
-	Wx          *Wechat `json:"wx" gorm:"foreignkey:AppID;references:ID"`
+	EnableUser  bool `json:"enable_user"`
+	EnableWx    bool `json:"enable_wx"`
+	EnablePhone bool `json:"enable_phone"`
+	EnableEmail bool `json:"enable_email"`
+
+	Wx *Wechat `json:"wx" gorm:"-"`
 }
 
 type AUStatus string
@@ -53,16 +56,17 @@ const (
 
 type AppUser struct {
 	BaseModel
-	AppID  uint     `json:"app_id"`
-	APP    *App     `json:"app"`
-	UserID uint     `json:"user_id"`
-	User   *User    `json:"user"`
-	Status AUStatus `json:"status"`
+	AppUUID string   `json:"app_uuid" gorm:"size:32"`
+	App     *App     `json:"app" gorm:"association_foreignkey:UUID"`
+	UserID  uint     `json:"user_id"`
+	User    *User    `json:"user"`
+	Status  AUStatus `json:"status"`
 }
 
 type Wechat struct {
 	BaseModel
-	AppID uint `json:"app_id"`
+	AppUUID string `json:"app_uuid" gorm:"size:32"`
+	App     *App   `json:"app" gorm:"association_foreignkey:UUID"`
 	// 网页授权登录用
 	WxID    string `json:"wx_id"`
 	AgentID string `json:"agent_id"`

@@ -1,9 +1,10 @@
 import {Module} from "vuex";
-import api from "../api";
-import util from '../libs/util'
+import api from "@/api";
+import util from '@/libs/util'
 import {Base64} from 'js-base64'
 import {State} from './index'
-import router from "../router";
+import router from "@/router";
+import {Auths, NewAuths} from '@/auth'
 
 export interface UserState {
     id: number
@@ -13,15 +14,9 @@ export interface UserState {
     icon: string
     email: string
     ready: boolean
-    auth: [auth?]
+    auth: Auths
 
     [key: string]: any
-}
-
-interface auth {
-    rid: string
-    ruid: string
-    level: number
 }
 
 export const User: Module<UserState, State> = {
@@ -33,7 +28,7 @@ export const User: Module<UserState, State> = {
         phone: '',
         icon: '',
         email: '',
-        auth: [],
+        auth: NewAuths([]),
         ready: false
     },
     mutations: {
@@ -47,7 +42,7 @@ export const User: Module<UserState, State> = {
             state.ready = true
         },
         setAuth(state: UserState, data: any) {
-            state.auth = data
+            state.auth = NewAuths(data)
         },
         logout(state: UserState) {
             state.ready = false

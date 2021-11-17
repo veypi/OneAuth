@@ -2,6 +2,7 @@ package auth
 
 import (
 	"OneAuth/models"
+	"github.com/veypi/utils"
 	"gorm.io/gorm"
 )
 
@@ -10,6 +11,7 @@ import (
 type Resource = string
 
 const (
+	// ruid 皆为app uuid
 	User Resource = "user"
 	APP  Resource = "app"
 	Res  Resource = "resource"
@@ -26,12 +28,12 @@ func BindUserRole(tx *gorm.DB, userID uint, roleID uint) error {
 	}
 	ur := &models.UserRole{}
 	ur.RoleID = roleID
-	if r.IsUnique {
-		err = tx.Where(ur).Update("user_id", userID).Error
-	} else {
-		ur.UserID = userID
-		err = tx.Where(ur).FirstOrCreate(ur).Error
-	}
+	ur.UserID = userID
+	err = utils.MultiErr(
+		tx.Where(ur).FirstOrCreate(ur).Error,
+		tx.Model(&models.Role{}).Where("id = ?", roleID).
+			Update("user_count", gorm.Expr("user_count + ?", 1)).Error,
+	)
 	return err
 }
 
@@ -51,7 +53,7 @@ func bind(tx *gorm.DB, id uint, resID uint, level models.AuthLevel, ruid string,
 		return err
 	}
 	au := &models.Auth{
-		AppID:      r.AppID,
+		AppUUID:    r.AppUUID,
 		ResourceID: resID,
 		RID:        r.Name,
 		RUID:       ruid,

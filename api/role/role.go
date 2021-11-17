@@ -6,7 +6,6 @@ import (
 	"OneAuth/libs/base"
 	"OneAuth/libs/oerr"
 	"OneAuth/models"
-	"errors"
 	"github.com/veypi/OneBD"
 	"gorm.io/gorm"
 )
@@ -15,17 +14,28 @@ var roleP = OneBD.NewHandlerPool(func() OneBD.Handler {
 	return &roleHandler{}
 })
 
-type roleHandler struct {
+type baseAppHandler struct {
 	base.ApiHandler
+	uuid string
+}
+
+func (h *baseAppHandler) Init(m OneBD.Meta) error {
+	h.uuid = m.Params("uuid")
+	return h.ApiHandler.Init(m)
+}
+
+type roleHandler struct {
+	baseAppHandler
 }
 
 func (h *roleHandler) Get() (interface{}, error) {
 	id := h.Meta().ParamsInt("id")
-	if !h.GetAuth(auth.Role, h.Meta().Params("id")).CanRead() {
+	if !h.GetAuth(auth.Role, h.uuid).CanRead() {
 		return nil, oerr.NoAuth
 	}
 	if id > 0 {
 		role := &models.Role{}
+		role.AppUUID = h.uuid
 		role.ID = uint(id)
 		err := cfg.DB().Preload("Auths").Preload("Users").First(role).Error
 		if err != nil {
@@ -34,7 +44,7 @@ func (h *roleHandler) Get() (interface{}, error) {
 		return role, nil
 	}
 	roles := make([]*models.Role, 0, 10)
-	err := cfg.DB().Preload("Auths").Preload("Users").Find(&roles).Error
+	err := cfg.DB().Where("app_uuid = ?", h.uuid).Find(&roles).Error
 	return roles, err
 }
 
@@ -61,8 +71,7 @@ func (h *roleHandler) Patch() (interface{}, error) {
 	query := &struct {
 		Name *string `json:"name"`
 		// 角色标签
-		Tag      *string `json:"tag" gorm:"default:''"`
-		IsUnique *bool   `json:"is_unique" gorm:"default:false"`
+		Tag *string `json:"tag" gorm:"default:''"`
 	}{}
 	err := h.Meta().ReadJson(query)
 	if err != nil {
@@ -88,15 +97,6 @@ func (h *roleHandler) Patch() (interface{}, error) {
 		}
 		if query.Name != nil && *query.Name != role.Name {
 			err = tx.Model(role).Update("name", *query.Name).Error
-			if err != nil {
-				return err
-			}
-		}
-		if query.IsUnique != nil && *query.IsUnique != role.IsUnique {
-			if *query.IsUnique && len(role.Users) > 1 {
-				return errors.New("该角色绑定用户已超过1个，请解绑后在修改")
-			}
-			err = tx.Table("roles").Where("id = ?", role.ID).Update("is_unique", *query.IsUnique).Error
 			if err != nil {
 				return err
 			}

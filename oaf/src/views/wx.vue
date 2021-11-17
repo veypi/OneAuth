@@ -4,10 +4,10 @@
   </div>
 </template>
 <script setup lang='ts'>
-import WxLogin from '../components/WxLogin.vue'
+import WxLogin from '@/components/WxLogin.vue'
 import {computed, onMounted} from "vue";
 import {useRoute} from 'vue-router'
-import api from '../api'
+import api from '@/api'
 
 let route = useRoute()
 

@@ -35,7 +35,7 @@ func runAppList(c *cli.Context) error {
 		return err
 	}
 	for _, a := range list {
-		log.Info().Msgf("%d:  %s", a.ID, a.Name)
+		log.Info().Msgf("%d:  %s", a.UUID, a.Name)
 	}
 	return nil
 }

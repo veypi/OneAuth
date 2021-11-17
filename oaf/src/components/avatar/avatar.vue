@@ -1,5 +1,5 @@
 <template>
-  <base_frame style="line-height:40px" v-model="shown" :isDark="IsDark">
+  <base-frame style="line-height:40px" v-model="shown" :isDark="IsDark">
     <div class="flex">
       <n-avatar :src="$store.state.user.icon" round></n-avatar>
     </div>
@@ -40,19 +40,18 @@
       </div>
     </div>
     </template>
-  </base_frame>
+  </base-frame>
 </template>
 
 <script lang="ts" setup>
-import base_frame from './frame.vue'
-import {IsDark} from '../../theme'
+import BaseFrame from './frame.vue'
+import {IsDark} from '@/theme'
 import {ref} from "vue";
+import {useMessage} from 'naive-ui'
+// @ts-ignore
+window.$msg = useMessage()
 
 let shown = ref(false)
-
-function asd(e) {
-  console.log([e, shown.value])
-}
 
 </script>
 

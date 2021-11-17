@@ -1,6 +1,6 @@
 import {InjectionKey} from 'vue'
 import {createStore, useStore as baseUseStore, Store} from 'vuex'
-import api from "../api";
+import api from "@/api";
 import {User, UserState} from './user'
 
 export interface State extends Object {

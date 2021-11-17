@@ -1,112 +1,21 @@
 /*
- * Copyright (C) 2019 light <light@light-laptop>
+ * Copyright (C) 2019 light <veypi@light-laptop>
  *
  * Distributed under terms of the MIT license.
  */
 
 import {App} from 'vue'
-import ajax from './ajax'
-import {store} from '../store'
-import {Base64} from 'js-base64'
-
-
-export type SuccessFunction<T> = (e: any) => void;
-export type FailedFunction<T> = (e: any) => void;
-
-const Code = {
-    42011: '无操作权限',
-    22031: '资源不存在 或 您无权操作该资源'
-}
-
-class Interface {
-    private readonly method: Function
-    private readonly api: string
-    private readonly data: any
-
-    constructor(method: Function, api: string, data?: any) {
-        this.method = method
-        this.api = api
-        this.data = data
-    }
-
-    Start(success: SuccessFunction<any>, fail?: FailedFunction<any>) {
-        const newFail = function (data: any) {
-            if (data && data.code === 40001) {
-                // no login
-                store.commit('user/logout')
-                return
-            }
-            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-            // @ts-ignore
-            if (data && data.code && Code[data.code]) {
-            }
-            if (fail) {
-                fail(data.err)
-            }
-        }
-
-        const newSuccess = function (data: any) {
-            if (Number(data.status) === 1) {
-                if (success) {
-                    success(data.content)
-                }
-            } else {
-                newFail(data)
-                if (data.code === 41001) {
-                    store.commit('user/logout')
-                    // bus.$emit('log_out')
-                }
-            }
-        }
-        this.method(this.api, this.data, newSuccess, newFail)
-    }
-}
-
-const app = {
-    local: '/api/app/',
-    self() {
-        return new Interface(ajax.get, this.local, {is_self: true})
-    },
-    get(id: string) {
-        return new Interface(ajax.get, this.local + id)
-    },
-    list() {
-        return new Interface(ajax.get, this.local)
-    }
-}
-
-const user = {
-    local: '/api/user/',
-    register(username: string, password: string, uuid: string, prop?: any) {
-        const data = Object.assign({
-            username: username,
-            uuid: uuid,
-            password: Base64.encode(password)
-        }, prop)
-        return new Interface(ajax.post, this.local, data)
-    },
-    login(username: string, password: string, uuid: string) {
-        return new Interface(ajax.head, this.local + username, {
-            uid_type: 'username',
-            uuid: uuid,
-            password: Base64.encode(password)
-        })
-    },
-    get(id: number) {
-        return new Interface(ajax.get, this.local + id)
-    },
-    list() {
-        return new Interface(ajax.get, this.local)
-    },
-    update(id: number, props: any) {
-        return new Interface(ajax.patch, this.local + id, props)
-    }
-}
+import role from "./role";
+import app from './app'
+import user from './user'
+import auth from './auth'
 
 
 const api = {
     user: user,
-    app: app
+    app: app,
+    auth: auth,
+    role: role
 }
 
 const Api = {

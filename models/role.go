@@ -8,15 +8,15 @@ type UserRole struct {
 
 type Role struct {
 	BaseModel
-	AppID uint   `json:"app_id"`
-	App   *App   `json:"app"`
-	Name  string `json:"name"`
+	AppUUID string `json:"app_uuid" gorm:"size:32"`
+	App     *App   `json:"app" gorm:"association_foreignkey:UUID"`
+	Name    string `json:"name"`
 	// 角色标签
 	Tag   string  `json:"tag" gorm:"default:''"`
 	Users []*User `json:"users" gorm:"many2many:user_roles;"`
 	// 具体权限
-	Auths    []*Auth `json:"auths" gorm:"foreignkey:RoleID;references:ID"`
-	IsUnique bool    `json:"is_unique" gorm:"default:false"`
+	Auths     []*Auth `json:"auths" gorm:"foreignkey:RoleID;references:ID"`
+	UserCount uint    `json:"user_count"`
 }
 
 // AuthLevel 权限等级
@@ -77,8 +77,8 @@ func (a AuthLevel) CanDoAny() bool {
 type Auth struct {
 	BaseModel
 	// 该权限作用的应用
-	AppID uint `json:"app_id"`
-	App   *App `json:"app"`
+	AppUUID string `json:"app_uuid" gorm:"size:32"`
+	App     *App   `json:"app" gorm:"association_foreignkey:UUID"`
 	// 权限绑定只能绑定一个
 	RoleID *uint `json:"role_id" gorm:""`
 	Role   *Role `json:"role"`
@@ -96,9 +96,9 @@ type Auth struct {
 
 type Resource struct {
 	BaseModel
-	AppID uint   `json:"app_id"`
-	App   *App   `json:"app"`
-	Name  string `json:"name"`
+	AppUUID string `json:"app_uuid"  gorm:"size:32"`
+	App     *App   `json:"app" gorm:"association_foreignkey:UUID"`
+	Name    string `json:"name"`
 	// 权限标签
 	Tag string `json:"tag"`
 	Des string `json:"des"`

@@ -20,9 +20,9 @@
             </n-form-item>
             <n-form-item label="头像">
               <n-upload
-                action=""
-                :headers="{'': ''}"
-                :data="{}"
+                action="/api/upload"
+                @finish="handleFinish"
+                :show-file-list="false"
               >
                 <n-avatar size="large" round :src="user.icon">
                 </n-avatar>
@@ -51,9 +51,9 @@
 
 <script lang="ts" setup>
 import {ref, computed} from "vue";
-import {IsDark} from "../theme";
-import {useStore} from "../store";
-import api from "../api";
+import {IsDark} from "@/theme";
+import {useStore} from "@/store";
+import api from "@/api";
 import {useMessage} from "naive-ui";
 
 let msg = useMessage()
@@ -76,6 +76,19 @@ let emailOptions = computed(() => {
     }
   })
 })
+
+function handleFinish(e: any) {
+  if (e.event.target.response) {
+    let data = JSON.parse(e.event.target.response)
+    if (data.status === 1) {
+      user.value.icon = data.content
+      update('icon')
+      return
+    }
+  }
+  msg.error('上传失败')
+  user.value.icon = store.state.user.icon
+}
 
 function update(key: string) {
   // @ts-ignore

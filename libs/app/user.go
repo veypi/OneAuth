@@ -8,39 +8,42 @@ import (
 	"gorm.io/gorm"
 )
 
-func AddUser(tx *gorm.DB, appID uint, userID uint, roleID uint, status models.AUStatus) error {
-	if appID == 0 || userID == 0 {
-		return oerr.FuncArgsError
+func AddUser(tx *gorm.DB, uuid string, userID uint, roleID uint, status models.AUStatus) (*models.AppUser, error) {
+	if uuid == "" || userID == 0 {
+		return nil, oerr.FuncArgsError
 	}
-	au := &models.AppUser{}
-	au.AppID = appID
+	au := &models.AppUser{
+		AppUUID: uuid,
+	}
 	au.UserID = userID
 	err := tx.Where(au).First(au).Error
 	if err == nil {
-		return oerr.ResourceDuplicated
+		return nil, oerr.ResourceDuplicated
 	}
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		au.Status = status
 		err = tx.Create(au).Error
 		if err != nil {
-			return err
+			return nil, err
 		}
 		if roleID > 0 {
 			err = auth.BindUserRole(tx, userID, roleID)
 			if err != nil {
-				return err
+				return nil, err
 			}
 		}
-		return tx.Model(&models.App{}).Where("id = ?", appID).Update("user_count", gorm.Expr("user_count + ?", 1)).Error
+		err = tx.Model(&models.App{}).Where("uuid = ?", uuid).Update("user_count", gorm.Expr("user_count + ?", 1)).Error
+		return au, err
 	}
-	return err
+	return nil, err
 }
-func EnableUser(tx *gorm.DB, appID uint, userID uint) error {
-	if appID == 0 || userID == 0 {
+func EnableUser(tx *gorm.DB, uuid string, userID uint) error {
+	if uuid == "" || userID == 0 {
 		return oerr.FuncArgsError
 	}
-	au := &models.AppUser{}
-	au.AppID = appID
+	au := &models.AppUser{
+		AppUUID: uuid,
+	}
 	au.UserID = userID
 	err := tx.Where(au).First(au).Error
 	if err != nil {
@@ -52,12 +55,13 @@ func EnableUser(tx *gorm.DB, appID uint, userID uint) error {
 	return nil
 }
 
-func DisableUser(tx *gorm.DB, appID uint, userID uint) error {
-	if appID == 0 || userID == 0 {
+func DisableUser(tx *gorm.DB, uuid string, userID uint) error {
+	if uuid == "" || userID == 0 {
 		return oerr.FuncArgsError
 	}
-	au := &models.AppUser{}
-	au.AppID = appID
+	au := &models.AppUser{
+		AppUUID: uuid,
+	}
 	au.UserID = userID
 	return tx.Where(au).Update("status", models.AUDisable).Error
 }

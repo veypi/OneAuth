@@ -22,11 +22,11 @@
 </template>
 <script lang="ts" setup>
 import {computed, onMounted, ref} from "vue";
-import {Theme} from "../theme";
+import {Theme} from "@/theme";
 import {useMessage} from 'naive-ui'
-import api from "../api"
+import api from "@/api"
 import {useRoute, useRouter} from "vue-router";
-import {store} from "../store";
+import {store} from "@/store";
 
 let msg = useMessage()
 const route = useRoute()

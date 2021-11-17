@@ -20,9 +20,9 @@ var Role = &cli.Command{
 			Name:   "create",
 			Action: runRoleCreate,
 			Flags: []cli.Flag{
-				&cli.UintFlag{
-					Name:     "id",
-					Usage:    "app id",
+				&cli.StringFlag{
+					Name:     "uuid",
+					Usage:    "app uuid",
 					Required: true,
 				},
 				&cli.StringFlag{
@@ -43,16 +43,16 @@ func runRoleList(c *cli.Context) error {
 		return err
 	}
 	for _, r := range roles {
-		log.Info().Msgf("%d %s@%d", r.ID, r.Name, r.AppID)
+		log.Info().Msgf("%d %s@%d", r.ID, r.Name, r.AppUUID)
 	}
 	return nil
 }
 
 func runRoleCreate(c *cli.Context) error {
-	id := c.Uint("id")
+	id := c.String("uuid")
 	name := c.String("name")
 	rl := &models.Role{}
-	rl.AppID = id
+	rl.AppUUID = id
 	rl.Name = name
 	err := cfg.DB().Where(rl).FirstOrCreate(rl).Error
 	return err
@@ -66,9 +66,9 @@ var Resource = &cli.Command{
 			Name:   "list",
 			Action: runResourceList,
 			Flags: []cli.Flag{
-				&cli.UintFlag{
-					Name:  "id",
-					Usage: "app id",
+				&cli.StringFlag{
+					Name:  "uuid",
+					Usage: "app uuid",
 				},
 			},
 		},
@@ -76,9 +76,9 @@ var Resource = &cli.Command{
 			Name:   "create",
 			Action: runResourceCreate,
 			Flags: []cli.Flag{
-				&cli.UintFlag{
-					Name:     "id",
-					Usage:    "app id",
+				&cli.StringFlag{
+					Name:     "uuid",
+					Usage:    "app uuid",
 					Required: true,
 				},
 				&cli.StringFlag{
@@ -93,21 +93,21 @@ var Resource = &cli.Command{
 
 func runResourceList(c *cli.Context) error {
 	query := &models.Resource{}
-	query.AppID = c.Uint("id")
+	query.AppUUID = c.String("uuid")
 	l := make([]*models.Resource, 0, 10)
 	err := cfg.DB().Where(query).Find(&l).Error
 	if err != nil {
 		return nil
 	}
 	for _, r := range l {
-		log.Info().Msgf("%d:  %s@%d", r.ID, r.Name, r.AppID)
+		log.Info().Msgf("%d:  %s@%d", r.ID, r.Name, r.AppUUID)
 	}
 	return nil
 }
 
 func runResourceCreate(c *cli.Context) error {
 	query := &models.Resource{}
-	query.AppID = c.Uint("id")
+	query.AppUUID = c.String("uuid")
 	query.Name = c.String("name")
 	err := cfg.DB().Where(query).FirstOrCreate(query).Error
 	return err

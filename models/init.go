@@ -95,7 +95,7 @@ func (jt *JSONTime) SetTime(t time.Time) {
 }
 
 type BaseModel struct {
-	ID        uint      `json:"id" gorm:"primary_key"`
+	ID        uint      `json:"id" gorm:"primaryKey"`
 	CreatedAt JSONTime  `json:"created_at"`
 	UpdatedAt JSONTime  `json:"updated_at"`
 	DeletedAt *JSONTime `json:"deleted_at" sql:"index"`

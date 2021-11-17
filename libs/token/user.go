@@ -5,7 +5,7 @@ import (
 	"github.com/veypi/utils/jwt"
 )
 
-type simpleAuth struct {
+type SimpleAuth struct {
 	RID string `json:"rid"`
 	// 具体某个资源的id
 	RUID  string           `json:"ruid"`
@@ -15,8 +15,8 @@ type simpleAuth struct {
 // TODO:: roles 是否会造成token过大 ?
 type PayLoad struct {
 	jwt.Payload
-	ID   uint                 `json:"id"`
-	Auth map[uint]*simpleAuth `json:"auth"`
+	ID   uint          `json:"id"`
+	Auth []*SimpleAuth `json:"auth"`
 }
 
 // GetAuth resource_uuid 缺省或仅第一个有效 权限会被更高权限覆盖
@@ -47,18 +47,18 @@ func (p *PayLoad) GetAuth(ResourceID string, ResourceUUID ...string) models.Auth
 	return res
 }
 
-func GetToken(u *models.User, appID uint, key string) (string, error) {
+func GetToken(u *models.User, uuid string, key string) (string, error) {
 	payload := &PayLoad{
 		ID:   u.ID,
-		Auth: map[uint]*simpleAuth{},
+		Auth: []*SimpleAuth{},
 	}
 	for _, a := range u.GetAuths() {
-		if appID == a.AppID {
-			payload.Auth[a.ID] = &simpleAuth{
+		if uuid == a.AppUUID {
+			payload.Auth = append(payload.Auth, &SimpleAuth{
 				RID:   a.RID,
 				RUID:  a.RUID,
 				Level: a.Level,
-			}
+			})
 		}
 	}
 	return jwt.GetToken(payload, []byte(key))

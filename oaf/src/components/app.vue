@@ -2,8 +2,7 @@
   <div class="core rounded-2xl p-3">
     <div class="grid gap-4 grid-cols-5">
       <div class="col-span-2">
-        <n-avatar @click="$router.push({name: 'app', params: {uuid: core.uuid}})" round :size="80" :src="core.icon">
-          {{ core.icon ? '' : core.name }}
+        <n-avatar @click="$router.push({name: 'app.main', params: {uuid: core.uuid}})" round :size="80" :src="core.icon">
         </n-avatar>
       </div>
       <div class="col-span-3 grid grid-cols-1 items-center text-left">
@@ -15,15 +14,21 @@
   </div>
 </template>
 <script setup lang='ts'>
-import {defineProps} from "vue";
-
-let props = defineProps<{
-  core: any
-}>()
+import {defineProps, withDefaults} from "vue";
+interface App {
+  uuid: ''
+  [key: string]: any
+}
+let props = withDefaults(defineProps<{
+  core?: App
+}>(), {
+  // @ts-ignore
+  core: {}
+})
 </script>
 <style scoped>
 .core {
   width: 256px;
-  background: #2c3e50;
+  background: rgba(146, 145, 145, 0.1);
 }
 </style>

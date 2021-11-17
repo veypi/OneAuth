@@ -28,7 +28,6 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, defineEmits, watch} from "vue";
 
 let emits = defineEmits<{
   (e: 'update:modelValue', v: boolean): void

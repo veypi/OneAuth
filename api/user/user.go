@@ -9,6 +9,7 @@ import (
 	"OneAuth/libs/token"
 	"OneAuth/models"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"github.com/veypi/OneBD"
 	"github.com/veypi/OneBD/rfc"
@@ -41,24 +42,24 @@ type handler struct {
 
 // Get get user data
 func (h *handler) Get() (interface{}, error) {
-	if !h.Payload.GetAuth(auth.User, "").CanRead() {
-		return nil, oerr.NoAuth.AttachStr("to read user list")
-	}
-	username := h.Meta().Query("username")
-	if username != "" {
-		users := make([]*models.User, 0, 10)
-		err := cfg.DB().Where("username LIKE ? OR nickname LIKE ?", "%"+username+"%", "%"+username+"%").Find(&users).Error
-		if err != nil {
-			return nil, err
-		}
-		return users, nil
-	}
 	userID := h.Meta().ParamsInt("user_id")
 	if userID != 0 {
 		user := &models.User{}
 		user.ID = uint(userID)
 		return user, cfg.DB().Where(user).First(user).Error
 	} else {
+		if !h.Payload.GetAuth(auth.User, "").CanRead() {
+			return nil, oerr.NoAuth.AttachStr("to read user list")
+		}
+		username := h.Meta().Query("username")
+		if username != "" {
+			users := make([]*models.User, 0, 10)
+			err := cfg.DB().Where("username LIKE ? OR nickname LIKE ?", "%"+username+"%", "%"+username+"%").Find(&users).Error
+			if err != nil {
+				return nil, err
+			}
+			return users, nil
+		}
 		users := make([]models.User, 10)
 		skip, err := strconv.Atoi(h.Meta().Query("skip"))
 		if err != nil || skip < 0 {
@@ -120,7 +121,7 @@ func (h *handler) Post() (interface{}, error) {
 		if err := tx.Create(&h.User).Error; err != nil {
 			return oerr.ResourceDuplicated
 		}
-		err := app.AddUser(tx, self.ID, h.User.ID, self.InitRoleID, models.AUOK)
+		_, err := app.AddUser(tx, self.UUID, h.User.ID, self.InitRoleID, models.AUOK)
 		if err != nil {
 			return err
 		}
@@ -137,6 +138,7 @@ func (h *handler) Patch() (interface{}, error) {
 	uid := h.Meta().Params("user_id")
 	opts := struct {
 		Password string `json:"password"`
+		Icon     string `json:"icon"`
 		Nickname string `json:"nickname"`
 		Phone    string `json:"phone" gorm:"type:varchar(20);unique;default:null" json:",omitempty"`
 		Email    string `json:"email" gorm:"type:varchar(50);unique;default:null" json:",omitempty"`
@@ -166,6 +168,9 @@ func (h *handler) Patch() (interface{}, error) {
 	}
 	if opts.Nickname != "" {
 		target.Nickname = opts.Nickname
+	}
+	if opts.Icon != "" {
+		target.Icon = opts.Icon
 	}
 	if opts.Position != "" {
 		target.Position = opts.Position
@@ -220,7 +225,7 @@ func (h *handler) Head() (interface{}, error) {
 	if err != nil {
 		return nil, oerr.DBErr.Attach(err)
 	}
-	if err := cfg.DB().Preload("Roles.Auths").Preload("Auths").Where(h.User).First(h.User).Error; err != nil {
+	if err := cfg.DB().Where(h.User).First(h.User).Error; err != nil {
 		if err.Error() == gorm.ErrRecordNotFound.Error() {
 			return nil, oerr.AccountNotExist
 		} else {
@@ -234,15 +239,27 @@ func (h *handler) Head() (interface{}, error) {
 	}
 	au := &models.AppUser{}
 	au.UserID = h.User.ID
-	au.AppID = target.ID
+	au.AppUUID = target.UUID
 	err = cfg.DB().Where(au).First(au).Error
-	appID := target.ID
 	if err != nil {
-		return nil, err
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
+		}
+		if !target.EnableRegister {
+			return nil, errors.New("该应用不允许自主加入，请联系管理员")
+		}
+		_, err := app.AddUser(cfg.DB(), target.UUID, h.User.ID, target.InitRoleID, models.AUOK)
+		if err != nil {
+			return nil, err
+		}
 	} else if au.Status != models.AUOK {
 		return nil, oerr.DisableLogin
 	}
-	tokenStr, err := token.GetToken(h.User, appID, cfg.CFG.APPKey)
+	err = h.User.LoadAuths(cfg.DB())
+	if err != nil {
+		return nil, err
+	}
+	tokenStr, err := token.GetToken(h.User, target.UUID, cfg.CFG.APPKey)
 	if err != nil {
 		log.HandlerErrs(err)
 		return nil, oerr.Unknown.Attach(err)
