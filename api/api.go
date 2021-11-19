@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/veypi/OneAuth/api/app"
+	"github.com/veypi/OneAuth/api/resource"
 	"github.com/veypi/OneAuth/api/role"
 	"github.com/veypi/OneAuth/api/token"
 	"github.com/veypi/OneAuth/api/user"
@@ -36,10 +37,13 @@ func Router(r OneBD.Router) {
 	})
 	user.Router(r.SubRouter("/user"))
 	wx.Router(r.SubRouter("wx"))
-	appRouter := r.SubRouter("app")
-	app.Router(appRouter)
-	role.Router(appRouter.SubRouter("/:uuid/"))
-	token.Router(appRouter.SubRouter("/:uuid/token"))
+
+	app.Router(r.SubRouter("app"))
+	appRouter := r.SubRouter("/app/:uuid")
+	role.Router(appRouter.SubRouter("role"))
+	resource.Router(appRouter.SubRouter("resource"))
+	token.Router(appRouter.SubRouter("token"))
+
 	r.Set("upload", handleUpload, rfc.MethodPost)
 
 	//message.Router(r.SubRouter("/message"))

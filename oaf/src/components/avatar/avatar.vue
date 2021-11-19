@@ -1,7 +1,7 @@
 <template>
   <base-frame style="line-height:40px" v-model="shown" :isDark="IsDark">
     <div class="flex">
-      <n-avatar :src="$store.state.user.icon" round></n-avatar>
+      <n-avatar :src="$store.state.user.local.Icon" round></n-avatar>
     </div>
     <template v-slot:main>
     <div style="height: 100%">
@@ -14,12 +14,12 @@
           </div>
           <div class="grid grid-cols-4 gap-4 h-20">
             <div class="flex items-center justify-center">
-              <n-avatar size="50" :src="$store.state.user.icon" round></n-avatar>
+              <n-avatar size="50" :src="$store.state.user.local.Icon" round></n-avatar>
             </div>
             <div class="col-span-2 text-xs grid grid-cols-1 items-center" style="">
-              <span>昵称: &ensp;&ensp; {{ $store.state.user.nickname }}</span>
-              <span>账户: &ensp;&ensp; {{ $store.state.user.username }}</span>
-              <span>邮箱: &ensp;&ensp; {{ $store.state.user.email }}</span>
+              <span>昵称: &ensp;&ensp; {{ $store.state.user.local.Nickname }}</span>
+              <span>账户: &ensp;&ensp; {{ $store.state.user.local.Username }}</span>
+              <span>邮箱: &ensp;&ensp; {{ $store.state.user.local.Email }}</span>
             </div>
             <div class="">123</div>
           </div>
@@ -46,7 +46,7 @@
 <script lang="ts" setup>
 import BaseFrame from './frame.vue'
 import {IsDark} from '@/theme'
-import {ref} from "vue";
+import {ref} from 'vue'
 import {useMessage} from 'naive-ui'
 // @ts-ignore
 window.$msg = useMessage()

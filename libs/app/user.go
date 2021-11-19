@@ -32,7 +32,7 @@ func AddUser(tx *gorm.DB, uuid string, userID uint, roleID uint, status models.A
 				return nil, err
 			}
 		}
-		err = tx.Model(&models.App{}).Where("uuid = ?", uuid).Update("user_count", gorm.Expr("user_count + ?", 1)).Error
+		err = tx.Model(&models.App{}).Where("UUID = ?", uuid).Update("UserCount", gorm.Expr("UserCount + ?", 1)).Error
 		return au, err
 	}
 	return nil, err
@@ -50,7 +50,7 @@ func EnableUser(tx *gorm.DB, uuid string, userID uint) error {
 		return err
 	}
 	if au.Status != models.AUOK {
-		return tx.Where(au).Update("status", models.AUOK).Error
+		return tx.Where(au).Update("Status", models.AUOK).Error
 	}
 	return nil
 }
@@ -63,5 +63,5 @@ func DisableUser(tx *gorm.DB, uuid string, userID uint) error {
 		AppUUID: uuid,
 	}
 	au.UserID = userID
-	return tx.Where(au).Update("status", models.AUDisable).Error
+	return tx.Where(au).Update("Status", models.AUDisable).Error
 }

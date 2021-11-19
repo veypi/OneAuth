@@ -32,8 +32,8 @@ func BindUserRole(tx *gorm.DB, userID uint, roleID uint) error {
 	ur.UserID = userID
 	err = utils.MultiErr(
 		tx.Where(ur).FirstOrCreate(ur).Error,
-		tx.Model(&models.Role{}).Where("id = ?", roleID).
-			Update("user_count", gorm.Expr("user_count + ?", 1)).Error,
+		tx.Model(&models.Role{}).Where("ID = ?", roleID).
+			Update("UserCount", gorm.Expr("UserCount + ?", 1)).Error,
 	)
 	return err
 }

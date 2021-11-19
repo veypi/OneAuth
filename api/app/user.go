@@ -52,24 +52,24 @@ func (h *appUserHandler) Post() (interface{}, error) {
 	}
 	status := models.AUOK
 	target := &models.App{}
-	err := cfg.DB().Where("uuid = ?", h.uuid).First(target).Error
+	err := cfg.DB().Where("UUID = ?", h.uuid).First(target).Error
 	if err != nil {
 		return nil, err
 	}
-	if target.EnableRegister {
+	if !target.EnableRegister {
 		status = models.AUApply
 	}
 	au, err := app.AddUser(cfg.DB(), h.uuid, uint(id), target.InitRoleID, status)
 	return au, err
 }
 
-func (h *appUserHandler) Update() (interface{}, error) {
+func (h *appUserHandler) Patch() (interface{}, error) {
 	id := h.Meta().ParamsInt("id")
 	if h.uuid == "" || id <= 0 {
 		return nil, oerr.ApiArgsMissing
 	}
 	props := struct {
-		Status string `json:"status"`
+		Status string
 	}{}
 	err := h.Meta().ReadJson(&props)
 	if err != nil {
@@ -82,7 +82,7 @@ func (h *appUserHandler) Update() (interface{}, error) {
 		UserID:  uint(id),
 		AppUUID: h.uuid,
 	}
-	err = cfg.DB().Where(au).Update("status", props.Status).Error
+	err = cfg.DB().Model(au).Where(au).Update("Status", props.Status).Error
 	return nil, err
 }
 

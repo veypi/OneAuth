@@ -1,3 +1,5 @@
+import {modelsSimpleAuth} from '@/models'
+
 export const R = {
     // 应用管理配置权限
     App: 'app',
@@ -20,12 +22,6 @@ const level = {
     Update: 4,
     Delete: 5,
     All: 6
-}
-
-export interface Auth {
-    rid: string
-    ruid: string
-    level: number
 }
 
 class authLevel {
@@ -54,17 +50,17 @@ class authLevel {
 }
 
 export class Auths {
-    private readonly list: [Auth]
+    private readonly list: modelsSimpleAuth[]
 
-    constructor(auths: [Auth]) {
+    constructor(auths: modelsSimpleAuth[]) {
         this.list = auths
     }
 
     Get(rid: string, ruid: string): authLevel {
         let l = level.None
         for (let i of this.list) {
-            if (i.rid == rid && (i.ruid === '' || i.ruid === ruid) && i.level > l) {
-                l = i.level
+            if (i.RID == rid && (i.RUID === '' || i.RUID === ruid) && i.Level > l) {
+                l = i.Level
             }
         }
         return new authLevel(l)
@@ -72,6 +68,6 @@ export class Auths {
 }
 
 
-export function NewAuths(a: any) {
+export function NewAuths(a: modelsSimpleAuth[]) {
     return new Auths(a)
 }

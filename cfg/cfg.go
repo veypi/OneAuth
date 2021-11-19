@@ -6,6 +6,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 var Path = cmd.GetCfgPath("oa", "settings")
@@ -63,14 +64,22 @@ func DB() *gorm.DB {
 	}
 	return db
 }
+
+var gormCfg = &gorm.Config{
+	NamingStrategy: schema.NamingStrategy{
+		SingularTable: false, // 使用单数表名，启用该选项后，`User` 表将是`user`
+		NoLowerCase:   true,
+	},
+}
+
 func ConnectDB() *gorm.DB {
 	var err error
 	conn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", CFG.DB.User, CFG.DB.Pass, CFG.DB.Addr, CFG.DB.DB)
 	if CFG.DB.Type == "sqlite" {
 		conn = CFG.DB.Addr
-		db, err = gorm.Open(sqlite.Open(conn), &gorm.Config{})
+		db, err = gorm.Open(sqlite.Open(conn), gormCfg)
 	} else {
-		db, err = gorm.Open(mysql.Open(conn), &gorm.Config{})
+		db, err = gorm.Open(mysql.Open(conn), gormCfg)
 	}
 
 	if err != nil {

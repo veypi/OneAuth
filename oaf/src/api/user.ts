@@ -12,10 +12,9 @@ export default {
         }, prop)
         return new Interface(ajax.post, this.local, data)
     },
-    login(username: string, password: string, uuid: string) {
+    login(username: string, password: string) {
         return new Interface(ajax.head, this.local + username, {
-            uid_type: 'username',
-            uuid: uuid,
+            UidType: 'username',
             password: Base64.encode(password)
         })
     },

@@ -12,4 +12,4 @@ require (
 	gorm.io/gorm v1.21.3
 )
 
-//replace github.com/veypi/OneBD v0.4.1 => ../OceanCurrent/OneBD
+replace github.com/veypi/OneBD v0.4.1 => ../OceanCurrent/OneBD

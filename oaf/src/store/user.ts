@@ -5,43 +5,30 @@ import {Base64} from 'js-base64'
 import {State} from './index'
 import router from "@/router";
 import {Auths, NewAuths} from '@/auth'
+import {modelsSimpleAuth, modelsUser} from '@/models'
 
 export interface UserState {
     id: number
-    username: string
-    nickname: string
-    phone: string
-    icon: string
-    email: string
+    local: modelsUser
     ready: boolean
     auth: Auths
-
-    [key: string]: any
 }
 
 export const User: Module<UserState, State> = {
     namespaced: true,
     state: {
         id: 0,
-        username: '',
-        nickname: '',
-        phone: '',
-        icon: '',
-        email: '',
+        local: {} as modelsUser,
         auth: NewAuths([]),
         ready: false
     },
     mutations: {
-        setBase(state: UserState, data: any) {
-            state.id = data.id
-            state.icon = data.icon
-            state.username = data.username
-            state.nickname = data.nickname
-            state.phone = data.phone
-            state.email = data.email
+        setBase(state: UserState, data: modelsUser) {
+            state.id = data.ID
+            state.local = data
             state.ready = true
         },
-        setAuth(state: UserState, data: any) {
+        setAuth(state: UserState, data: modelsSimpleAuth[]) {
             state.auth = NewAuths(data)
         },
         logout(state: UserState) {
@@ -57,10 +44,12 @@ export const User: Module<UserState, State> = {
                 return false
             }
             let data = JSON.parse(Base64.decode(token[1]))
-            if (data.id > 0) {
-                context.commit('setAuth', data.auth)
-                api.user.get(data.id).Start(e => {
+            if (data.ID > 0) {
+                context.commit('setAuth', data.Auth)
+                api.user.get(data.ID).Start(e => {
                     context.commit('setBase', e)
+                },e=> {
+                    context.commit('logout')
                 })
             }
         }

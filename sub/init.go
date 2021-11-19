@@ -63,7 +63,7 @@ func selfApp() (*models.App, error) {
 		EnablePhone:    false,
 		EnableEmail:    false,
 	}
-	return self, cfg.DB().Where("uuid = ?", self.UUID).FirstOrCreate(self).Error
+	return self, cfg.DB().Where("UUID = ?", self.UUID).FirstOrCreate(self).Error
 }
 
 func role(reset_init_role bool) error {
@@ -88,7 +88,6 @@ func role(reset_init_role bool) error {
 		a := &models.Resource{
 			AppUUID: cfg.CFG.APPUUID,
 			Name:    na,
-			Tag:     "",
 			Des:     "",
 		}
 		err = cfg.DB().Where(a).FirstOrCreate(a).Error
@@ -114,7 +113,7 @@ func role(reset_init_role bool) error {
 		return err
 	}
 	if reset_init_role {
-		return cfg.DB().Model(&models.App{}).Where("uuid = ?", cfg.CFG.APPUUID).Update("init_role_id", adminRole.ID).Error
+		return cfg.DB().Model(&models.App{}).Where("UUID = ?", cfg.CFG.APPUUID).Update("InitRoleID", adminRole.ID).Error
 	}
 	return nil
 }

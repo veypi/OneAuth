@@ -9,20 +9,20 @@ import (
 // User db user model
 type User struct {
 	BaseModel
-	Username  string `json:"username" gorm:"type:varchar(100);unique;not null"`
-	Nickname  string `json:"nickname" gorm:"type:varchar(100)" json:",omitempty"`
-	Phone     string `json:"phone" gorm:"type:varchar(20);unique;default:null" json:",omitempty"`
-	Email     string `json:"email" gorm:"type:varchar(50);unique;default:null" json:",omitempty"`
+	Username  string `gorm:"type:varchar(100);unique;not null"`
+	Nickname  string `gorm:"type:varchar(100)"`
+	Phone     string `gorm:"type:varchar(20);unique;default:null"`
+	Email     string `gorm:"type:varchar(50);unique;default:null"`
 	CheckCode string `gorm:"type:varchar(64);not null" json:"-"`
 	RealCode  string `gorm:"type:varchar(32);not null" json:"-"`
-	Position  string `json:"position"`
+	Position  string
 	// disabled 禁用
-	Status string `json:"status"`
+	Status string
 
-	Icon  string  `json:"icon"`
-	Roles []*Role `json:"roles" gorm:"many2many:user_roles;"`
-	Apps  []*App  `json:"apps" gorm:"many2many:app_users;"`
-	Auths []*Auth `json:"auths" gorm:"foreignkey:UserID;references:ID"`
+	Icon  string
+	Roles []*Role `gorm:"many2many:UserRoles;"`
+	Apps  []*App  `gorm:"many2many:AppUsers;"`
+	Auths []*Auth `gorm:"foreignkey:UserID;references:ID"`
 }
 
 func (u *User) String() string {
@@ -30,7 +30,7 @@ func (u *User) String() string {
 }
 
 func (u *User) LoadAuths(tx *gorm.DB) error {
-	return tx.Where("id = ?", u.ID).Preload("Auths").Preload("Roles.Auths").First(u).Error
+	return tx.Where("ID = ?", u.ID).Preload("Auths").Preload("Roles.Auths").First(u).Error
 }
 
 func (u *User) GetAuths() []*Auth {

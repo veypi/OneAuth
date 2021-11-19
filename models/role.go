@@ -4,50 +4,48 @@ import "github.com/veypi/OneAuth/oalib"
 
 type UserRole struct {
 	BaseModel
-	UserID uint `json:"user_id"`
-	RoleID uint `json:"role_id"`
+	UserID uint
+	RoleID uint
 }
 
 type Role struct {
 	BaseModel
-	AppUUID string `json:"app_uuid" gorm:"size:32"`
-	App     *App   `json:"app" gorm:"association_foreignkey:UUID"`
-	Name    string `json:"name"`
+	AppUUID string `gorm:"size:32"`
+	App     *App   `gorm:"association_foreignkey:UUID"`
+	Name    string
 	// 角色标签
-	Tag   string  `json:"tag" gorm:"default:''"`
-	Users []*User `json:"users" gorm:"many2many:user_roles;"`
+	Tag   string  `gorm:"default:''"`
+	Users []*User `gorm:"many2many:UserRoles;"`
 	// 具体权限
-	Auths     []*Auth `json:"auths" gorm:"foreignkey:RoleID;references:ID"`
-	UserCount uint    `json:"user_count"`
+	Auths     []*Auth `gorm:"foreignkey:RoleID;references:ID"`
+	UserCount uint
 }
 
 // Auth 资源权限
 type Auth struct {
 	BaseModel
 	// 该权限作用的应用
-	AppUUID string `json:"app_uuid" gorm:"size:32"`
-	App     *App   `json:"app" gorm:"association_foreignkey:UUID"`
+	AppUUID string `gorm:"size:32"`
+	App     *App   `gorm:"association_foreignkey:UUID"`
 	// 权限绑定只能绑定一个
-	RoleID *uint `json:"role_id" gorm:""`
-	Role   *Role `json:"role"`
-	UserID *uint `json:"user_id"`
-	User   *User `json:"user"`
+	RoleID *uint `gorm:""`
+	Role   *Role
+	UserID *uint
+	User   *User
 	// 资源id
-	ResourceID uint      `json:"resource_id" gorm:"not null"`
-	Resource   *Resource `json:"resource"`
+	ResourceID uint `gorm:"not null"`
+	Resource   *Resource
 	// resource_name 用于其他系统方便区分权限的名字
-	RID string `json:"rid" gorm:""`
+	RID string `gorm:""`
 	// 具体某个资源的id
-	RUID  string          `json:"ruid"`
-	Level oalib.AuthLevel `json:"level"`
+	RUID  string
+	Level oalib.AuthLevel
 }
 
 type Resource struct {
 	BaseModel
-	AppUUID string `json:"app_uuid"  gorm:"size:32"`
-	App     *App   `json:"app" gorm:"association_foreignkey:UUID"`
-	Name    string `json:"name"`
-	// 权限标签
-	Tag string `json:"tag"`
-	Des string `json:"des"`
+	AppUUID string ` gorm:"size:32"`
+	App     *App   `gorm:"association_foreignkey:UUID"`
+	Name    string
+	Des     string
 }

@@ -19,7 +19,7 @@ export class Interface {
         this.data = data
     }
 
-    Start(success: SuccessFunction<any>, fail?: FailedFunction<any>) {
+    Start(success?: SuccessFunction<any>, fail?: FailedFunction<any>) {
         const newFail = function (data: any) {
             if (data) {
                 if (data.code === 40001) {
@@ -38,6 +38,9 @@ export class Interface {
             }
             if (fail) {
                 fail(data.err)
+            } else {
+                // @ts-ignore
+                window.$msg.warning(data.err)
             }
         }
 
@@ -45,6 +48,9 @@ export class Interface {
             if (Number(data.status) === 1) {
                 if (success) {
                     success(data.content)
+                } else {
+                    // @ts-ignore
+                    window.$msg.warning('ok')
                 }
             } else {
                 newFail(data)

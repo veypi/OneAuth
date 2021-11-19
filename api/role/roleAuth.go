@@ -20,10 +20,9 @@ var rap = OneBD.NewHandlerPool(func() OneBD.Handler {
 })
 
 type roleAuthHandler struct {
-	base.ApiHandler
-	id   uint
-	aid  uint
-	uuid string
+	base.AppHandler
+	id  uint
+	aid uint
 }
 
 func (h *roleAuthHandler) Init(m OneBD.Meta) error {
@@ -36,7 +35,7 @@ func (h *roleAuthHandler) Init(m OneBD.Meta) error {
 }
 
 func (h *roleAuthHandler) Post() (interface{}, error) {
-	if !h.Payload.GetAuth(auth.Auth, h.uuid).CanCreate() {
+	if !h.Payload.GetAuth(auth.Auth, h.UUID).CanCreate() {
 		return nil, oerr.NoAuth
 	}
 	return nil, nil

@@ -100,7 +100,7 @@ func runResourceList(c *cli.Context) error {
 		return nil
 	}
 	for _, r := range l {
-		log.Info().Msgf("%d:  %s@%d", r.ID, r.Name, r.AppUUID)
+		log.Info().Msgf("%d:  %s@%s", r.ID, r.Name, r.AppUUID)
 	}
 	return nil
 }

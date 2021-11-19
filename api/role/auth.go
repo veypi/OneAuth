@@ -28,7 +28,7 @@ func (h *authHandler) Get() (interface{}, error) {
 	query := &models.Auth{}
 	var err error
 	if aid > 0 {
-		err = cfg.DB().Where("id = ?", aid).First(query).Error
+		err = cfg.DB().Where("ID = ?", aid).First(query).Error
 		return query, err
 	}
 	id, _ := strconv.Atoi(h.Meta().Query("id"))
@@ -37,12 +37,12 @@ func (h *authHandler) Get() (interface{}, error) {
 		return nil, oerr.ApiArgsMissing
 	}
 	target := &models.App{}
-	err = cfg.DB().Where("uuid = ?", uuid).First(target).Error
+	err = cfg.DB().Where("UUID = ?", uuid).First(target).Error
 	if err != nil {
 		return nil, err
 	}
 	u := &models.User{}
-	err = cfg.DB().Preload("Roles.Auths").Preload("Auths").Where("id = ?", id).First(u).Error
+	err = cfg.DB().Preload("Roles.Auths").Preload("Auths").Where("ID = ?", id).First(u).Error
 	if err != nil {
 		return nil, err
 	}

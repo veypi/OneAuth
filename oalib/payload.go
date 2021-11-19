@@ -12,17 +12,17 @@ import (
 )
 
 type SimpleAuth struct {
-	RID string `json:"rid"`
+	RID string
 	// 具体某个资源的id
-	RUID  string    `json:"ruid"`
-	Level AuthLevel `json:"level"`
+	RUID  string
+	Level AuthLevel
 }
 
 // PayLoad TODO:: roles 是否会造成token过大 ?
 type PayLoad struct {
 	jwt.Payload
-	ID   uint          `json:"id"`
-	Auth []*SimpleAuth `json:"auth"`
+	ID   uint
+	Auth []*SimpleAuth
 }
 
 // GetAuth resource_uuid 缺省或仅第一个有效 权限会被更高权限覆盖

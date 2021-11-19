@@ -14,28 +14,18 @@ var roleP = OneBD.NewHandlerPool(func() OneBD.Handler {
 	return &roleHandler{}
 })
 
-type baseAppHandler struct {
-	base.ApiHandler
-	uuid string
-}
-
-func (h *baseAppHandler) Init(m OneBD.Meta) error {
-	h.uuid = m.Params("uuid")
-	return h.ApiHandler.Init(m)
-}
-
 type roleHandler struct {
-	baseAppHandler
+	base.AppHandler
 }
 
 func (h *roleHandler) Get() (interface{}, error) {
 	id := h.Meta().ParamsInt("id")
-	if !h.GetAuth(auth.Role, h.uuid).CanRead() {
+	if !h.GetAuth(auth.Role, h.UUID).CanRead() {
 		return nil, oerr.NoAuth
 	}
 	if id > 0 {
 		role := &models.Role{}
-		role.AppUUID = h.uuid
+		role.AppUUID = h.UUID
 		role.ID = uint(id)
 		err := cfg.DB().Preload("Auths").Preload("Users").First(role).Error
 		if err != nil {
@@ -44,7 +34,7 @@ func (h *roleHandler) Get() (interface{}, error) {
 		return role, nil
 	}
 	roles := make([]*models.Role, 0, 10)
-	err := cfg.DB().Where("app_uuid = ?", h.uuid).Find(&roles).Error
+	err := cfg.DB().Where("AppUUID = ?", h.UUID).Find(&roles).Error
 	return roles, err
 }
 
@@ -69,9 +59,9 @@ func (h *roleHandler) Patch() (interface{}, error) {
 		return nil, oerr.NoAuth
 	}
 	query := &struct {
-		Name *string `json:"name"`
+		Name *string
 		// 角色标签
-		Tag *string `json:"tag" gorm:"default:''"`
+		Tag *string `gorm:"default:''"`
 	}{}
 	err := h.Meta().ReadJson(query)
 	if err != nil {
@@ -90,13 +80,13 @@ func (h *roleHandler) Patch() (interface{}, error) {
 	return nil, cfg.DB().Transaction(func(tx *gorm.DB) error {
 		var err error
 		if query.Tag != nil && *query.Tag != role.Tag {
-			err = tx.Model(role).Update("tag", *query.Tag).Error
+			err = tx.Model(role).Update("Tag", *query.Tag).Error
 			if err != nil {
 				return err
 			}
 		}
 		if query.Name != nil && *query.Name != role.Name {
-			err = tx.Model(role).Update("name", *query.Name).Error
+			err = tx.Model(role).Update("Name", *query.Name).Error
 			if err != nil {
 				return err
 			}

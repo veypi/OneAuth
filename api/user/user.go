@@ -80,18 +80,19 @@ func (h *handler) Post() (interface{}, error) {
 	if err != nil {
 		return nil, oerr.DBErr.Attach(err)
 	}
+	log.Warn().Msgf("%v %v", self.EnableRegister, h.GetAuth(auth.User, "").CanCreate())
 	if !self.EnableRegister && !h.Payload.GetAuth(auth.User, "").CanCreate() {
-		return nil, oerr.NoAuth.AttachStr("register disabled")
+		return nil, errors.New("register disabled")
 	}
 	var userdata = struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-		Nickname string `json:"nickname"`
-		Phone    string `json:"phone"`
-		Email    string `json:"email"`
-		Domain   string `json:"domain"`
-		Title    string `json:"title"`
-		Position string `json:"position"`
+		Username string
+		Password string
+		Nickname string
+		Phone    string
+		Email    string
+		Domain   string
+		Title    string
+		Position string
 	}{}
 	if err := h.Meta().ReadJson(&userdata); err != nil {
 		return nil, err
@@ -137,13 +138,13 @@ func (h *handler) Post() (interface{}, error) {
 func (h *handler) Patch() (interface{}, error) {
 	uid := h.Meta().Params("user_id")
 	opts := struct {
-		Password string `json:"password"`
-		Icon     string `json:"icon"`
-		Nickname string `json:"nickname"`
-		Phone    string `json:"phone" gorm:"type:varchar(20);unique;default:null" json:",omitempty"`
-		Email    string `json:"email" gorm:"type:varchar(50);unique;default:null" json:",omitempty"`
-		Status   string `json:"status"`
-		Position string `json:"position"`
+		Password string
+		Icon     string
+		Nickname string
+		Phone    string `gorm:"type:varchar(20);unique;default:null" json:",omitempty"`
+		Email    string `gorm:"type:varchar(50);unique;default:null" json:",omitempty"`
+		Status   string
+		Position string
 	}{}
 	if err := h.Meta().ReadJson(&opts); err != nil {
 		return nil, err
@@ -208,7 +209,7 @@ func (h *handler) Head() (interface{}, error) {
 		return nil, oerr.ApiArgsError
 	}
 	h.User = new(models.User)
-	uidType := h.Meta().Query("uid_type")
+	uidType := h.Meta().Query("UidType")
 	switch uidType {
 	case "username":
 		h.User.Username = uid

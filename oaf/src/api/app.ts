@@ -14,8 +14,11 @@ export default {
     self() {
         return new Interface(ajax.get, this.local, {option: 'oa'})
     },
-    create(name: string) {
-        return new Interface(ajax.post, this.local, {name: name})
+    getKey(uuid: string) {
+        return new Interface(ajax.get, this.local + uuid, {option: 'key'})
+    },
+    create(name: string, icon: string) {
+        return new Interface(ajax.post, this.local, {name, icon})
     },
     get(uuid: string) {
         return new Interface(ajax.get, this.local + uuid)
@@ -34,7 +37,13 @@ export default {
             local: this.local + uuid + '/user/',
             list(uid: number) {
                 return new Interface(ajax.get, this.local + uid)
-            }
+            },
+            add(uid: number) {
+                return new Interface(ajax.post, this.local + uid)
+            },
+            update(uid: number, status: string) {
+                return new Interface(ajax.patch, this.local + uid, {status})
+            },
         }
-    }
+    },
 }

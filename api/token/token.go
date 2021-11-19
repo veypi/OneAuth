@@ -31,7 +31,7 @@ func (h *tokenHandler) Get() (interface{}, error) {
 	}
 	a := &models.App{}
 	a.UUID = uuid
-	err := cfg.DB().Where("uuid = ?", uuid).First(a).Error
+	err := cfg.DB().Where("UUID = ?", uuid).First(a).Error
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (h *tokenHandler) Get() (interface{}, error) {
 		return nil, oerr.NoAuth.AttachStr(string(au.Status))
 	}
 	u := &models.User{}
-	err = cfg.DB().Preload("Auths").Preload("Roles.Auths").Where("id = ?", h.Payload.ID).First(u).Error
+	err = cfg.DB().Preload("Auths").Preload("Roles.Auths").Where("ID = ?", h.Payload.ID).First(u).Error
 	if err != nil {
 		return nil, err
 	}

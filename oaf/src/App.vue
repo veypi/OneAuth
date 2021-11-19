@@ -4,7 +4,8 @@
       <transition mode="out-in" enter-active-class="animate__fadeInLeft"
                   leave-active-class="animate__fadeOutRight">
         <component class="animate__animated animate__400ms" :is="Component"
-                   style="margin: 10px; min-height: calc(100vh - 108px)"
+                   :style="{'min-height': store.state.height}"
+                   style="margin: 10px"
         ></component>
       </transition>
     </router-view>
@@ -14,7 +15,6 @@
 // This starter template is using Vue 3 <script setup> SFCs
 import BaseFrame from './components/frame.vue'
 import {onBeforeMount, ref} from 'vue'
-import util from './libs/util'
 import {useStore} from "./store";
 
 let store = useStore()
@@ -24,7 +24,6 @@ onBeforeMount(() => {
   if (loader && loader.parentElement) {
     loader.parentElement.removeChild(loader)
   }
-  util.title("统一认证")
   store.dispatch('fetchSelf')
   store.dispatch('user/fetchUserData')
 })

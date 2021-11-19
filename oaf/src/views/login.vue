@@ -64,7 +64,7 @@ function login() {
   // @ts-ignore
   form_ref.value.validate((e:any) => {
     if (!e) {
-      api.user.login(data.value.username, data.value.password, uuid.value as string).Start((url: string) => {
+      api.user.login(data.value.username, data.value.password).Start((url: string) => {
         msg.success('登录成功')
         store.dispatch('user/fetchUserData')
         let target = url

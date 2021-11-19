@@ -1,5 +1,10 @@
 <template>
   <siderframe>
+    <template v-slot:avatar>
+    <n-avatar @click="util.goto(app.Host)" :src="app.Icon" round size="large"></n-avatar>
+    </template>
+    <template #title>{{ app.Name }}</template>
+    <template #subtitle>{{ app.Des }}</template>
     <template v-slot:sider>
     <div class="grid grid-cols-1">
       <div class="cursor-pointer" v-for="(item, key) in navRouter" :key="key">
@@ -29,13 +34,15 @@
 </template>
 
 <script lang="ts" setup>
-import {elementScrollIntoView} from "seamless-scroll-polyfill";
-import {useRoute, useRouter} from "vue-router";
-import {computed, onMounted, ref, provide} from "vue";
-import api from "@/api";
-import Siderframe from "@/components/siderframe.vue";
-import {useMessage} from "naive-ui";
-import {useStore} from "@/store";
+import {elementScrollIntoView} from 'seamless-scroll-polyfill'
+import {useRoute, useRouter, RouteRecord, RouteLocation, RouteParams} from 'vue-router'
+import {computed, onMounted, ref, provide, onBeforeUnmount, Ref} from 'vue'
+import api from '@/api'
+import Siderframe from '@/components/siderframe.vue'
+import {useMessage} from 'naive-ui'
+import {useStore} from '@/store'
+import {modelsApp, modelsBread} from '@/models'
+import util from '@/libs/util'
 
 
 let store = useStore()
@@ -43,7 +50,7 @@ let mgs = useMessage()
 let route = useRoute()
 let router = useRouter()
 let uuid = computed(() => route.params.uuid)
-let app = ref({})
+let app = ref<modelsApp>({} as modelsApp)
 provide('app', app)
 provide('uuid', uuid)
 let main = ref(null)
@@ -51,12 +58,12 @@ let main = ref(null)
 let nav = computed(() => main.value ? main.value.nav : [])
 let navRouter = ref(buildRouter())
 
-function buildRouter() {
-  let navs = []
+function buildRouter(): RouteRecord[] {
+  let navs: RouteRecord[] = []
   for (let n of router.getRoutes()) {
     if (n.name && (n.name as string).startsWith('app')) {
       if (n.meta.checkAuth) {
-        if (n.meta.checkAuth(store.state.user.auth)) {
+        if (n.meta.checkAuth(store.state.user.auth, route)) {
           navs.push(n)
         }
       } else {
@@ -76,12 +83,18 @@ onMounted(() => {
     router.push({name: '404', params: {path: route.path}})
     return
   }
-  api.app.get(uuid.value as string).Start(e => {
+  api.app.get(uuid.value as string).Start((e: modelsApp) => {
     app.value = e
+    store.commit('setBreads', {Index: 1, Name: e.Name, RName: 'app.main', RParams: {uuid: e.UUID}} as modelsBread)
+    store.commit('setTitle', e.Name)
   }, e => {
     mgs.error('获取应用数据失败: ' + (e.err || e))
     router.push({name: '404', params: {path: route.path}})
   })
+})
+
+onBeforeUnmount(() => {
+  store.commit('setTitle', '')
 })
 
 function goAnchor(element: any) {
@@ -89,9 +102,8 @@ function goAnchor(element: any) {
   // element.scrollIntoView({
   //   behavior: "smooth"
   // })
-  elementScrollIntoView(element, {behavior: "smooth"});
+  elementScrollIntoView(element, {behavior: 'smooth'})
 }
-
 
 </script>
 

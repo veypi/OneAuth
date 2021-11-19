@@ -2,10 +2,10 @@ package models
 
 type Message struct {
 	BaseModel
-	UserID   uint   `json:"user_id"`
-	User     *User  `json:"user"`
-	Title    string `json:"title"`
-	Redirect string `json:"redirect"`
-	Content  string `json:"content"`
-	From     string `json:"from"`
+	UserID   uint
+	User     *User
+	Title    string
+	Redirect string
+	Content  string
+	From     string
 }

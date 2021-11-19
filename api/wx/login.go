@@ -100,9 +100,9 @@ func requestCorpToken(corpid, corpsecret string) (string, error) {
 		"corpsecret": corpsecret,
 	}
 	res := &struct {
-		Errmsg      string `json:"errmsg"`
-		Errcode     *uint  `json:"errcode"`
-		AccessToken string `json:"access_token"`
+		Errmsg      string
+		Errcode     *uint
+		AccessToken string
 	}{}
 	err := tools.Query(addr, query, res)
 	if err != nil {
@@ -120,10 +120,10 @@ func requestCorpToken(corpid, corpsecret string) (string, error) {
 func getUserID(token, code string) (string, error) {
 	addr := "https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo"
 	res := &struct {
-		Errmsg   string `json:"errmsg"`
-		Errcode  *uint  `json:"errcode"`
-		UserId   string `json:"UserId"`
-		DeviceId string `json:"device_id"`
+		Errmsg   string
+		Errcode  *uint
+		UserId   string
+		DeviceId string
 	}{}
 	query := map[string]string{
 		"access_token": token,

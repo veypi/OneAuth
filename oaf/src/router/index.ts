@@ -1,7 +1,8 @@
-import {createRouter, createWebHistory} from 'vue-router'
+import {createRouter, createWebHistory, RouteLocationNormalized} from 'vue-router'
 import util from '@/libs/util'
 import {Auths, R} from '@/auth'
-import {store} from "@/store";
+import {store} from '@/store'
+
 
 declare module 'vue-router' {
     interface RouteMeta {
@@ -10,7 +11,7 @@ declare module 'vue-router' {
         title?: string
         // 每个路由都必须声明
         requiresAuth: boolean
-        checkAuth?: (a: Auths) => boolean
+        checkAuth?: (a: Auths, r?: RouteLocationNormalized) => boolean
     }
 }
 
@@ -23,7 +24,7 @@ const router = createRouter({
             meta: {
                 requiresAuth: true,
             },
-            component: () => import('@/views/home.vue')
+            component: () => import('@/views/home.vue'),
         },
         {
             path: '/app/:uuid?',
@@ -37,7 +38,7 @@ const router = createRouter({
                         title: '首页',
                         requiresAuth: true,
                     },
-                    component: () => import('@/views/app/main.vue')
+                    component: () => import('@/views/app/main.vue'),
                 },
                 {
                     path: 'users',
@@ -45,11 +46,11 @@ const router = createRouter({
                     meta: {
                         title: '用户',
                         requiresAuth: true,
-                        checkAuth: a => {
-                            return a.Get(R.User, '').CanRead()
-                        }
+                        checkAuth: (a, r) => {
+                            return a.Get(R.User, r.params.uuid as string).CanRead()
+                        },
                     },
-                    component: () => import('@/views/app/users.vue')
+                    component: () => import('@/views/app/users.vue'),
                 },
                 {
                     path: 'roles',
@@ -57,11 +58,11 @@ const router = createRouter({
                     meta: {
                         title: '权限',
                         requiresAuth: true,
-                        checkAuth: a => {
-                            return a.Get(R.Role, '').CanRead()
-                        }
+                        checkAuth: (a, r) => {
+                            return a.Get(R.Role, r.params.uuid as string).CanRead()
+                        },
                     },
-                    component: () => import('@/views/app/roles.vue')
+                    component: () => import('@/views/app/roles.vue'),
                 },
                 {
                     path: 'setting',
@@ -69,52 +70,55 @@ const router = createRouter({
                     meta: {
                         title: '应用设置',
                         requiresAuth: true,
-                        checkAuth: a => {
-                            return a.Get(R.App, '').CanRead()
-                        }
+                        checkAuth: (a, r) => {
+                            return a.Get(R.App, r.params.uuid as string).CanUpdate()
+                        },
                     },
-                    component: () => import('@/views/app/setting.vue')
-                }
-            ]
+                    component: () => import('@/views/app/setting.vue'),
+                },
+            ],
         },
         {
             path: '/user/setting',
             name: 'user_setting',
             meta: {
-                requiresAuth: true
+                requiresAuth: true,
             },
-            component: () => import('@/views/user_setting.vue')
+            component: () => import('@/views/user_setting.vue'),
         },
         {
             path: '/about',
             name: 'about',
-            component: () => import('@/views/about.vue')
+            component: () => import('@/views/about.vue'),
         },
         {
             path: '/wx',
             name: 'wx',
-            component: () => import('@/views/wx.vue')
+            component: () => import('@/views/wx.vue'),
         },
         {
             path: '/login/:uuid?',
             name: 'login',
-            component: () => import('@/views/login.vue')
+            component: () => import('@/views/login.vue'),
         },
         {
             path: '/register/:uuid?',
             name: 'register',
-            component: () => import('@/views/register.vue')
+            component: () => import('@/views/register.vue'),
         },
         {
             path: '/:path(.*)',
             name: '404',
-            component: () => import('@/views/404.vue')
-        }
+            component: () => import('@/views/404.vue'),
+        },
     ],
 })
 
 router.beforeEach((to, from) => {
     // to.matched.some(record => record.meta.requiresAuth)
+    if (to.query.noh === '1') {
+        store.commit('hideHeader', true)
+    }
     if (to.meta.requiresAuth && !util.checkLogin()) {
         // 此路由需要授权，请检查是否已登录
         // 如果没有，则重定向到登录页面
@@ -125,7 +129,7 @@ router.beforeEach((to, from) => {
         }
     }
     if (to.meta.checkAuth) {
-        if (!to.meta.checkAuth(store.state.user.auth)) {
+        if (!to.meta.checkAuth(store.state.user.auth, to)) {
 
             // @ts-ignore
             if (window.$msg) {

@@ -9,11 +9,14 @@ import (
 	"github.com/veypi/OneBD"
 	"github.com/veypi/OneBD/rfc"
 	"github.com/veypi/utils"
+	"github.com/veypi/utils/log"
+	"gorm.io/gorm"
+	"reflect"
 )
 
 var appHandlerP = OneBD.NewHandlerPool(func() OneBD.Handler {
 	h := &appHandler{}
-	h.Ignore(rfc.MethodGet, rfc.MethodPost)
+	h.Ignore(rfc.MethodGet)
 	return h
 })
 
@@ -35,6 +38,20 @@ func (h *appHandler) Get() (interface{}, error) {
 	err := h.ParsePayload(h.Meta())
 	if err != nil {
 		return nil, err
+	}
+	if option == "key" {
+		if uuid == "" {
+			return nil, oerr.ApiArgsError
+		}
+		if !h.GetAuth(auth.APP, uuid).CanDoAny() {
+			return nil, oerr.NoAuth
+		}
+		key := utils.RandSeq(32)
+		err = cfg.DB().Model(&models.App{}).Where("UUID = ?", uuid).Update("Key", key).Error
+		if err != nil {
+			return nil, err
+		}
+		return key, nil
 	}
 	if !h.GetAuth(auth.APP, uuid).CanRead() {
 		return nil, oerr.NoAuth
@@ -63,9 +80,12 @@ func (h *appHandler) Get() (interface{}, error) {
 }
 
 func (h *appHandler) Post() (interface{}, error) {
+	if !h.Payload.GetAuth(auth.APP, "").CanCreate() {
+		return nil, oerr.NoAuth
+	}
 	data := &struct {
-		Name string `json:"name"`
-		UUID string `json:"uuid"`
+		Name string
+		Icon string
 	}{}
 	err := h.Meta().ReadJson(data)
 	if err != nil {
@@ -74,51 +94,70 @@ func (h *appHandler) Post() (interface{}, error) {
 	if data.Name == "" {
 		return nil, oerr.ApiArgsMissing.AttachStr("name")
 	}
-	_ = h.ParsePayload(h.Meta())
 	a := &models.App{
-		UUID:    data.UUID,
-		Name:    data.Name,
-		Key:     utils.RandSeq(32),
-		Creator: h.Payload.ID,
+		UUID:           utils.RandSeq(16),
+		Name:           data.Name,
+		Icon:           data.Icon,
+		Creator:        h.Payload.ID,
+		EnableRegister: false,
 	}
-	a.Key = utils.RandSeq(32)
-	if data.UUID != "" {
-		err = cfg.DB().Where("uuid = ?", data.UUID).FirstOrCreate(a).Error
-	} else {
-		data.UUID = utils.RandSeq(16)
-		err = cfg.DB().Create(a).Error
-	}
+	a.UUID = utils.RandSeq(16)
+	err = cfg.DB().Transaction(func(tx *gorm.DB) error {
+		e := tx.Create(a).Error
+		if e != nil {
+			return e
+		}
+		au := &models.AppUser{
+			AppUUID: a.UUID,
+			UserID:  h.Payload.ID,
+			Status:  models.AUOK,
+		}
+		return tx.Create(au).Error
+	})
 	if err != nil {
 		return nil, err
 	}
 	return a, nil
 }
 
+func Struct2Map(obj interface{}) (data map[string]interface{}) {
+	data = make(map[string]interface{})
+	objT := reflect.TypeOf(obj)
+	objV := reflect.ValueOf(obj)
+	var item reflect.Value
+	var k reflect.StructField
+	for i := 0; i < objT.NumField(); i++ {
+		k = objT.Field(i)
+		item = objV.Field(i)
+		if !item.IsNil() {
+			data[k.Name] = item.Interface()
+		}
+	}
+	return
+}
+
 func (h *appHandler) Patch() (interface{}, error) {
 	uid := h.Meta().Params("uuid")
+	if uid == "" || !h.Payload.GetAuth(auth.APP, uid).CanUpdate() {
+		return nil, oerr.NoAuth
+	}
 	opts := struct {
-		Icon string `json:"icon"`
-		Name string `json:"name"`
+		Icon           *string
+		Name           *string
+		EnableRegister *bool
+		Des            *string
+		Host           *string
+		UserRefreshUrl *string
 	}{}
 	if err := h.Meta().ReadJson(&opts); err != nil {
 		return nil, err
 	}
-	target := models.App{
-		UUID: uid,
+	query := Struct2Map(opts)
+	log.Warn().Msgf("%#v", query)
+	if len(query) == 0 {
+		return nil, nil
 	}
-	if err := cfg.DB().Where(&target).First(&target).Error; err != nil {
-		return nil, err
-	}
-	if !h.Payload.GetAuth(auth.APP, target.UUID).CanUpdate() {
-		return nil, oerr.NoAuth
-	}
-	if opts.Name != "" {
-		target.Name = opts.Name
-	}
-	if opts.Icon != "" {
-		target.Icon = opts.Icon
-	}
-	if err := cfg.DB().Updates(&target).Error; err != nil {
+	if err := cfg.DB().Table("Apps").Where("UUID = ?", uid).Updates(query).Error; err != nil {
 		return nil, err
 	}
 	return nil, nil
