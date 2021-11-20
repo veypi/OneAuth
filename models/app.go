@@ -1,12 +1,14 @@
 package models
 
+import "gorm.io/gorm"
+
 var AppKeys = map[string]string{}
 
 type App struct {
 	UUID      string `gorm:"primaryKey;size:32"`
 	CreatedAt JSONTime
 	UpdatedAt JSONTime
-	DeletedAt *JSONTime `sql:"index"`
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 	Name      string
 	Icon      string
 	Des       string

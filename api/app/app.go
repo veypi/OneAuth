@@ -5,13 +5,12 @@ import (
 	"github.com/veypi/OneAuth/libs/auth"
 	"github.com/veypi/OneAuth/libs/base"
 	"github.com/veypi/OneAuth/libs/oerr"
+	"github.com/veypi/OneAuth/libs/tools"
 	"github.com/veypi/OneAuth/models"
 	"github.com/veypi/OneBD"
 	"github.com/veypi/OneBD/rfc"
 	"github.com/veypi/utils"
-	"github.com/veypi/utils/log"
 	"gorm.io/gorm"
-	"reflect"
 )
 
 var appHandlerP = OneBD.NewHandlerPool(func() OneBD.Handler {
@@ -120,22 +119,6 @@ func (h *appHandler) Post() (interface{}, error) {
 	return a, nil
 }
 
-func Struct2Map(obj interface{}) (data map[string]interface{}) {
-	data = make(map[string]interface{})
-	objT := reflect.TypeOf(obj)
-	objV := reflect.ValueOf(obj)
-	var item reflect.Value
-	var k reflect.StructField
-	for i := 0; i < objT.NumField(); i++ {
-		k = objT.Field(i)
-		item = objV.Field(i)
-		if !item.IsNil() {
-			data[k.Name] = item.Interface()
-		}
-	}
-	return
-}
-
 func (h *appHandler) Patch() (interface{}, error) {
 	uid := h.Meta().Params("uuid")
 	if uid == "" || !h.Payload.GetAuth(auth.APP, uid).CanUpdate() {
@@ -152,8 +135,7 @@ func (h *appHandler) Patch() (interface{}, error) {
 	if err := h.Meta().ReadJson(&opts); err != nil {
 		return nil, err
 	}
-	query := Struct2Map(opts)
-	log.Warn().Msgf("%#v", query)
+	query := tools.Struct2Map(opts)
 	if len(query) == 0 {
 		return nil, nil
 	}

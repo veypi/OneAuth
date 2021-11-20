@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/veypi/OneAuth/cfg"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -95,8 +96,8 @@ func (jt *JSONTime) SetTime(t time.Time) {
 }
 
 type BaseModel struct {
-	ID        uint      `gorm:"primaryKey"`
-	CreatedAt JSONTime  ``
-	UpdatedAt JSONTime  ``
-	DeletedAt *JSONTime `sql:"index"`
+	ID        uint           `gorm:"primaryKey"`
+	CreatedAt JSONTime       ``
+	UpdatedAt JSONTime       ``
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }

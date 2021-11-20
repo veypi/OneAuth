@@ -15,6 +15,9 @@ export default (uuid: string) => {
         list() {
             return new Interface(ajax.get, this.local)
         },
+        update(id: number, props: {}) {
+            return new Interface(ajax.patch, this.local + id, props)
+        },
         create(Name: string, Des: string) {
             return new Interface(ajax.post, this.local, {Name, Des})
         },

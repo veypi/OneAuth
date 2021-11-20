@@ -1,6 +1,14 @@
 <template>
   <div>
-    <h1 class="page-h1">角色管理</h1>
+    <div class="flex justify-between">
+      <h1 class="page-h1">角色管理</h1>
+      <div class="my-5 mr-10">
+        <EditorRole @ok="roles.push($event)" v-model="roleFlag" :res="tmp" :uuid="uuid">
+          <n-button @click="tmp={};roleFlag=true">添加角色</n-button>
+        </EditorRole>
+      </div>
+    </div>
+    <RoleAuths :res="resources" v-model="raFlag" :uuid="uuid" :role="tmp"></RoleAuths>
     <n-data-table
       :bordered="false"
       :columns="columns"
@@ -9,33 +17,13 @@
     <div class="flex justify-between">
       <h1 class="page-h1">资源管理</h1>
       <div class="my-5 mr-10">
-        <n-button @click="tmp_res={};tr_flag=true">添加资源</n-button>
+        <EditorRes @ok="resources.push($event)" v-model="trFlag" :res="tmp" :uuid="uuid">
+          <n-button @click="tmp={};trFlag=true">添加资源</n-button>
+        </EditorRes>
       </div>
     </div>
     <n-data-table class="mb-96" :bordered="false" :data="resources" :columns="resCols">
     </n-data-table>
-    <n-modal v-model:show="tr_flag">
-      <n-card class="w-4/5 md:w-96 rounded-2xl" :title="tmp_res.index >= 0 ? tmp_res.Name:' '" :bordered="false"
-              size="huge">
-        <template #header-extra>{{ tmp_res.index >= 0 ? '编辑' : '创建' }}</template>
-        <div class="grid grid-cols-5 gap-1 gap-y-8" style="line-height: 34px">
-          <div>资源名</div>
-          <div class="col-span-4">
-            <n-input v-model:value="tmp_res.Name"></n-input>
-          </div>
-          <div>资源描述</div>
-          <div class="col-span-4">
-            <n-input type="textarea" v-model:value="tmp_res.Des"></n-input>
-          </div>
-        </div>
-        <template #footer>
-        <div class="flex justify-end">
-          <n-button class="mx-3" @click="tr_flag=false">取消</n-button>
-          <n-button @click="add_res">创建</n-button>
-        </div>
-        </template>
-      </n-card>
-    </n-modal>
   </div>
 </template>
 
@@ -46,6 +34,9 @@ import {NButton, useMessage} from 'naive-ui'
 import {modelsBread, modelsResource, modelsRole} from '@/models'
 import {useStore} from '@/store'
 import {useRoute} from 'vue-router'
+import EditorRes from '@/components/editor/resource.vue'
+import EditorRole from '@/components/editor/role.vue'
+import RoleAuths from '@/components/connectors/roleauths.vue'
 
 let store = useStore()
 let route = useRoute()
@@ -66,15 +57,18 @@ const columns = [
         h(NButton, {
             class: 'mr-1',
             size: 'small',
-            onClick: () => console.log(row),
+            onClick: () => {
+              raFlag.value = true
+              tmp.value = row
+            },
           },
-          {default: () => '查看权限'}),
+          {default: () => '权限'}),
         h(NButton, {
             class: 'mr-1',
             size: 'small',
             onClick: () => console.log(row),
           },
-          {default: () => '查看用户'},
+          {default: () => '用户'},
         ),
       ]
     },
@@ -104,40 +98,37 @@ const resCols = [
   {
     title: '操作',
     key: '',
-    width: 100,
+    width: 200,
     fixed: 'right',
     render(row, i) {
-      return h(NButton, {
+      return [h(NButton, {
           class: 'mr-1',
           size: 'small',
           onClick: () => {
-            api.resource(uuid.value).delete(row.ID).Start(e => {
-              resources.value.splice(i, 1)
-              msg.success('删除成功')
-            })
+            trFlag.value = true
+            tmp.value = row
           },
-        }, {default: () => '删除'},
-      )
+        }, {default: () => '编辑'},
+      ), h(NButton, {
+        class: 'mr-1',
+        size: 'small',
+        onClick: () => {
+          api.resource(uuid.value).delete(row.ID).Start(e => {
+            resources.value.splice(i, 1)
+            msg.success('删除成功')
+          })
+        },
+      }, {default: () => '删除'}),
+      ]
     },
   },
 ]
 
-let tmp_res = ref({
-  index: -1,
-  Name: '',
-  Des: '',
-})
-let tr_flag = ref(false)
+let tmp = ref({})
+let trFlag = ref(false)
+let roleFlag = ref(false)
+let raFlag = ref(false)
 
-function add_res() {
-  if (tmp_res.value.index >= 0) {
-    return
-  }
-  api.resource(uuid.value).create(tmp_res.value.Name, tmp_res.value.Des).Start(e => {
-    resources.value.push(e)
-    tr_flag.value = false
-  })
-}
 </script>
 
 <style scoped>

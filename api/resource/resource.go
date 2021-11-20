@@ -6,6 +6,7 @@ import (
 	"github.com/veypi/OneAuth/libs/auth"
 	"github.com/veypi/OneAuth/libs/base"
 	"github.com/veypi/OneAuth/libs/oerr"
+	"github.com/veypi/OneAuth/libs/tools"
 	"github.com/veypi/OneAuth/models"
 	"github.com/veypi/OneBD"
 )
@@ -53,6 +54,29 @@ func (h *resourceHandler) Post() (interface{}, error) {
 	}
 	err = cfg.DB().Create(res).Error
 	return res, err
+}
+
+func (h *resourceHandler) Patch() (interface{}, error) {
+	if !h.GetAuth(auth.Res, h.UUID).CanUpdate() {
+		return nil, oerr.NoAuth
+	}
+	props := struct {
+		Des *string
+	}{}
+	err := h.Meta().ReadJson(&props)
+	if err != nil {
+		return nil, err
+	}
+
+	query := tools.Struct2Map(props)
+	id := h.Meta().ParamsInt("id")
+	if len(query) == 0 || id <= 0 {
+		return nil, oerr.ApiArgsMissing
+	}
+	if err := cfg.DB().Table("Resources").Where("id = ?", id).Updates(query).Error; err != nil {
+		return nil, err
+	}
+	return nil, nil
 }
 
 func (h *resourceHandler) Delete() (interface{}, error) {

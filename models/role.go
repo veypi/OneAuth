@@ -1,6 +1,8 @@
 package models
 
-import "github.com/veypi/OneAuth/oalib"
+import (
+	"github.com/veypi/OneAuth/oalib"
+)
 
 type UserRole struct {
 	BaseModel
@@ -28,7 +30,7 @@ type Auth struct {
 	AppUUID string `gorm:"size:32"`
 	App     *App   `gorm:"association_foreignkey:UUID"`
 	// 权限绑定只能绑定一个
-	RoleID *uint `gorm:""`
+	RoleID *uint
 	Role   *Role
 	UserID *uint
 	User   *User

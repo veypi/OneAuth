@@ -42,7 +42,9 @@ func (h *roleHandler) Post() (interface{}, error) {
 	if !h.GetAuth(auth.Role).CanCreate() {
 		return nil, oerr.NoAuth
 	}
-	role := &models.Role{}
+	role := &models.Role{
+		AppUUID: h.UUID,
+	}
 	err := h.Meta().ReadJson(role)
 	if err != nil {
 		return nil, err

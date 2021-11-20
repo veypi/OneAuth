@@ -66,6 +66,24 @@ export interface modelsSimpleAuth {
     RUID: string
 }
 
+export interface modelsAuth {
+    App?: modelsApp
+    AppUUID: string
+    CreatedAt: string
+    DeletedAt: null
+    ID: number
+    Level: number
+    RID: string
+    RUID: string
+    Resource?: modelsResource
+    ResourceID: number
+    Role?: modelsRole
+    RoleID: number
+    UpdatedAt: string
+    User?: modelsUser
+    UserID?: number
+}
+
 export interface modelsRole {
     App?: modelsApp
     AppUUID: string

@@ -13,5 +13,5 @@ import (
 
 func Router(r OneBD.Router) {
 	r.Set("/", resP, rfc.MethodGet, rfc.MethodPost)
-	r.Set("/:id", resP, rfc.MethodDelete)
+	r.Set("/:id", resP, rfc.MethodDelete, rfc.MethodPatch)
 }
