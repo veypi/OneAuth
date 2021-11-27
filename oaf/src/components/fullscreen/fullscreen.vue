@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 // @ts-nocheck
-import {onMounted} from "vue";
+import {onMounted} from 'vue'
 
 let emit = defineEmits<{
   (e: 'update:modelValue', v: boolean): void
@@ -41,7 +41,7 @@ function handleFullscreen() {
   }
 }
 
-onMounted(() => {
+function sync() {
   let isFullscreen =
     document.fullscreenElement ||
     document.mozFullScreenElement ||
@@ -50,19 +50,15 @@ onMounted(() => {
     document.mozFullScreen ||
     document.webkitIsFullScreen
   isFullscreen = !!isFullscreen
-  document.addEventListener('fullscreenchange', () => {
-    emit('update:modelValue', !props.modelValue)
-  })
-  document.addEventListener('mozfullscreenchange', () => {
-    emit('update:modelValue', !props.modelValue)
-  })
-  document.addEventListener('webkitfullscreenchange', () => {
-    emit('update:modelValue', !props.modelValue)
-  })
-  document.addEventListener('msfullscreenchange', () => {
-    emit('update:modelValue', !props.modelValue)
-  })
   emit('update:modelValue', isFullscreen)
+}
+
+onMounted(() => {
+  document.addEventListener('fullscreenchange', sync)
+  document.addEventListener('mozfullscreenchange', sync)
+  document.addEventListener('webkitfullscreenchange', sync)
+  document.addEventListener('msfullscreenchange', sync)
+  sync()
 })
 
 </script>

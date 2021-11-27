@@ -11,11 +11,11 @@ package oalib
 type Config struct {
 	Host string
 	UUID string
-	Key  string
+	Key  []byte
 }
 
 func (c *Config) Valid() bool {
-	if c != nil && c.Host != "" && c.UUID != "" && c.Key != "" {
+	if c != nil && c.Host != "" && c.UUID != "" && c.Key != nil {
 		return true
 	}
 	return false

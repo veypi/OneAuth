@@ -1,9 +1,9 @@
 package auth
 
 import (
+	"errors"
 	"github.com/veypi/OneAuth/models"
 	"github.com/veypi/OneAuth/oalib"
-	"github.com/veypi/utils"
 	"gorm.io/gorm"
 )
 
@@ -21,20 +21,28 @@ const (
 )
 
 func BindUserRole(tx *gorm.DB, userID uint, roleID uint) error {
-	r := &models.Role{}
-	r.ID = roleID
-	err := tx.Where(r).First(r).Error
-	if err != nil {
-		return err
-	}
 	ur := &models.UserRole{}
 	ur.RoleID = roleID
 	ur.UserID = userID
-	err = utils.MultiErr(
-		tx.Where(ur).FirstOrCreate(ur).Error,
+	err := tx.Where(ur).First(ur).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		err = tx.Create(ur).Error
+		if err == nil {
+			tx.Model(&models.Role{}).Where("ID = ?", roleID).
+				Update("UserCount", gorm.Expr("UserCount + ?", 1))
+		}
+	}
+	return err
+}
+func UnBindUserRole(tx *gorm.DB, userID uint, roleID uint) error {
+	ur := &models.UserRole{}
+	ur.RoleID = roleID
+	ur.UserID = userID
+	err := tx.Unscoped().Where(ur).Delete(ur).Error
+	if err == nil {
 		tx.Model(&models.Role{}).Where("ID = ?", roleID).
-			Update("UserCount", gorm.Expr("UserCount + ?", 1)).Error,
-	)
+			Update("UserCount", gorm.Expr("UserCount - ?", 1))
+	}
 	return err
 }
 

@@ -71,6 +71,9 @@ let msg = useMessage()
 let id = computed(() => {
   return props.role.ID || 0
 })
+let value = computed(() => {
+  return props.modelValue
+})
 let auths = ref<modelsAuth[]>([])
 let RIDOptions = computed(() => {
   let l = []
@@ -94,8 +97,8 @@ let levelOptions = () => {
   return l
 }
 
-watch(id, () => {
-  if (id.value > 0) {
+watch(value, () => {
+  if (id.value > 0 && props.modelValue) {
     api.auth(props.uuid).listOfRole(id.value).Start(e => {
       auths.value = e
     })

@@ -54,10 +54,6 @@ export class Interface {
                 }
             } else {
                 newFail(data)
-                if (data.code === 41001) {
-                    store.commit('user/logout')
-                    // bus.$emit('log_out')
-                }
             }
         }
         this.method(this.api, this.data, newSuccess, newFail)

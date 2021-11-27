@@ -2,7 +2,7 @@
   <div class="core rounded-2xl p-3">
     <div class="grid gap-4 grid-cols-5">
       <div class="col-span-2">
-        <n-avatar @click="Go" round :size="80" :src="core.Icon">
+        <n-avatar style="--color: none;" @click="Go" round :size="80" :src="core.Icon">
         </n-avatar>
       </div>
       <div class="col-span-3 grid grid-cols-1 items-center text-left">
@@ -13,7 +13,7 @@
   </div>
 </template>
 <script setup lang='ts'>
-import {defineProps, withDefaults} from 'vue'
+import {withDefaults} from 'vue'
 import {useRouter} from 'vue-router'
 import {useMessage, useLoadingBar} from 'naive-ui'
 import api from '@/api'

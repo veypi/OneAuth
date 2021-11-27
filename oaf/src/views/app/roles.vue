@@ -9,6 +9,7 @@
       </div>
     </div>
     <RoleAuths :res="resources" v-model="raFlag" :uuid="uuid" :role="tmp"></RoleAuths>
+    <RoleUsers v-model="ruFlag" :uuid="uuid" :role="tmp"></RoleUsers>
     <n-data-table
       :bordered="false"
       :columns="columns"
@@ -37,6 +38,7 @@ import {useRoute} from 'vue-router'
 import EditorRes from '@/components/editor/resource.vue'
 import EditorRole from '@/components/editor/role.vue'
 import RoleAuths from '@/components/connectors/roleauths.vue'
+import RoleUsers from '@/components/connectors/roleusers.vue'
 
 let store = useStore()
 let route = useRoute()
@@ -52,7 +54,7 @@ const columns = [
   {
     title: '操作',
     key: '',
-    render(row) {
+    render(row: modelsRole, index: number) {
       return [
         h(NButton, {
             class: 'mr-1',
@@ -66,9 +68,23 @@ const columns = [
         h(NButton, {
             class: 'mr-1',
             size: 'small',
-            onClick: () => console.log(row),
+            onClick: () => {
+              ruFlag.value = true
+              tmp.value = row
+            },
           },
           {default: () => '用户'},
+        ),
+        h(NButton, {
+            class: 'mr-1',
+            size: 'small',
+            onClick: () => {
+              api.role(uuid.value).delete(row.ID).Start(e => {
+                roles.value.splice(index, 1)
+              })
+            },
+          },
+          {default: () => '删除'},
         ),
       ]
     },
@@ -128,6 +144,7 @@ let tmp = ref({})
 let trFlag = ref(false)
 let roleFlag = ref(false)
 let raFlag = ref(false)
+let ruFlag = ref(false)
 
 </script>
 

@@ -42,15 +42,15 @@ type handler struct {
 
 // Get get user data
 func (h *handler) Get() (interface{}, error) {
-	userID := h.Meta().ParamsInt("user_id")
+	userID := uint(h.Meta().ParamsInt("user_id"))
+	if userID != h.Payload.ID && !h.Payload.GetAuth(auth.User, "").CanRead() {
+		return nil, oerr.NoAuth.AttachStr("to read user data")
+	}
 	if userID != 0 {
 		user := &models.User{}
-		user.ID = uint(userID)
+		user.ID = userID
 		return user, cfg.DB().Where(user).First(user).Error
 	} else {
-		if !h.Payload.GetAuth(auth.User, "").CanRead() {
-			return nil, oerr.NoAuth.AttachStr("to read user list")
-		}
 		username := h.Meta().Query("username")
 		if username != "" {
 			users := make([]*models.User, 0, 10)

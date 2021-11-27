@@ -1,7 +1,7 @@
 <template>
   <siderframe>
     <template v-slot:avatar>
-    <n-avatar @click="util.goto(app.Host)" :src="app.Icon" round size="large"></n-avatar>
+    <n-avatar style="--color:none" @click="util.goto(app.Host)" :src="app.Icon" round size="large"></n-avatar>
     </template>
     <template #title>{{ app.Name }}</template>
     <template #subtitle>{{ app.Des }}</template>

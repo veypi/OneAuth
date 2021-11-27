@@ -17,7 +17,7 @@ func Router(r OneBD.Router) {
 	p := OneBD.NewHandlerPool(func() OneBD.Handler {
 		return &tokenHandler{}
 	})
-	r.Set("/:uuid", p, rfc.MethodGet)
+	r.Set("/", p, rfc.MethodGet)
 }
 
 type tokenHandler struct {

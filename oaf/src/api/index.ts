@@ -10,10 +10,12 @@ import app from './app'
 import user from './user'
 import auth from './auth'
 import resource from './resource'
+import token from './token'
 
 
 const api = {
     user: user,
+    token: token,
     app: app,
     auth: auth,
     role: role,

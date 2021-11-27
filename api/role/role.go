@@ -1,12 +1,14 @@
 package role
 
 import (
+	"errors"
 	"github.com/veypi/OneAuth/cfg"
 	"github.com/veypi/OneAuth/libs/auth"
 	"github.com/veypi/OneAuth/libs/base"
 	"github.com/veypi/OneAuth/libs/oerr"
 	"github.com/veypi/OneAuth/models"
 	"github.com/veypi/OneBD"
+	"github.com/veypi/utils/log"
 	"gorm.io/gorm"
 )
 
@@ -98,18 +100,25 @@ func (h *roleHandler) Patch() (interface{}, error) {
 }
 
 func (h *roleHandler) Delete() (interface{}, error) {
-	if !h.GetAuth(auth.Role).CanDelete() {
+	log.Warn().Msgf("%s %d", h.UUID, h.GetAuth(auth.Role, h.UUID))
+	if !h.GetAuth(auth.Role, h.UUID).CanDelete() {
 		return nil, oerr.NoAuth
 	}
 	rid := h.Meta().ParamsInt("id")
-	if rid <= 2 {
-		return nil, oerr.NoAuth
+	if rid <= 0 {
+		return nil, oerr.ApiArgsError
 	}
 	role := &models.Role{}
 	role.ID = uint(rid)
-	err := cfg.DB().Where(role).First(role).Error
+	err := cfg.DB().Preload("Users").Where(role).First(role).Error
 	if err != nil {
 		return nil, err
+	}
+	if role.AppUUID != h.UUID {
+		return nil, oerr.NoAuth
+	}
+	if len(role.Users) != 0 {
+		return nil, errors.New("关联用户未删除")
 	}
 	return nil, cfg.DB().Delete(role).Error
 }

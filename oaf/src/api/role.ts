@@ -16,10 +16,25 @@ export default (uuid: string) => {
         },
         create(Name: string, Tag: string) {
             return new Interface(ajax.post, this.local, {
-                Name,Tag
+                Name, Tag,
             })
         },
-        bind(id: number, aid: number) {
+        delete(id: number) {
+            return new Interface(ajax.delete, this.local + id)
+        },
+        user(id: number) {
+            return {
+                local: this.local + id + '/user/',
+                list() {
+                    return new Interface(ajax.get, this.local)
+                },
+                create(uid: number) {
+                    return new Interface(ajax.post, this.local + uid)
+                },
+                delete(uid: number) {
+                    return new Interface(ajax.delete, this.local + uid)
+                },
+            }
         },
     }
 }

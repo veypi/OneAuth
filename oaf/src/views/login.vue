@@ -21,12 +21,13 @@
   </div>
 </template>
 <script lang="ts" setup>
-import {computed, onMounted, ref} from "vue";
-import {Theme} from "@/theme";
+import {computed, onMounted, ref, watch} from 'vue'
+import {Theme} from '@/theme'
 import {useMessage} from 'naive-ui'
-import api from "@/api"
-import {useRoute, useRouter} from "vue-router";
-import {store} from "@/store";
+import api from '@/api'
+import {useRoute, useRouter} from 'vue-router'
+import {store} from '@/store'
+import {modelsApp} from '@/models'
 
 let msg = useMessage()
 const route = useRoute()
@@ -36,7 +37,7 @@ const divs = ref([])
 let form_ref = ref(null)
 let data = ref({
   username: '',
-  password: ''
+  password: '',
 })
 let rules = {
   username: [
@@ -45,24 +46,25 @@ let rules = {
       validator(r: any, v: any) {
         return (v && v.length >= 3 && v.length <= 16) || new Error('长度要求3~16')
       },
-      trigger: ['input', 'blur']
-    }
+      trigger: ['input', 'blur'],
+    },
   ],
   password: [{
     required: true,
     validator(r: any, v: any) {
       return (v && v.length >= 6 && v.length <= 16) || new Error('长度要求6~16')
-    }
-  }]
+    },
+  }],
 }
 
 let uuid = computed(() => {
-  return route.params.uuid || store.state.oauuid
+  return route.query.uuid
 })
 
 function login() {
+  redirect()
   // @ts-ignore
-  form_ref.value.validate((e:any) => {
+  form_ref.value.validate((e: any) => {
     if (!e) {
       api.user.login(data.value.username, data.value.password).Start((url: string) => {
         msg.success('登录成功')
@@ -86,7 +88,22 @@ function login() {
   })
 }
 
+function redirect() {
+  console.log(uuid.value)
+  if (uuid.value !== store.state.oauuid) {
+    api.app.get(uuid.value as string).Start((app: modelsApp) => {
+      console.log(app.UserRefreshUrl)
+      api.token(uuid.value as string).get().Start(e => {
+        let url = app.UserRefreshUrl.replaceAll('$token', e)
+        console.log(url)
+        window.location.href = url
+      })
+    })
+  }
+}
+
 onMounted(() => {
+  redirect()
   if (divs.value[0]) {
     // @ts-ignore
     divs.value[0].focus()

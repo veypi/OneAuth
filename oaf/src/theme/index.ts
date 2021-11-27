@@ -18,27 +18,27 @@ let intputNone = {
     color: 'url(0) no-repeat',
     colorFocus: 'url(0) no-repeat',
     colorFocusWarning: 'url(0) no-repeat',
-    colorFocusError: 'url(0) no-repeat'
+    colorFocusError: 'url(0) no-repeat',
 }
 light.overrides = {
-    Input: Object.assign({}, intputNone)
+    Input: Object.assign({}, intputNone),
 }
 dark.overrides = {
     Input: Object.assign({
-        border: '1px solid #aaa'
-    }, intputNone)
+        border: '1px solid #aaa',
+    }, intputNone),
 }
 light.common.cardColor = '#f4f4f4'
 light.common.bodyColor = '#eee'
 dark.common.bodyColor = '#2e2e2e'
 light.me = {
     lightBox: '#f4f4f4',
-    lightBoxShadow: '18px 18px 36px #c6c6c6, -18px -18px 36px #fff'
+    lightBoxShadow: '18px 18px 36px #c6c6c6, -18px -18px 36px #fff',
 }
 
 dark.me = {
     lightBox: '#2e2e2e',
-    lightBoxShadow: '21px 21px 42px #272727, -21px -21px 42px #353535'
+    lightBoxShadow: '21px 21px 42px #272727, -21px -21px 42px #353535',
 }
 export const OsThemeRef = useOsTheme()
 

@@ -14,34 +14,34 @@
       <slot name="sider"></slot>
     </n-layout-sider>
     <n-layout :style="{'height': $store.state.height}" :native-scrollbar="false">
-      <n-page-header @back="back" class="mx-5">
-        <template #title>
-        <slot name="title"></slot>
-        </template>
-        <template #subtitle>
-        <slot name="subtitle"></slot>
-        </template>
-        <template #header>
-        <n-breadcrumb>
-          <n-breadcrumb-item @click="go(item)"
-                             :key="key"
-                             v-for="(item, key) in breads">
-            <one-icon class="inline-block" v-if="item.Type==='icon'">{{ item.Name }}</one-icon>
-            <span v-else>{{ item.Name }}</span>
-          </n-breadcrumb-item>
-        </n-breadcrumb>
-        </template>
-        <template #avatar>
-        <slot name="avatar"></slot>
-        </template>
-        <template #extra>
-        <slot name="extra"></slot>
-        </template>
-        <template #footer>
-        <slot name="footer"></slot>
-        </template>
-      </n-page-header>
-      <div class="mx-5">
+      <div class="mx-5" :style="{'min-height': $store.state.height}">
+        <n-page-header @back="back">
+          <template #title>
+          <slot name="title"></slot>
+          </template>
+          <template #subtitle>
+          <slot name="subtitle"></slot>
+          </template>
+          <template #header>
+          <n-breadcrumb>
+            <n-breadcrumb-item @click="go(item)"
+                               :key="key"
+                               v-for="(item, key) in breads">
+              <one-icon class="inline-block" v-if="item.Type==='icon'">{{ item.Name }}</one-icon>
+              <span v-else>{{ item.Name }}</span>
+            </n-breadcrumb-item>
+          </n-breadcrumb>
+          </template>
+          <template #avatar>
+          <slot name="avatar"></slot>
+          </template>
+          <template #extra>
+          <slot name="extra"></slot>
+          </template>
+          <template #footer>
+          <slot name="footer"></slot>
+          </template>
+        </n-page-header>
         <slot></slot>
       </div>
       <n-back-top>

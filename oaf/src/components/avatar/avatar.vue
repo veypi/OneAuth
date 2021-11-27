@@ -1,7 +1,7 @@
 <template>
   <base-frame style="line-height:40px" v-model="shown" :isDark="IsDark">
     <div class="flex">
-      <n-avatar :src="$store.state.user.local.Icon" round></n-avatar>
+      <n-avatar style="--color: none" :src="$store.state.user.local.Icon" round></n-avatar>
     </div>
     <template v-slot:main>
     <div style="height: 100%">

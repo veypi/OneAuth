@@ -11,10 +11,6 @@
         <div v-for="(item, k) in ofApps" class="flex items-center justify-center" :key="k">
           <AppCard :core="item"></AppCard>
         </div>
-        <div class="flex items-center justify-center" v-for="(item) in '123456789'.split('')"
-             :key="item">
-          <AppCard :core2="{}"></AppCard>
-        </div>
       </div>
     </div>
     <div class="mt-20" v-if="apps.length > 0">
@@ -22,10 +18,6 @@
       <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 text-center">
         <div v-for="(item, k) in apps" class="flex items-center justify-center" :key="k">
           <AppCard :core="item"></AppCard>
-        </div>
-        <div class="flex items-center justify-center" v-for="(item) in '123456'.split('')"
-             :key="item">
-          <AppCard :core2="{}"></AppCard>
         </div>
       </div>
     </div>

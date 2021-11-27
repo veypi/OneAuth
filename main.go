@@ -14,7 +14,7 @@ const Version = "v0.1.0"
 func main() {
 	cmd.LoadCfg(cfg.Path, cfg.CFG)
 	app := cli.NewApp()
-	app.Name = "github.com/veypi/OneAuth"
+	app.Name = "oneauth"
 	app.Usage = "one auth"
 	app.Version = Version
 	app.Flags = []cli.Flag{
@@ -59,7 +59,6 @@ func main() {
 		if cfg.CFG.Debug {
 			cfg.CFG.LoggerLevel = "debug"
 		}
-		cfg.ConnectDB()
 		return nil
 	}
 	_ = app.Run(os.Args)

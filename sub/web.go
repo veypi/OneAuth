@@ -1,6 +1,7 @@
 package sub
 
 import (
+	"embed"
 	"github.com/urfave/cli/v2"
 	"github.com/veypi/OneAuth/api"
 	"github.com/veypi/OneAuth/cfg"
@@ -8,14 +9,14 @@ import (
 	"github.com/veypi/utils/log"
 )
 
-// go:embed static/static
-//var staticFiles embed.FS
+//go:embed static/static
+var staticFiles embed.FS
 
-// go:embed static/favicon.ico
-//var icon []byte
+//go:embed static/favicon.ico
+var icon []byte
 
-// go:embed static/index.html
-//var indexFile []byte
+//go:embed static/index.html
+var indexFile []byte
 
 var Web = &cli.Command{
 	Name:        "web",
@@ -40,9 +41,9 @@ func RunWeb(c *cli.Context) error {
 
 	// TODO media 文件需要检验权限
 	app.Router().SubRouter("/media/").Static("/", cfg.CFG.MediaDir)
-	//app.Router().EmbedDir("/static", staticFiles, "static/static/")
-	//app.Router().EmbedFile("/favicon.ico", icon)
-	//app.Router().EmbedFile("/*", indexFile)
+	app.Router().EmbedDir("/static", staticFiles, "static/static/")
+	app.Router().EmbedFile("/favicon.ico", icon)
+	app.Router().EmbedFile("/*", indexFile)
 
 	log.Info().Msg("\nRouting Table\n" + app.Router().String())
 	return app.Run()

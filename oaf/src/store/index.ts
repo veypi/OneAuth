@@ -26,7 +26,7 @@ export const store = createStore<State>({
     },
 // @ts-ignore
     state: {
-        oauuid: '',
+        oauuid: 'jU5Jo5hM',
         title: '',
         height: 'calc(100vh - 108px)',
         hideHeader: false,
