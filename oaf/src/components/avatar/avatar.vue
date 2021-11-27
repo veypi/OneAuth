@@ -47,9 +47,6 @@
 import BaseFrame from './frame.vue'
 import {IsDark} from '@/theme'
 import {ref} from 'vue'
-import {useMessage} from 'naive-ui'
-// @ts-ignore
-window.$msg = useMessage()
 
 let shown = ref(false)
 

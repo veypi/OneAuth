@@ -28,6 +28,7 @@ import api from '@/api'
 import {useRoute, useRouter} from 'vue-router'
 import {store} from '@/store'
 import {modelsApp} from '@/models'
+import util from '@/libs/util'
 
 let msg = useMessage()
 const route = useRoute()
@@ -69,17 +70,7 @@ function login() {
       api.user.login(data.value.username, data.value.password).Start((url: string) => {
         msg.success('登录成功')
         store.dispatch('user/fetchUserData')
-        let target = url
-        if (route.query.redirect) {
-          target = route.query.redirect as string
-        }
-        if (target && target.startsWith('http')) {
-          window.location.href = target
-        } else if (target) {
-          router.push(target)
-        } else {
-          router.push({name: 'home'})
-        }
+        redirect(route.query.redirect as string)
       }, e => {
         console.log(e)
         msg.warning('登录失败：' + e)
@@ -88,17 +79,26 @@ function login() {
   })
 }
 
-function redirect() {
-  console.log(uuid.value)
+function redirect(url?: string) {
   if (uuid.value !== store.state.oauuid) {
     api.app.get(uuid.value as string).Start((app: modelsApp) => {
       console.log(app.UserRefreshUrl)
       api.token(uuid.value as string).get().Start(e => {
-        let url = app.UserRefreshUrl.replaceAll('$token', e)
-        console.log(url)
+        if (!url) {
+          url = app.UserRefreshUrl
+        }
+        e = encodeURIComponent(e)
+        url = url.replaceAll('$token', e)
         window.location.href = url
       })
+    }, e => {
     })
+  } else if (util.checkLogin()) {
+    if (url) {
+      router.push(url)
+    } else {
+      router.push({name: 'home'})
+    }
   }
 }
 

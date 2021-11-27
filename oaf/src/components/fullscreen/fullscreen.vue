@@ -7,6 +7,9 @@
 <script lang="ts" setup>
 // @ts-nocheck
 import {onMounted} from 'vue'
+import {useMessage} from 'naive-ui'
+// @ts-ignore
+window.$msg = useMessage()
 
 let emit = defineEmits<{
   (e: 'update:modelValue', v: boolean): void
