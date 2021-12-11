@@ -6,7 +6,6 @@ import (
 	"github.com/veypi/OneAuth/libs/app"
 	"github.com/veypi/OneAuth/libs/base"
 	"github.com/veypi/OneAuth/libs/oerr"
-	"github.com/veypi/OneAuth/libs/token"
 	"github.com/veypi/OneAuth/models"
 	"github.com/veypi/OneBD"
 	"github.com/veypi/OneBD/rfc"
@@ -65,6 +64,6 @@ func (h *tokenHandler) Get() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	t, err := token.GetToken(u, a.UUID, a.Key)
+	t, err := u.GetToken(a.UUID, a.Key)
 	return t, err
 }

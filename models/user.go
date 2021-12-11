@@ -3,6 +3,7 @@ package models
 import (
 	"github.com/veypi/OneAuth/oalib"
 	"github.com/veypi/utils"
+	"github.com/veypi/utils/jwt"
 	"gorm.io/gorm"
 )
 
@@ -23,6 +24,8 @@ type User struct {
 	Roles []*Role `gorm:"many2many:UserRoles;"`
 	Apps  []*App  `gorm:"many2many:AppUsers;"`
 	Auths []*Auth `gorm:"foreignkey:UserID;references:ID"`
+	Used  uint    `gorm:"default:0"`
+	Space uint    `gorm:"default:300"`
 }
 
 func (u *User) String() string {
@@ -79,4 +82,21 @@ func (u *User) UpdatePass(ps string) (err error) {
 func (u *User) CheckLogin(ps string) (bool, error) {
 	temp, err := utils.AesDecrypt(u.CheckCode, []byte(ps))
 	return temp == u.RealCode, err
+}
+
+func (u *User) GetToken(uuid string, key string) (string, error) {
+	payload := &oalib.PayLoad{
+		ID:   u.ID,
+		Auth: []*oalib.SimpleAuth{},
+	}
+	for _, a := range u.GetAuths() {
+		if uuid == a.AppUUID {
+			payload.Auth = append(payload.Auth, &oalib.SimpleAuth{
+				RID:   a.RID,
+				RUID:  a.RUID,
+				Level: a.Level,
+			})
+		}
+	}
+	return jwt.GetToken(payload, []byte(key))
 }

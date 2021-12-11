@@ -9,7 +9,6 @@ import (
 	"github.com/veypi/OneAuth/libs/auth"
 	"github.com/veypi/OneAuth/libs/base"
 	"github.com/veypi/OneAuth/libs/oerr"
-	"github.com/veypi/OneAuth/libs/token"
 	"github.com/veypi/OneAuth/models"
 	"github.com/veypi/OneBD"
 	"github.com/veypi/OneBD/rfc"
@@ -260,7 +259,7 @@ func (h *handler) Head() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	tokenStr, err := token.GetToken(h.User, target.UUID, cfg.CFG.APPKey)
+	tokenStr, err := h.User.GetToken(target.UUID, cfg.CFG.APPKey)
 	if err != nil {
 		log.HandlerErrs(err)
 		return nil, oerr.Unknown.Attach(err)

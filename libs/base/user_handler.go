@@ -3,7 +3,6 @@ package base
 import (
 	"github.com/veypi/OneAuth/cfg"
 	"github.com/veypi/OneAuth/libs/oerr"
-	"github.com/veypi/OneAuth/libs/token"
 	"github.com/veypi/OneAuth/oalib"
 	"github.com/veypi/OneBD"
 	"github.com/veypi/OneBD/rfc"
@@ -27,7 +26,7 @@ func (a *UserHandler) ParsePayload(m OneBD.Meta) error {
 	if tokenStr == "" {
 		return oerr.NotLogin
 	}
-	ok, err := token.ParseToken(tokenStr, a.Payload, cfg.CFG.APPKey)
+	ok, err := a.Payload.ParseToken(tokenStr, cfg.CFG.APPKey)
 	if ok {
 		return nil
 	}

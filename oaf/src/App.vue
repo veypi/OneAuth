@@ -33,7 +33,8 @@ let collapsed = ref(true)
 </script>
 
 
-<style lang="less">
+<style lang="postcss">
+
 .animate__400ms {
   --animate-duration: 400ms;
 }
@@ -44,25 +45,6 @@ let collapsed = ref(true)
   margin-left: 2.5rem;
   margin-top: 1.25rem;
   margin-bottom: 1.25rem;
-}
-
-html,
-body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-/* 周围滑动留白 */
-html {
-  overflow: hidden;
-  height: 100%;
-}
-
-body {
-  overflow: auto;
-  height: 100%;
 }
 
 .header-icon {

@@ -19,14 +19,13 @@
               <n-input v-model:value="user.Nickname" @blur="update('Nickname')"></n-input>
             </n-form-item>
             <n-form-item label="头像">
-              <n-upload
-                action="/api/upload"
-                @finish="handleFinish"
-                :show-file-list="false"
+              <uploader
+                :url="user.ID+'.ico'"
+                @success="handleFinish"
               >
-                <n-avatar size="large" round :src="user.Icon">
+                <n-avatar size="large" round :src="util.addTokenOf(user.Icon)">
                 </n-avatar>
-              </n-upload>
+              </uploader>
             </n-form-item>
           </n-form>
         </div>
@@ -62,18 +61,21 @@
 </template>
 
 <script lang="ts" setup>
-import {ref, computed} from 'vue'
+import {ref, computed, onMounted} from 'vue'
 import {IsDark} from '@/theme'
 import {useStore} from '@/store'
 import api from '@/api'
 import {useMessage} from 'naive-ui'
 import {modelsUser} from '@/models'
+import util from '@/libs/util'
+import uploader from '@/components/uploader'
 
 let msg = useMessage()
 let store = useStore()
 
 let ifInfo = ref(true)
 let user = ref<modelsUser>({
+  ID: store.state.user.id,
   Username: store.state.user.local.Username,
   Nickname: store.state.user.local.Nickname,
   Icon: store.state.user.local.Icon,
@@ -90,17 +92,11 @@ let emailOptions = computed(() => {
   })
 })
 
-function handleFinish(e: any) {
-  if (e.event.target.response) {
-    let data = JSON.parse(e.event.target.response)
-    if (data.status === 1) {
-      user.value.Icon = data.content
-      update('icon')
-      return
-    }
-  }
-  msg.error('上传失败')
-  user.value.Icon = store.state.user.local.Icon
+function handleFinish(e: string) {
+  console.log(e)
+  user.value.Icon = e
+  update('Icon')
+  return
 }
 
 function update(key: string) {

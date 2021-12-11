@@ -22,14 +22,13 @@
       </div>
       <div>logo</div>
       <div class="col-span-4">
-        <n-upload
-          :action="util.uploadUrl"
-          @finish="handleFinish"
-          :show-file-list="false"
+        <uploader
+          :url="uuid + '.ico'"
+          @success="handleFinish"
         >
-          <n-avatar size="large" round :src="data.Icon">
+          <n-avatar size="large" round :src="util.addTokenOf(data.Icon)">
           </n-avatar>
-        </n-upload>
+        </uploader>
       </div>
       <div>自主注册</div>
       <div class='col-span-4'>
@@ -61,29 +60,24 @@ import api from '@/api'
 import {useDialog, useMessage} from 'naive-ui'
 import util from '@/libs/util'
 import {modelsApp} from '@/models'
+import Uploader from '@/components/uploader'
 
 let msg = useMessage()
 let dialog = useDialog()
 let app = inject<{ value: modelsApp }>('app')
+let uuid = inject('uuid')
 let data = ref<modelsApp>({} as modelsApp)
 
-function handleFinish(e: any) {
-  if (util.upload(e, data.value, 'Icon')) {
-    update('Icon')
-  } else {
-    msg.error('上传失败')
-    data.value.Icon = app.value.Icon
-  }
+function handleFinish(e: string) {
+  data.value.Icon = e
+  console.log(e)
+  update('Icon')
 }
 
 function update(key: string, v?: any) {
   // @ts-ignore
   if (v === undefined) {
     v = data.value[key]
-  }
-  console.log([key, v])
-  if (v === app.value[key]) {
-    return
   }
   api.app.update(app.value.UUID, {[key]: v}).Start(e => {
     msg.success('更新成功')
@@ -104,7 +98,7 @@ function getKey() {
   api.app.getKey(data.value.UUID).Start(e => {
     dialog.success({
       title: '请保存好秘钥',
-      content: e
+      content: e,
     })
   })
 }

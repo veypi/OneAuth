@@ -30,14 +30,13 @@
             <n-input v-model:value="temp_app.name"></n-input>
           </n-form-item>
           <n-form-item required label="icon" path="icon">
-            <n-upload
-              :action="util.uploadUrl"
-              @finish="(e) => {util.upload(e, temp_app, 'icon')}"
-              :show-file-list="false"
+            <uploader
+              :url="new Date().toLocaleDateString()"
+              @success="(e) => {temp_app.icon = e}"
             >
-              <n-avatar size="large" round :src="temp_app.icon">
+              <n-avatar size="large" round :src="util.addTokenOf(temp_app.icon)">
               </n-avatar>
-            </n-upload>
+            </uploader>
           </n-form-item>
         </n-form>
         <template #footer>
@@ -60,6 +59,7 @@ import {R} from '@/auth'
 import util from '@/libs/util'
 import {useMessage, useLoadingBar} from 'naive-ui'
 import {modelsApp} from '@/models'
+import Uploader from '@/components/uploader'
 
 let msg = useMessage()
 let bar = useLoadingBar()

@@ -1,8 +1,12 @@
 package cfg
 
 import (
+	"context"
 	"fmt"
+	"github.com/olivere/elastic/v7"
+	"github.com/olivere/elastic/v7/config"
 	"github.com/veypi/utils/cmd"
+	"github.com/veypi/utils/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -10,34 +14,40 @@ import (
 )
 
 var Path = cmd.GetCfgPath("oa", "settings")
+var Ctx, Cancel = context.WithCancel(context.Background())
 
 var CFG = &struct {
-	AdminUser   string
-	Host        string
-	LoggerPath  string
-	LoggerLevel string
-	APPUUID     string
-	APPKey      string
-	TimeFormat  string
-	Debug       bool
-	MediaDir    string
-	DB          struct {
+	AdminUser     string
+	Host          string
+	LoggerPath    string
+	LoggerLevel   string
+	APPUUID       string
+	APPKey        string
+	TimeFormat    string
+	TimeZone      string
+	Debug         bool
+	FileUrlPrefix string
+	FireDir       string
+	DB            struct {
 		Type string
 		Addr string
 		User string
 		Pass string
 		DB   string
 	}
+	ES *config.Config
 }{
-	APPUUID:     "jU5Jo5hM",
-	APPKey:      "cB43wF94MLTksyBK",
-	AdminUser:   "admin",
-	Host:        "0.0.0.0:4001",
-	LoggerPath:  "",
-	LoggerLevel: "debug",
-	TimeFormat:  "2006/01/02 15:04:05",
-	Debug:       true,
-	MediaDir:    "/Users/light/test/media/",
+	APPUUID:       "jU5Jo5hM",
+	APPKey:        "cB43wF94MLTksyBK",
+	AdminUser:     "admin",
+	Host:          "0.0.0.0:4001",
+	LoggerPath:    "",
+	LoggerLevel:   "debug",
+	TimeFormat:    "2006/01/02 15:04:05",
+	TimeZone:      "Asia/Shanghai",
+	Debug:         true,
+	FileUrlPrefix: "/file",
+	FireDir:       "/Users/light/test/media/",
 	DB: struct {
 		Type string
 		Addr string
@@ -51,6 +61,16 @@ var CFG = &struct {
 		User: "root",
 		Pass: "123456",
 		DB:   "one_auth",
+	},
+	ES: &config.Config{
+		URL:         "http://127.0.0.1:9200",
+		Index:       "",
+		Username:    "",
+		Password:    "",
+		Shards:      0,
+		Replicas:    0,
+		Sniff:       nil,
+		Healthcheck: nil,
 	},
 }
 
@@ -86,4 +106,27 @@ func ConnectDB() *gorm.DB {
 		panic(err)
 	}
 	return db
+}
+
+var es *elastic.Client
+
+func ES() *elastic.Client {
+	if es == nil {
+		ConnectES()
+	}
+	return es
+}
+
+func ConnectES() *elastic.Client {
+	var err error
+	es, err = elastic.NewClientFromConfig(CFG.ES)
+	if err != nil {
+		log.Warn().Msgf("connect es failed: %s", err)
+	}
+	_, _, err = es.Ping("http://127.0.0.1:9200").Do(context.Background())
+	if err != nil {
+		// Handle error
+		log.Warn().Msgf("connect es failed: %s", err)
+	}
+	return es
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/veypi/OneAuth/api"
 	"github.com/veypi/OneAuth/cfg"
+	"github.com/veypi/OneAuth/file"
 	"github.com/veypi/OneBD"
 	"github.com/veypi/utils/log"
 )
@@ -36,11 +37,12 @@ func RunWeb(c *cli.Context) error {
 		LoggerPath:  cfg.CFG.LoggerPath,
 		LoggerLevel: ll,
 	})
+	file.Router(app.Router().SubRouter(cfg.CFG.FileUrlPrefix))
 
 	api.Router(app.Router().SubRouter("api"))
 
 	// TODO media 文件需要检验权限
-	app.Router().SubRouter("/media/").Static("/", cfg.CFG.MediaDir)
+	//app.Router().SubRouter("/media/").Static("/", cfg.CFG.FireDir)
 	app.Router().EmbedDir("/static", staticFiles, "static/static/")
 	app.Router().EmbedFile("/favicon.ico", icon)
 	app.Router().EmbedFile("/*", indexFile)

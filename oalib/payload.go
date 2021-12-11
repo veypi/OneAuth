@@ -52,3 +52,7 @@ func (p *PayLoad) GetAuth(ResourceID string, ResourceUUID ...string) AuthLevel {
 	}
 	return res
 }
+
+func (p *PayLoad) ParseToken(token string, key string) (bool, error) {
+	return jwt.ParseToken(token, p, []byte(key))
+}

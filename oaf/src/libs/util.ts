@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 function padLeftZero(str: string): string {
     return ('00' + str).substr(str.length)
 }
@@ -5,17 +7,6 @@ function padLeftZero(str: string): string {
 const util = {
     goto(url: string) {
         window.open(url, '_blank')
-    },
-    uploadUrl: '/api/upload',
-    upload: (src, des, key) => {
-        if (src.event.target.response) {
-            let d = JSON.parse(src.event.target.response)
-            if (d.status === 1) {
-                des[key] = d.content
-                return true
-            }
-        }
-        return false
     },
     title: function (title: string) {
         window.document.title = title ? title + ' - oa' : 'veypi project'
@@ -43,6 +34,9 @@ const util = {
     },
     getToken() {
         return localStorage.auth_token
+    },
+    addTokenOf(url: string) {
+        return url + '?auth_token=' + encodeURIComponent(this.getToken())
     },
     checkLogin() {
         // return parseInt(this.getCookie('stat')) === 1

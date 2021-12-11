@@ -66,7 +66,7 @@ func handleUpload(m OneBD.Meta) {
 	headerReg := regexp.MustCompile(`------WebKitFormBoundary.*\r\n.*?filename="([^"]+)".*\r\n(.*)\r\n\r\n(?s:(.*))`)
 	footReg := regexp.MustCompile(`(?s:(.*))\r\n------WebKitFormBoundary.*?--\r\n`)
 	fileName := ""
-	fileDir, err := filepath.Abs(cfg.CFG.MediaDir)
+	fileDir, err := filepath.Abs(cfg.CFG.FireDir)
 	if err != nil {
 		base.JSONResponse(m, nil, err)
 		return

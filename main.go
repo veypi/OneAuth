@@ -46,6 +46,7 @@ func main() {
 		sub.Role,
 		sub.Resource,
 		sub.Init,
+		sub.File,
 	}
 	srv, err := cmd.NewSrv(app, sub.RunWeb, cfg.CFG, cfg.Path)
 	if err != nil {

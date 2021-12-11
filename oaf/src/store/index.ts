@@ -41,7 +41,7 @@ export const store = createStore<State>({
     },
     mutations: {
         setOA(state: any, data: any) {
-            state.oauuid = data.uuid
+            state.oauuid = data.UUID
         },
         setApps(state: State, data: any) {
             state.apps = data

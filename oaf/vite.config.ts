@@ -20,6 +20,11 @@ export default defineConfig({
                 changeOrigin: true,
                 ws: true
             },
+            '/file': {
+                target: 'http://127.0.0.1:4001/',
+                changeOrigin: true,
+                ws: true
+            },
             '/media': {
                 target: 'http://127.0.0.1:4001/',
                 changeOrigin: true,
