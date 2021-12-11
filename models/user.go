@@ -84,7 +84,7 @@ func (u *User) CheckLogin(ps string) (bool, error) {
 	return temp == u.RealCode, err
 }
 
-func (u *User) GetToken(uuid string, key string) (string, error) {
+func (u *User) GetToken(uuid string, key []byte) (string, error) {
 	payload := &oalib.PayLoad{
 		ID:   u.ID,
 		Auth: []*oalib.SimpleAuth{},
@@ -98,5 +98,5 @@ func (u *User) GetToken(uuid string, key string) (string, error) {
 			})
 		}
 	}
-	return jwt.GetToken(payload, []byte(key))
+	return jwt.GetToken(payload, key)
 }

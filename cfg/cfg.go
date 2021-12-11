@@ -22,7 +22,7 @@ var CFG = &struct {
 	LoggerPath    string
 	LoggerLevel   string
 	APPUUID       string
-	APPKey        string
+	APPKey        []byte
 	TimeFormat    string
 	TimeZone      string
 	Debug         bool
@@ -38,7 +38,7 @@ var CFG = &struct {
 	ES *config.Config
 }{
 	APPUUID:       "jU5Jo5hM",
-	APPKey:        "cB43wF94MLTksyBK",
+	APPKey:        []byte("cB43wF94MLTksyBK"),
 	AdminUser:     "admin",
 	Host:          "0.0.0.0:4001",
 	LoggerPath:    "",
@@ -122,6 +122,7 @@ func ConnectES() *elastic.Client {
 	es, err = elastic.NewClientFromConfig(CFG.ES)
 	if err != nil {
 		log.Warn().Msgf("connect es failed: %s", err)
+		return nil
 	}
 	_, _, err = es.Ping("http://127.0.0.1:9200").Do(context.Background())
 	if err != nil {

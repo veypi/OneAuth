@@ -47,8 +47,11 @@
         <n-input v-model:value="data.Host" @blur="update('Host')"></n-input>
       </div>
       <div>跳转地址</div>
-      <div class="col-span-4 text-left">
+      <div class="col-span-3 text-left">
         <n-input v-model:value="data.UserRefreshUrl" @blur="update('UserRefreshUrl')"></n-input>
+      </div>
+      <div class="col-span-1">
+        <span class="text-blue-500" @click="util.goto('/login?uuid='+uuid)">GO</span>
       </div>
     </div>
   </div>

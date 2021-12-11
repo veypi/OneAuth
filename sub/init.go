@@ -55,7 +55,7 @@ func selfApp() (*models.App, error) {
 		Hide:           false,
 		Host:           "",
 		UserRefreshUrl: "/",
-		Key:            cfg.CFG.APPKey,
+		Key:            string(cfg.CFG.APPKey),
 		EnableRegister: true,
 		EnableUserKey:  true,
 		EnableUser:     true,

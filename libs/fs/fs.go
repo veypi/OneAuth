@@ -92,7 +92,7 @@ func (f *FS) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (f *FS) setEvent(h *webdav.Handler) {
 	// 记录下载历史
 	h.On(webdav.EventAfterRead, webdav.ReadFunc(func(r *http.Request, path string) (int, error) {
-
+		defer handlePanic()
 		tf, err := getFile(r.Context(), path, h)
 		if err != nil {
 			return 0, err
@@ -100,6 +100,7 @@ func (f *FS) setEvent(h *webdav.Handler) {
 		return 0, addHistory(r, h, models.ActGet, tf.ID(), path)
 	}))
 	h.On(webdav.EventAfterUpdate, webdav.AfterUpdateFunc(func(r *http.Request, path string, size int64, md5Str string) (int, error) {
+		defer handlePanic()
 		tf, err := getFile(r.Context(), path, h)
 		if err != nil {
 			return 0, err
@@ -118,6 +119,7 @@ func (f *FS) setEvent(h *webdav.Handler) {
 	}))
 
 	h.On(webdav.EventAfterDelete, webdav.DeleteFunc(func(r *http.Request, path string) (int, error) {
+		defer handlePanic()
 		return 0, removeFile(r, path, h)
 	}))
 }
@@ -126,4 +128,10 @@ func FileError(w http.ResponseWriter, code int) {
 	w.Header().Set("Content-Type", "image/png")
 	w.WriteHeader(code)
 	w.Write(errPng)
+}
+
+func handlePanic() {
+	if e := recover(); e != nil {
+		log.Warn().Msgf("%v", e)
+	}
 }

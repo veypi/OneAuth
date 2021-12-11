@@ -5,10 +5,19 @@
   <link rel="icon" href="/favicon.ico"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>OA</title>
-  <script type="module" crossorigin src="/static/index.4c78c989.js"></script>
-  <link rel="modulepreload" href="/static/vendor.b3d3058d.js">
+  <script>
+  var _hmt = _hmt || [];
+  (function () {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?3f774ca1054bb8701c2da142f90be13f";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+  </script>
+  <script type="module" crossorigin src="/static/index.21e34d10.js"></script>
+  <link rel="modulepreload" href="/static/vendor.e7207b5f.js">
   <link rel="stylesheet" href="/static/vendor.7d59d594.css">
-  <link rel="stylesheet" href="/static/index.430287f7.css">
+  <link rel="stylesheet" href="/static/index.9f48f778.css">
 </head>
 <body>
 <div id="app"></div>
@@ -23,6 +32,21 @@
 
 </body>
 <style>
+body,html {
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+}
+/* 周围滑动留白 */
+html {
+    overflow: hidden;
+    height: 100%;
+}
+body {
+    overflow: auto;
+    height: 100%;
+}
 #loader-wrapper {
     position: fixed;
     top: 0;

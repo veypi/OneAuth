@@ -61,9 +61,11 @@ let rules = {
 let uuid = computed(() => {
   return route.query.uuid
 })
+let ifLogOut = computed(() => {
+  return route.query.logout === '1'
+})
 
 function login() {
-  redirect()
   // @ts-ignore
   form_ref.value.validate((e: any) => {
     if (!e) {
@@ -105,7 +107,9 @@ function redirect(url?: string) {
 }
 
 onMounted(() => {
-  redirect()
+  if (!ifLogOut.value) {
+    redirect()
+  }
   if (divs.value[0]) {
     // @ts-ignore
     divs.value[0].focus()

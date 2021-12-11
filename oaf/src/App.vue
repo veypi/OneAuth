@@ -54,12 +54,8 @@ let collapsed = ref(true)
 }
 
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  @apply text-base font-mono text-center h-full w-full;
   color: #2c3e50;
-  width: 100%;
-  height: 100%;
 }
 
 ::-webkit-scrollbar {

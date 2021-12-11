@@ -64,6 +64,6 @@ func (h *tokenHandler) Get() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	t, err := u.GetToken(a.UUID, a.Key)
+	t, err := u.GetToken(a.UUID, []byte(a.Key))
 	return t, err
 }
