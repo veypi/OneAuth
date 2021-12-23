@@ -1,5 +1,6 @@
 import axios from 'axios'
-import {store} from '@/store'
+import evt from '../evt'
+import {Cfg} from './setting'
 
 
 function getQueryVariable(variable: string) {
@@ -16,7 +17,8 @@ function getQueryVariable(variable: string) {
 
 function baseRequests(url: string, method: any = 'GET', query: any, data: any, success: any, fail?: Function, header?: any) {
     let headers = {
-        auth_token: localStorage.auth_token || decodeURIComponent(getQueryVariable('token') as string),
+        auth_token: Cfg.token.value || decodeURIComponent(getQueryVariable('token') as string),
+        uuid: Cfg.uuid.value,
     }
     if (header) {
         headers = Object.assign(headers, header)
@@ -29,7 +31,7 @@ function baseRequests(url: string, method: any = 'GET', query: any, data: any, s
         headers: headers,
     }).then((res: any) => {
         if ('auth_token' in res.headers) {
-            localStorage.auth_token = res.headers.auth_token
+            Cfg.token.value = res.headers.auth_token
         }
         if ('redirect_url' in res.headers) {
             window.location.href = res.headers.redirect_url
@@ -43,8 +45,7 @@ function baseRequests(url: string, method: any = 'GET', query: any, data: any, s
     })
         .catch((e: any) => {
             if (e.response && e.response.status === 401) {
-                console.log(e)
-                store.commit('user/logout')
+                evt.emit('logout')
                 return
             }
             console.log(e)

@@ -2,7 +2,7 @@
   <div class="core rounded-2xl p-3">
     <div class="grid gap-4 grid-cols-5">
       <div class="col-span-2">
-        <n-avatar style="--color: none;" @click="Go" round :size="80" :src="util.addTokenOf(core.Icon)">
+        <n-avatar style="--color: none;" @click="Go" round :size="80" :src="core.Icon">
         </n-avatar>
       </div>
       <div class="col-span-3 grid grid-cols-1 items-center text-left">

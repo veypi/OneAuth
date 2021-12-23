@@ -40,7 +40,7 @@
                 </div>
                 <div v-if="$store.state.user.ready"
                      class="h-full flex justify-center items-center mr-5">
-                  <avatar></avatar>
+                  <OAer @logout="$store.commit('user/logout')" :is-dark="IsDark"></OAer>
                 </div>
               </div>
             </n-layout-header>
@@ -77,6 +77,8 @@ import {onMounted, ref} from 'vue'
 import {useStore} from '@/store'
 import {useRouter} from 'vue-router'
 import util from '@/libs/util'
+import {OAer, Cfg} from '@/oaer'
+Cfg.token.value = util.getToken()
 
 let store = useStore()
 let router = useRouter()

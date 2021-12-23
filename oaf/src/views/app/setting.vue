@@ -26,7 +26,7 @@
           :url="uuid + '.ico'"
           @success="handleFinish"
         >
-          <n-avatar size="large" round :src="util.addTokenOf(data.Icon)">
+          <n-avatar size="large" round :src="data.Icon">
           </n-avatar>
         </uploader>
       </div>

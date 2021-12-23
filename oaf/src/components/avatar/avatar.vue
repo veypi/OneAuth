@@ -1,7 +1,7 @@
 <template>
   <base-frame style="line-height:40px" v-model="shown" :isDark="IsDark">
     <div class="flex">
-      <n-avatar style="--color: none" :src="util.addTokenOf($store.state.user.local.Icon)" round></n-avatar>
+      <n-avatar style="--color: none" :src="$store.state.user.local.Icon" round></n-avatar>
     </div>
     <template v-slot:main>
     <div style="height: 100%">
@@ -14,7 +14,7 @@
           </div>
           <div class="grid grid-cols-4 gap-4 h-20">
             <div class="flex items-center justify-center">
-              <n-avatar size="50" :src="util.addTokenOf($store.state.user.local.Icon)" round></n-avatar>
+              <n-avatar size="50" :src="$store.state.user.local.Icon" round></n-avatar>
             </div>
             <div class="col-span-2 text-xs grid grid-cols-1 items-center" style="">
               <span>昵称: &ensp;&ensp; {{ $store.state.user.local.Nickname }}</span>

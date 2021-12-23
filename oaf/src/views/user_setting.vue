@@ -23,7 +23,7 @@
                 :url="user.ID+'.ico'"
                 @success="handleFinish"
               >
-                <n-avatar size="large" round :src="util.addTokenOf(user.Icon)">
+                <n-avatar size="large" round :src="user.Icon">
                 </n-avatar>
               </uploader>
             </n-form-item>
@@ -68,7 +68,7 @@ import api from '@/api'
 import {useMessage} from 'naive-ui'
 import {modelsUser} from '@/models'
 import util from '@/libs/util'
-import uploader from '@/components/uploader'
+import Uploader from '@/components/uploader'
 
 let msg = useMessage()
 let store = useStore()

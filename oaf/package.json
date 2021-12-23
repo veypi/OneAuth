@@ -30,6 +30,7 @@
     "path-posix": "^1.0.0"
   },
   "devDependencies": {
+    "@veypi/oaer": "file:src/oaer",
     "@types/node": "^16.11.12",
     "@vitejs/plugin-vue": "^1.9.3",
     "less": "^4.1.2",

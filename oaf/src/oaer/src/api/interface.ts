@@ -1,11 +1,11 @@
-import {store} from "@/store"
+import evt from '../evt'
 
 export type SuccessFunction<T> = (e: any) => void;
 export type FailedFunction<T> = (e: any) => void;
 
 const Code = {
     42011: '无操作权限',
-    22031: '资源不存在 或 您无权操作该资源'
+    22031: '资源不存在 或 您无权操作该资源',
 }
 
 export class Interface {
@@ -26,7 +26,7 @@ export class Interface {
             if (data) {
                 if (data.code === 40001) {
                     // no login
-                    store.commit('user/logout')
+                    evt.emit('logout')
                     return
                     // @ts-ignore
                 } else if (data.code === 42011 && window.$msg) {
@@ -40,7 +40,8 @@ export class Interface {
             }
             if (fail) {
                 fail(data.err)
-            } else {
+                // @ts-ignore
+            } else if (window.$msg) {
                 // @ts-ignore
                 window.$msg.warning(data.err)
             }
@@ -50,7 +51,8 @@ export class Interface {
             if (Number(data.status) === 1) {
                 if (success) {
                     success(data.content)
-                } else {
+                    // @ts-ignore
+                } else if (window.$msg) {
                     // @ts-ignore
                     window.$msg.warning('ok')
                 }

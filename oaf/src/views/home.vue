@@ -31,10 +31,10 @@
           </n-form-item>
           <n-form-item required label="icon" path="icon">
             <uploader
-              :url="new Date().toLocaleDateString()"
+              url="test.ico"
               @success="(e) => {temp_app.icon = e}"
             >
-              <n-avatar size="large" round :src="util.addTokenOf(temp_app.icon)">
+              <n-avatar size="large" round :src="temp_app.icon">
               </n-avatar>
             </uploader>
           </n-form-item>

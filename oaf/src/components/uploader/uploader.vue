@@ -28,7 +28,7 @@ function click() {
   file.value.dispatchEvent(new MouseEvent('click'))
 }
 
-let prefix = '/file/app/' + store.state.oauuid + '/'
+let prefix = '/file/public/app/' + store.state.oauuid + '/'
 
 let client = createClient(prefix,
   {headers: {auth_token: localStorage.getItem('auth_token')}})
