@@ -7,7 +7,6 @@ import (
 	"github.com/veypi/OneAuth/oalib"
 	"github.com/veypi/OneBD"
 	"github.com/veypi/OneBD/rfc"
-	"github.com/veypi/utils/log"
 	"net/http"
 	"strconv"
 )
@@ -26,7 +25,6 @@ func appFileChecker(w http.ResponseWriter, r *http.Request) (prefix string, moun
 	if h == "" {
 		h = m.Query("auth_token")
 	}
-	log.Warn().Msgf("|%s|%s|", r.Header.Get("auth_token"), m.Query("auth_token"))
 	var ok bool
 	ok, err = p.ParseToken(h, cfg.CFG.APPKey)
 	if !ok {
@@ -49,6 +47,6 @@ func appFileChecker(w http.ResponseWriter, r *http.Request) (prefix string, moun
 	actorID = strconv.Itoa(int(p.ID))
 	ownerID = uuid
 	mountPoint = uuid
-	prefix = cfg.CFG.FileUrlPrefix + "/app/" + uuid + "/"
+	prefix = uuid
 	return
 }

@@ -63,14 +63,9 @@ var CFG = &struct {
 		DB:   "one_auth",
 	},
 	ES: &config.Config{
-		URL:         "http://127.0.0.1:9200",
-		Index:       "",
-		Username:    "",
-		Password:    "",
-		Shards:      0,
-		Replicas:    0,
-		Sniff:       nil,
-		Healthcheck: nil,
+		URL:      "http://127.0.0.1:9200",
+		Username: "elastic",
+		Password: "123456",
 	},
 }
 
@@ -119,7 +114,14 @@ func ES() *elastic.Client {
 
 func ConnectES() *elastic.Client {
 	var err error
-	es, err = elastic.NewClientFromConfig(CFG.ES)
+	//es, err = elastic.NewClientFromConfig(CFG.ES)
+	es, err = elastic.NewClient(
+		elastic.SetURL(CFG.ES.URL),
+		elastic.SetBasicAuth(CFG.ES.Username, CFG.ES.Password),
+		elastic.SetSniff(false),
+		elastic.SetHealthcheck(false),
+		elastic.SetErrorLog(log.ConsoleLogger()),
+	)
 	if err != nil {
 		log.Warn().Msgf("connect es failed: %s", err)
 		return nil

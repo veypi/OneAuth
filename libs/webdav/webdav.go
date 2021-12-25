@@ -259,14 +259,15 @@ func (h *Handler) handleGetHeadPost(w http.ResponseWriter, r *http.Request) (sta
 		return http.StatusInternalServerError, err
 	}
 	w.Header().Set("ETag", etag)
-	// Let ServeContent determine the Content-Type header.
-	http.ServeContent(w, r, reqPath, fi.ModTime(), f)
+	// 放在serveContent ctx 会被取消
 	if e := h.fire(EventAfterRead); e != nil {
 		_, err := e.(ReadFunc)(r, reqPath)
 		if err != nil {
 			h.Logger(r, err)
 		}
 	}
+	// Let ServeContent determine the Content-Type header.
+	http.ServeContent(w, r, reqPath, fi.ModTime(), f)
 	return 0, nil
 }
 

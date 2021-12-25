@@ -48,6 +48,7 @@ func JSONResponse(m OneBD.Meta, data interface{}, err error) {
 		log.Warn().Err(err).Msg("encode json data error")
 		return
 	}
+	m.Header().Set("Access-Control-Allow-Origin", "*")
 	_, _ = m.Write(p)
 }
 

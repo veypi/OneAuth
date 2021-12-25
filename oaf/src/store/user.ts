@@ -6,6 +6,7 @@ import {State} from './index'
 import router from "@/router";
 import {Auths, NewAuths} from '@/auth'
 import {modelsSimpleAuth, modelsUser} from '@/models'
+import {Cfg} from '@/oaer'
 
 export interface UserState {
     id: number
@@ -30,6 +31,9 @@ export const User: Module<UserState, State> = {
         },
         setAuth(state: UserState, data: modelsSimpleAuth[]) {
             state.auth = NewAuths(data)
+        },
+        refreshToken(state: UserState, data: string) {
+            Cfg.token.value = util.getToken()
         },
         logout(state: UserState) {
             state.ready = false

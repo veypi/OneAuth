@@ -30,6 +30,7 @@ function baseRequests(url: string, method: any = 'GET', query: any, data: any, s
     }).then((res: any) => {
         if ('auth_token' in res.headers) {
             localStorage.auth_token = res.headers.auth_token
+            store.commit('user/refreshToken', localStorage.auth_token)
         }
         if ('redirect_url' in res.headers) {
             window.location.href = res.headers.redirect_url

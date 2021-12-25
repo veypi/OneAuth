@@ -6,10 +6,12 @@ import * as path from 'path'
 export default defineConfig({
     resolve: {
         alias: {
-            "@": path.resolve(__dirname, "src"),
+            '@': path.resolve(__dirname, 'src'),
         },
     },
-    plugins: [vue()],
+    plugins: [
+        vue()
+    ],
     server: {
         host: '0.0.0.0',
         // host: '127.0.0.1',
@@ -18,19 +20,19 @@ export default defineConfig({
             '/api': {
                 target: 'http://127.0.0.1:4001/',
                 changeOrigin: true,
-                ws: true
+                ws: true,
             },
             '/file': {
                 target: 'http://127.0.0.1:4001/',
                 changeOrigin: true,
-                ws: true
+                ws: true,
             },
             '/media': {
                 target: 'http://127.0.0.1:4001/',
                 changeOrigin: true,
-                ws: true
-            }
-        }
+                ws: true,
+            },
+        },
     },
     build: {
         outDir: '../sub/static/',
@@ -40,8 +42,8 @@ export default defineConfig({
                 // 重点在这里哦
                 entryFileNames: `static/[name].[hash].js`,
                 chunkFileNames: `static/[name].[hash].js`,
-                assetFileNames: `static/[name].[hash].[ext]`
-            }
-        }
-    }
+                assetFileNames: `static/[name].[hash].[ext]`,
+            },
+        },
+    },
 })

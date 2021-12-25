@@ -5,6 +5,8 @@ import (
 	"github.com/veypi/utils"
 	"github.com/veypi/utils/jwt"
 	"gorm.io/gorm"
+	"strconv"
+	"strings"
 )
 
 // User db user model
@@ -21,11 +23,11 @@ type User struct {
 	Status string
 
 	Icon  string
-	Roles []*Role `gorm:"many2many:UserRoles;"`
-	Apps  []*App  `gorm:"many2many:AppUsers;"`
-	Auths []*Auth `gorm:"foreignkey:UserID;references:ID"`
-	Used  uint    `gorm:"default:0"`
-	Space uint    `gorm:"default:300"`
+	Roles []*Role    `gorm:"many2many:UserRoles;"`
+	Apps  []*AppUser `gorm:""`
+	Auths []*Auth    `gorm:"foreignkey:UserID;references:ID"`
+	Used  uint       `gorm:"default:0"`
+	Space uint       `gorm:"default:300"`
 }
 
 func (u *User) String() string {
@@ -91,9 +93,10 @@ func (u *User) GetToken(uuid string, key []byte) (string, error) {
 	}
 	for _, a := range u.GetAuths() {
 		if uuid == a.AppUUID {
+			ruid := strings.ReplaceAll(a.RUID, "$id", strconv.Itoa(int(u.ID)))
 			payload.Auth = append(payload.Auth, &oalib.SimpleAuth{
 				RID:   a.RID,
-				RUID:  a.RUID,
+				RUID:  ruid,
 				Level: a.Level,
 			})
 		}

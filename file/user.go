@@ -45,7 +45,7 @@ func userFileChecker(w http.ResponseWriter, r *http.Request) (prefix string, mou
 		actorID = strconv.Itoa(int(user.ID))
 		ownerID = actorID
 		mountPoint = actorID
-		prefix = cfg.CFG.FileUrlPrefix + "/usr/"
+		prefix = ""
 		return
 	}
 	return

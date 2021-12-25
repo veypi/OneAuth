@@ -1,15 +1,13 @@
 <template>
   <BaseFrame v-model="shown" :is-dark="isDark">
     <template #title>
-      {{self.Name}}
+    {{ self.Name }}
     </template>
-    <slot>
-      <div class="flex justify-center items-center">
-        <n-avatar style="--color: none" :src="Cfg.host.value + usr.Icon"
-                  round></n-avatar>
-      </div>
-    </slot>
-    <template v-slot:main>
+    <div class="flex justify-center items-center">
+      <n-avatar style="--color: none" :src="Cfg.host.value + usr.Icon"
+                round></n-avatar>
+    </div>
+    <template #main>
     <div style="height: 100%">
       <div style="height: calc(100% - 50px)">
         <div class="w-full px-3">
@@ -60,6 +58,7 @@ import {decode} from 'js-base64'
 import {api, Cfg} from './api'
 import evt from './evt'
 import {modelsApp, modelsUser} from './models'
+console.log('init oaer')
 
 let shown = ref(false)
 let emits = defineEmits<{
@@ -72,6 +71,7 @@ let props = withDefaults(defineProps<{
   isDark: false,
 })
 onMounted(() => {
+  console.log('mount')
   fetchUserData()
 })
 
@@ -81,11 +81,13 @@ let self = ref<modelsApp>({} as modelsApp)
 
 let token = computed(() => Cfg.token.value)
 watch(token, () => {
+  console.log('sync token')
   fetchUserData()
 })
 
 function fetchUserData() {
   let token = Cfg.token.value?.split('.')
+  console.log(token)
   if (!token || token.length !== 3) {
     return false
   }
@@ -93,7 +95,6 @@ function fetchUserData() {
   if (data.ID > 0) {
     api.user.get(data.ID).Start(e => {
       usr.value = e
-      console.log(e)
       ofApps.value = []
       for (let v of e.Apps) {
         if (v.Status === 'ok') {
@@ -112,7 +113,6 @@ function fetchUserData() {
     evt.emit('logout')
   }
 }
-
 
 
 evt.on('logout', () => {

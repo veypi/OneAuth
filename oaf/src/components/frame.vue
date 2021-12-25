@@ -72,23 +72,15 @@
 import {Theme, IsDark, ChangeTheme} from '@/theme'
 import {zhCN, dateZhCN} from 'naive-ui'
 import fullscreen from './fullscreen'
-import avatar from './avatar'
-import {onMounted, ref} from 'vue'
+import {ref} from 'vue'
 import {useStore} from '@/store'
 import {useRouter} from 'vue-router'
 import util from '@/libs/util'
 import {OAer, Cfg} from '@/oaer'
 Cfg.token.value = util.getToken()
-
 let store = useStore()
 let router = useRouter()
-
 let isFullScreen = ref(false)
-onMounted(() => {
-})
-
-onMounted(() => {
-})
 </script>
 
 <style scoped>

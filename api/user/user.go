@@ -48,7 +48,7 @@ func (h *handler) Get() (interface{}, error) {
 	if userID != 0 {
 		user := &models.User{}
 		user.ID = userID
-		return user, cfg.DB().Where(user).First(user).Error
+		return user, cfg.DB().Preload("Apps.App").Where(user).First(user).Error
 	} else {
 		username := h.Meta().Query("username")
 		if username != "" {
@@ -107,7 +107,7 @@ func (h *handler) Post() (interface{}, error) {
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	h.User = new(models.User)
-	h.User.Icon = fmt.Sprintf("/media/icon/default/%04d.jpg", r.Intn(230))
+	h.User.Icon = fmt.Sprintf("/public/icon/default/%04d.jpg", r.Intn(230))
 	h.User.Nickname = userdata.Nickname
 	h.User.Phone = userdata.Phone
 	h.User.Username = userdata.Username

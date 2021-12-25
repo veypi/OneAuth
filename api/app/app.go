@@ -97,6 +97,8 @@ func (h *appHandler) Post() (interface{}, error) {
 		UUID:           utils.RandSeq(16),
 		Name:           data.Name,
 		Icon:           data.Icon,
+		Host:           "http://127.0.0.1",
+		UserRefreshUrl: "http://127.0.0.1?token=$token",
 		Creator:        h.Payload.ID,
 		EnableRegister: false,
 	}

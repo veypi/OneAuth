@@ -67,7 +67,7 @@ func getFile(ctx context.Context, path string, h *webdav.Handler) (*models.File,
 		_, err = index.File.Index().Id(f.ID()).BodyJson(f).Do(ctx)
 		return f, err
 	} else if err != nil {
-		return nil, err
+		return f, err
 	}
 	err = json.Unmarshal(body.Source, f)
 	return f, err

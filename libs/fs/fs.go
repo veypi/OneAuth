@@ -14,12 +14,19 @@ import (
 	"strings"
 )
 
+// MountFunc
+// urlPrefix  urlRoot+urlPrefix 为serverHttp 匹配的url前缀
+// mountPoint fs.RootDir+mountPoint 为文件存储路径
 type MountFunc = func(w http.ResponseWriter, r *http.Request) (urlPrefix string, mountPoint string, ownerID string, actorID string, err error)
+
 type FS struct {
-	handlerCache  map[string]*webdav.Handler
-	RootDir       string
-	MountFunc     MountFunc
-	DisabledAlert bool
+	handlerCache   map[string]*webdav.Handler
+	RootDir        string
+	UrlRoot        string
+	MountFunc      MountFunc
+	DisabledAlert  bool
+	DisabledRecord bool
+	DisabledWrite  bool
 }
 
 //go:embed netErr.png
@@ -43,7 +50,7 @@ func (f *FS) mount(prefix, dir string) *webdav.Handler {
 	fs := webdav.Dir(p)
 
 	h := &webdav.Handler{
-		Prefix:     prefix,
+		Prefix:     utils.PathJoin(f.UrlRoot, prefix),
 		FileSystem: fs,
 		LockSystem: webdav.NewMemLS(),
 		Logger: func(r *http.Request, err error) {
@@ -84,7 +91,9 @@ func (f *FS) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			FileError(w, http.StatusBadRequest)
 			return
 		}
-		f.setEvent(h)
+		if !f.DisabledRecord {
+			f.setEvent(h)
+		}
 	}
 	h.ServeHTTP(w, r)
 }
@@ -97,7 +106,8 @@ func (f *FS) setEvent(h *webdav.Handler) {
 		if err != nil {
 			return 0, err
 		}
-		return 0, addHistory(r, h, models.ActGet, tf.ID(), path)
+		err = addHistory(r, h, models.ActGet, tf.ID(), path)
+		return 0, err
 	}))
 	h.On(webdav.EventAfterUpdate, webdav.AfterUpdateFunc(func(r *http.Request, path string, size int64, md5Str string) (int, error) {
 		defer handlePanic()

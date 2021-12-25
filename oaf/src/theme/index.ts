@@ -67,7 +67,6 @@ export function ChangeTheme() {
     }
 }
 
-console.log(OsThemeRef.value)
 if (OsThemeRef.value === 'dark') {
     change('dark')
 }

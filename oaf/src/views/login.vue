@@ -82,10 +82,8 @@ function login() {
 }
 
 function redirect(url?: string) {
-  console.log(util.checkLogin())
   if (uuid.value && uuid.value !== store.state.oauuid) {
     api.app.get(uuid.value as string).Start((app: modelsApp) => {
-      console.log(app.UserRefreshUrl)
       api.token(uuid.value as string).get().Start(e => {
         if (!url) {
           url = app.UserRefreshUrl
@@ -97,7 +95,6 @@ function redirect(url?: string) {
     }, e => {
     })
   } else if (util.checkLogin()) {
-    console.log(url)
     if (url) {
       router.push(url)
     } else {
