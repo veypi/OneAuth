@@ -63,5 +63,6 @@ func main() {
 		return nil
 	}
 	_ = app.Run(os.Args)
+	srv.Run()
 
 }

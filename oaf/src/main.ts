@@ -4,8 +4,9 @@ import router from './router'
 import {store, key} from './store'
 import OneIcon from '@veypi/one-icon'
 import naive from 'naive-ui'
-import './index.css'
 import {Api} from './api'
+
+import './index.css'
 import './assets/icon.js'
 import 'animate.css'
 

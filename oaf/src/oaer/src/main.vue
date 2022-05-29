@@ -58,7 +58,6 @@ import {decode} from 'js-base64'
 import {api, Cfg} from './api'
 import evt from './evt'
 import {modelsApp, modelsUser} from './models'
-console.log('init oaer')
 
 let shown = ref(false)
 let emits = defineEmits<{
@@ -71,7 +70,6 @@ let props = withDefaults(defineProps<{
   isDark: false,
 })
 onMounted(() => {
-  console.log('mount')
   fetchUserData()
 })
 
@@ -81,13 +79,11 @@ let self = ref<modelsApp>({} as modelsApp)
 
 let token = computed(() => Cfg.token.value)
 watch(token, () => {
-  console.log('sync token')
   fetchUserData()
 })
 
 function fetchUserData() {
   let token = Cfg.token.value?.split('.')
-  console.log(token)
   if (!token || token.length !== 3) {
     return false
   }

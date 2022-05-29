@@ -24,7 +24,7 @@ func Router(r OneBD.Router) {
 		MountFunc: userFileChecker,
 	}
 	log.Info().Msgf("start file server on %s", cfg.CFG.Host)
-	r.Set("/usr/", usrF.ServeHTTP, rfc.MethodAll)
+	r.Set("/usr", usrF.ServeHTTP, rfc.MethodAll)
 	r.Set("/usr/*", usrF.ServeHTTP, rfc.MethodAll)
 	// 应用存储文件
 	appF := fs.FS{

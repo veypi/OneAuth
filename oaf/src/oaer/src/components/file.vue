@@ -21,22 +21,35 @@
       <n-button @click="showModal=true" type="primary">获取挂载链接</n-button>
     </div>
     <n-modal v-model:show="showModal">
-      <n-card style="width: 600px;" title="模态框" :bordered="false" size="huge">
-        <template #header-extra> 噢！ </template>
-        内容
-        <template #footer> 尾部 </template>
+      <n-card style="width: 600px;" title="云盘挂载地址" :bordered="false" size="huge">
+        <template #header-extra>复制</template>
+        {{ Cfg.userFileUrl() }}
+        <template #footer> 挂载说明</template>
       </n-card>
     </n-modal>
     <hr class="mt-10" style="border:none;border-top:1px solid #777;">
   </div>
 </template>
 <script lang="ts" setup>
+import {createClient} from '../libs/webdav'
 import {modelsUser} from '../models'
-import {ref} from 'vue'
+import {onMounted, ref} from 'vue'
+import {Cfg} from '../api'
+
 let showModal = ref(false)
 let props = withDefaults(defineProps<{
   usr: modelsUser
 }>(), {})
+
+let client = createClient('http://127.0.0.1:4001/file/usr/',
+  {headers: {auth_token: localStorage.getItem('auth_token') as string}})
+onMounted(() => {
+  client.stat('').then((e) => {
+    console.log(e)
+  }).catch((e) => {
+    console.log(e)
+  })
+})
 </script>
 <style scoped>
 </style>

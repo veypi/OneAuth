@@ -8,12 +8,15 @@
 
 import {ref} from 'vue'
 
-export let Cfg= {
+export let Cfg = {
     token: ref(''),
     uuid: ref(''),
     host: ref(''),
     prefix: '/api/',
     BaseUrl() {
         return this.host.value + this.prefix
+    },
+    userFileUrl() {
+        return (this.host.value || window.location.href) + '/file/usr/'
     },
 }

@@ -10,6 +10,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "baseUrl": ".",
+    "skipLibCheck": true,
     "paths": {
       "@/*": [
         "./src/*"
@@ -27,6 +28,6 @@
     "src/**/*.vue"
   ],
   "exclude": [
-    "src/libs/webdav"
+    "src/libs/webdav/**"
   ]
 }

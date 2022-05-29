@@ -8,7 +8,7 @@
       <div style="height: 100%; width: 300px" class="core-right">
         <transition appear enter-active-class="animate__slideInRight">
           <div class="flex right-title animate__animated animate__faster px-3">
-            <div class="flex-grow text-left" style="font-size: 1.5rem">
+            <div class="flex-grow text-left" style="font-size: 1.2rem">
               <slot name="title"></slot>
             </div>
             <div class="flex-grow-0 flex items-center h-full">
