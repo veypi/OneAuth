@@ -5,4 +5,4 @@
 
 ## 用户验证思路
 
-![](https://public.veypi.com/img/screenshot/20211012194238.png)
+![](doc/20211012194238.png)
