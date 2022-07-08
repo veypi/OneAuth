@@ -5,16 +5,26 @@
 // Distributed under terms of the MIT license.
 //
 
+mod app;
+mod role;
 mod user;
-use rbatis::crud::CRUD;
-use tracing::info;
-use user::User;
+use std::{fs::File, io::Read};
 
-use crate::cfg;
+use tracing::info;
+
+use crate::DB;
+pub use app::{AUStatus, App, AppUser};
+pub use role::{Access, Resource, Role};
+pub use user::User;
 
 pub async fn init() {
-    let mut u = User::default();
-    u.name = Some("asd".to_string());
-    cfg::DB.save(&u, &[]).await.unwrap();
-    info!("{:#?}", u);
+    info!("init database");
+    let mut f = File::open("./sql/table.sql").unwrap();
+    let mut sql = String::new();
+    f.read_to_string(&mut sql).unwrap();
+    DB.exec(&sql, vec![]).await.unwrap();
+}
+
+pub fn new_id() -> rbatis::object_id::ObjectId {
+    rbatis::plugin::object_id::ObjectId::new()
 }

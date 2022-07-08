@@ -5,5 +5,9 @@
 // Distributed under terms of the MIT license.
 //
 
-pub mod cfg;
+pub mod api;
+mod cfg;
 pub mod models;
+mod result;
+pub use cfg::{init_log, ApplicationConfig, Clis, CLI, CONFIG, DB};
+pub use result::{Error, Result};

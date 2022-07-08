@@ -6,20 +6,42 @@
 //
 //
 
-use rbatis::crud_table;
+use rbatis::{crud_table, DateTimeNative};
 
 #[crud_table]
 #[derive(Debug, Clone)]
 pub struct User {
     pub id: String,
-    pub name: Option<String>,
+    pub created: Option<DateTimeNative>,
+    pub updated: Option<DateTimeNative>,
+    pub delete_flag: bool,
+
+    pub username: Option<String>,
+    pub nickname: Option<String>,
+    pub email: Option<String>,
+    pub phone: Option<String>,
+    pub icon: Option<String>,
+    pub status: usize,
+    pub used: usize,
+    pub space: usize,
 }
 
 impl Default for User {
     fn default() -> Self {
-        User {
+        Self {
             id: rbatis::plugin::object_id::ObjectId::new().to_string(),
-            name: None,
+            created: None,
+            updated: None,
+            delete_flag: false,
+
+            username: None,
+            nickname: None,
+            email: None,
+            phone: None,
+            icon: None,
+            status: 0,
+            used: 0,
+            space: 300,
         }
     }
 }

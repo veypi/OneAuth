@@ -13,12 +13,14 @@
     "serve": "vite preview"
   },
   "dependencies": {
+    "@veypi/msg": "^0.1.0",
     "animate.css": "^4.1.1",
     "axios": "^0.24.0",
     "fast-xml-parser": "^3.19.0",
     "hot-patcher": "^0.5.0",
     "js-base64": "^3.7.2",
     "layerr": "^0.1.2",
+    "mitt": "^3.0.0",
     "nested-property": "^4.0.0",
     "path-posix": "^1.0.0",
     "seamless-scroll-polyfill": "^2.1.5",
@@ -29,8 +31,8 @@
     "vuex": "^4.0.2"
   },
   "devDependencies": {
-    "@veypi/one-icon": "2.0.6",
     "@types/node": "^16.11.12",
+    "@veypi/one-icon": "2.0.6",
     "@vitejs/plugin-vue": "^1.9.3",
     "autoprefixer": "^9.8.8",
     "base-64": "^1.0.0",
