@@ -1,7 +1,7 @@
-import {Base64} from 'js-base64'
-import {Interface} from './interface'
+import { Base64 } from 'js-base64'
+import { Interface } from './interface'
 import ajax from './ajax'
-import {BaseUrl} from './setting'
+import { BaseUrl } from './setting'
 
 export default {
     local: BaseUrl + 'user/',
@@ -14,12 +14,12 @@ export default {
     },
     login(username: string, password: string) {
         return new Interface(ajax.head, this.local + username, {
-            UidType: 'username',
+            typ: 'username',
             password: Base64.encode(password),
         })
     },
     search(q: string) {
-        return new Interface(ajax.get, this.local, {username: q})
+        return new Interface(ajax.get, this.local, { username: q })
     },
     get(id: number) {
         return new Interface(ajax.get, this.local + id)

@@ -7,7 +7,8 @@
 
 pub mod api;
 mod cfg;
+pub mod libs;
 pub mod models;
 mod result;
-pub use cfg::{init_log, ApplicationConfig, Clis, CLI, CONFIG, DB};
+pub use cfg::{dbtx, init_log, ApplicationConfig, Clis, CLI, CONFIG, DB};
 pub use result::{Error, Result};

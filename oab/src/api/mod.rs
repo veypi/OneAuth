@@ -5,8 +5,14 @@
 // Distributed under terms of the Apache license.
 //
 //
+
+mod access;
+mod app;
+mod resource;
+mod role;
+mod user;
 use crate::{Error, Result};
-use actix_web::{get, web, Responder};
+use actix_web::{get, web};
 
 #[get("/hello/{name}")]
 async fn greet(name: web::Path<u32>) -> Result<String> {
@@ -18,12 +24,11 @@ async fn greet(name: web::Path<u32>) -> Result<String> {
     }
 }
 
-#[get("/topic/derive")]
-async fn hello() -> impl Responder {
-    "Hello World!"
-}
-
 pub fn routes(cfg: &mut web::ServiceConfig) {
+    cfg.service(user::get)
+        .service(user::list)
+        .service(user::register)
+        .service(user::login)
+        .service(user::delete);
     cfg.service(greet);
-    cfg.service(hello);
 }

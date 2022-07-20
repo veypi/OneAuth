@@ -6,6 +6,15 @@
 //
 
 use rbatis::{crud_table, DateTimeNative};
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, serde::Serialize, serde::Deserialize, Clone)]
+#[serde(rename_all = "lowercase")]
+pub enum AppJoin {
+    Auto,
+    Disabled,
+    Applying,
+}
 
 #[crud_table]
 #[derive(Debug, Clone)]
@@ -21,11 +30,11 @@ pub struct App {
     pub user_count: usize,
 
     pub hide: bool,
-    pub register: bool,
+    pub join_method: AppJoin,
     pub role_id: Option<String>,
     pub redirect: Option<String>,
 
-    pub status: usize,
+    pub status: i64,
 }
 
 impl App {
@@ -41,7 +50,7 @@ impl App {
             icon: None,
             user_count: 0,
             hide: false,
-            register: false,
+            join_method: AppJoin::Auto,
             role_id: None,
             redirect: None,
             status: 0,
@@ -49,7 +58,8 @@ impl App {
     }
 }
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
+#[serde(rename_all = "lowercase")]
 pub enum AUStatus {
     OK,
     Disabled,
@@ -58,7 +68,7 @@ pub enum AUStatus {
 }
 
 #[crud_table]
-#[derive(Debug, serde::Serialize, serde::Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AppUser {
     pub created: Option<DateTimeNative>,
     pub updated: Option<DateTimeNative>,

@@ -4,22 +4,27 @@
  *
  * Distributed under terms of the Apache license.
  */
+DROP DATABASE test;
+CREATE DATABASE test CHARSET=utf8;
+USE test;
 
 CREATE TABLE IF NOT EXISTS `user`
 (
     `id`            varchar(32)  NOT NULL DEFAULT '' COMMENT 'User UUID',
-    `created`       datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated`       datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `delete_flag`   int(1) NOT NULL,
+    `created`       datetime DEFAULT CURRENT_TIMESTAMP,
+    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `delete_flag`   tinyint(1) NOT NULL,
 
     `username`      varchar(255) NOT NULL UNIQUE,
     `nickname`      varchar(255),
     `email`         varchar(255) UNIQUE,
     `phone`         varchar(255) UNIQUE,
     `icon`          varchar(255),
+    `real_code`     varchar(32),
+    `check_code`    binary(48),
 
     `status`        int NOT NULL COMMENT '状态（0：ok，1：disabled）',
-    `used`          int,
+    `used`          int NOT NULL DEFAULT 0,
     `space`         int DEFAULT 300,
 
     PRIMARY KEY (`id`) USING BTREE
@@ -28,16 +33,17 @@ CREATE TABLE IF NOT EXISTS `user`
 CREATE TABLE IF NOT EXISTS `app`
 (
     `id`            varchar(32)  NOT NULL,
-    `created`       datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated`       datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `delete_flag`   int(1) NOT NULL,
+    `created`       datetime DEFAULT CURRENT_TIMESTAMP,
+    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `delete_flag`   tinyint(1) NOT NULL,
 
+    `key`           varchar(32) NOT NULL,
     `name`          varchar(255) NOT NULL,
     `icon`          varchar(255),
     `des`           varchar(255),
-    `user_count`    int NOT NULL,
-    `hide`          int(1) NOT NULL,
-    `regist`        int(1) NOT NULL,
+    `user_count`    int NOT NULL DEFAULT 0,
+    `hide`          tinyint(1) NOT NULL DEFAULT 0,
+    `join_method`   varchar(32) NOT NULL DEFAULT 'auto',
 
     `role_id`       varchar(32),
     `redirect`      varchar(255),
@@ -48,8 +54,8 @@ CREATE TABLE IF NOT EXISTS `app`
 
 CREATE TABLE IF NOT EXISTS `app_user`
 (
-    `created`       datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated`       datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created`       datetime DEFAULT CURRENT_TIMESTAMP,
+    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     `app_id`        varchar(32) NOT NULL,
     `user_id`       varchar(32) NOT NULL,
@@ -65,9 +71,9 @@ CREATE TABLE IF NOT EXISTS `app_user`
 CREATE TABLE IF NOT EXISTS `role`
 (
     `id`            varchar(32)  NOT NULL,
-    `created`       datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated`       datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `delete_flag`   int(1) NOT NULL,
+    `created`       datetime DEFAULT CURRENT_TIMESTAMP,
+    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `delete_flag`   tinyint(1) NOT NULL,
     `app_id`        varchar(32) NOT NULL,
 
     `name`          varchar(255) NOT NULL,
@@ -80,8 +86,8 @@ CREATE TABLE IF NOT EXISTS `role`
 
 CREATE TABLE IF NOT EXISTS `user_role`
 (
-    `created`       datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated`       datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created`       datetime DEFAULT CURRENT_TIMESTAMP,
+    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     `user_id`       varchar(32) NOT NULL,
     `role_id`        varchar(32) NOT NULL,
@@ -94,9 +100,9 @@ CREATE TABLE IF NOT EXISTS `user_role`
 
 CREATE TABLE IF NOT EXISTS `resource`
 (
-    `created`       datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated`       datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `delete_flag`   int(1) NOT NULL,
+    `created`       datetime DEFAULT CURRENT_TIMESTAMP,
+    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `delete_flag`   tinyint(1) NOT NULL,
 
     `app_id`        varchar(32) NOT NULL,
     `name`          varchar(32) NOT NULL,
@@ -110,9 +116,9 @@ CREATE TABLE IF NOT EXISTS `resource`
 
 CREATE TABLE IF NOT EXISTS `access`
 (
-    `created`       datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated`       datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `delete_flag`   int(1) NOT NULL,
+    `created`       datetime DEFAULT CURRENT_TIMESTAMP,
+    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `delete_flag`   tinyint(1) NOT NULL,
 
     `app_id`        varchar(32) NOT NULL,
     `name`          varchar(32) NOT NULL,
@@ -128,20 +134,19 @@ CREATE TABLE IF NOT EXISTS `access`
     FOREIGN KEY (`app_id`,`name`) REFERENCES `resource`(`app_id`,`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `app`
-ADD FOREIGN KEY (`role_id`) REFERENCES `role`(`id`);
 
-INSERT INTO `user` (`id`, `username`)
-VALUES ('user0', 'name');
 
-INSERT INTO `app` (`id`, `name`)
-VALUES ('app0', 'a0');
+INSERT INTO `app` (`id`, `name`, `key`, `role_id`)
+VALUES ('FR9P5t8debxc11aFF', 'oa', 'AMpjwQHwVjGsb1WC4WG6', '1lytMwQL4uiNd0vsc');
 
 INSERT INTO `resource` (`app_id`, `name`)
-VALUES ('app0', 'sound');
+VALUES ('FR9P5t8debxc11aFF', 'app');
 
-INSERT INTO `role` (`id`, `app_id`)
-VALUES ('role0', 'app0');
+INSERT INTO `role` (`id`, `app_id`, `name`)
+VALUES ('1lytMwQL4uiNd0vsc', 'FR9P5t8debxc11aFF', 'admin');
 
 INSERT INTO `access` (`app_id`, `name`, `role_id`, `user_id`)
-VALUES ('app0', 'sound', NULL, 'user0');
+VALUES ('FR9P5t8debxc11aFF', 'app', '1lytMwQL4uiNd0vsc', null);
+
+ALTER TABLE `app`
+ADD FOREIGN KEY (`role_id`) REFERENCES `role`(`id`);

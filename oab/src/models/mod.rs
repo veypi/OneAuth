@@ -5,7 +5,7 @@
 // Distributed under terms of the MIT license.
 //
 
-mod app;
+pub mod app;
 mod role;
 mod user;
 use std::{fs::File, io::Read};

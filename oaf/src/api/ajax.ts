@@ -1,5 +1,6 @@
 import axios from 'axios'
-import {store} from '@/store'
+import { store } from '@/store'
+import msg from '@veypi/msg'
 
 
 function getQueryVariable(variable: string) {
@@ -36,29 +37,30 @@ function baseRequests(url: string, method: any = 'GET', query: any, data: any, s
             window.location.href = res.headers.redirect_url
             return
         }
+        console.log(res)
         if (method === 'HEAD') {
             success(res.headers)
         } else {
-            success(res.data)
+            success(res)
         }
     })
         .catch((e: any) => {
-            if (e.response && e.response.status === 401) {
+            if (typeof fail === 'function') {
+                fail(e.response)
+                return
+            }
+            let code = e.response.status
+            if (code === 400) {
+                msg.Warn(e.response.data)
+                return
+            } else if (code === 401) {
                 console.log(e)
                 store.commit('user/logout')
                 return
-            }
-            console.log(e)
-            if (e.response && e.response.status === 500) {
+            } else if (code === 500) {
                 return
             }
-            if (typeof fail === 'function') {
-                fail(e.response)
-            } else if (e.response && e.response.status === 400) {
-                console.log(400)
-            } else {
-                console.log(e.request)
-            }
+            console.log(e)
         })
 }
 

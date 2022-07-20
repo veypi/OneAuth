@@ -5,15 +5,20 @@
 // Distributed under terms of the Apache license.
 //
 
+use actix_web::http::header;
+use actix_web::middleware::ErrorHandlerResponse;
+use actix_web::ResponseError;
 use actix_web::{
-    error,
+    dev, error,
     http::{header::ContentType, StatusCode},
     HttpResponse,
 };
+
 use serde::{Deserialize, Serialize};
 use thiserror::Error as ThisError;
 
 pub type Result<T> = std::result::Result<T, Error>;
+
 // pub type AsyncResult<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
 #[derive(Clone, ThisError, Debug, Deserialize, Serialize)]
@@ -31,8 +36,18 @@ pub enum Error {
     #[error("Deserialize / Serialize failed")]
     SerdeError,
 
-    #[error("Resource not found")]
-    NotFound,
+    #[error("register disabled")]
+    AppDisabledRegister,
+
+    #[error("missing {0}")]
+    Missing(String),
+    #[error("invalid arg {0}")]
+    ArgInvalid(String),
+    #[error("duplicated arg {0}")]
+    ArgDuplicated(String),
+
+    #[error("not found {0}")]
+    NotFound(String),
 
     #[error("timeout")]
     Timeout,
@@ -94,6 +109,39 @@ impl From<std::io::Error> for Error {
         Error::UnsupportedFileType(format!("{:?}", e))
     }
 }
+impl From<actix_web::Error> for Error {
+    fn from(e: actix_web::Error) -> Self {
+        Error::BusinessException(format!("{:?}", e))
+    }
+}
+impl From<jsonwebtoken::errors::Error> for Error {
+    fn from(e: jsonwebtoken::errors::Error) -> Self {
+        Error::BusinessException(format!("{:?}", e))
+    }
+}
+impl From<rbatis::error::Error> for Error {
+    fn from(e: rbatis::error::Error) -> Self {
+        Error::BusinessException(format!("{:?}", e))
+    }
+}
+impl From<aes_gcm::Error> for Error {
+    fn from(e: aes_gcm::Error) -> Self {
+        Error::BusinessException(format!("{:?}", e))
+    }
+}
+
+impl From<Box<dyn std::fmt::Display>> for Error {
+    fn from(e: Box<dyn std::fmt::Display>) -> Self {
+        Error::BusinessException(format!("{}", e))
+    }
+}
+
+impl actix_web::Responder for Error {
+    type Body = actix_web::body::BoxBody;
+    fn respond_to(self, _req: &actix_web::HttpRequest) -> HttpResponse<Self::Body> {
+        self.error_response()
+    }
+}
 
 impl error::ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
@@ -107,13 +155,9 @@ impl error::ResponseError for Error {
             Error::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
             Error::BadRequest => StatusCode::BAD_REQUEST,
             Error::Timeout => StatusCode::GATEWAY_TIMEOUT,
+            Error::NotFound(_) => StatusCode::NOT_FOUND,
+            Error::NotAuthed => StatusCode::UNAUTHORIZED,
             _ => StatusCode::BAD_REQUEST,
         }
     }
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct ErrResponse {
-    pub code: Error,
-    pub detail: String,
 }

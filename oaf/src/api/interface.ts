@@ -1,4 +1,3 @@
-import {store} from "@/store"
 
 export type SuccessFunction<T> = (e: any) => void;
 export type FailedFunction<T> = (e: any) => void;
@@ -22,42 +21,6 @@ export class Interface {
     }
 
     Start(success?: SuccessFunction<any>, fail?: FailedFunction<any>) {
-        const newFail = function (data: any) {
-            if (data) {
-                if (data.code === 40001) {
-                    // no login
-                    store.commit('user/logout')
-                    return
-                    // @ts-ignore
-                } else if (data.code === 42011 && window.$msg) {
-                    // @ts-ignore
-                    window.$msg.warning('无权限')
-                }
-            }
-            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-            // @ts-ignore
-            if (data && data.code && Code[data.code]) {
-            }
-            if (fail) {
-                fail(data.err)
-            } else {
-                // @ts-ignore
-                window.$msg.warning(data.err)
-            }
-        }
-
-        const newSuccess = function (data: any) {
-            if (Number(data.status) === 1) {
-                if (success) {
-                    success(data.content)
-                } else {
-                    // @ts-ignore
-                    window.$msg.warning('ok')
-                }
-            } else {
-                newFail(data)
-            }
-        }
-        this.method(this.api, this.data, newSuccess, newFail, this.header)
+        this.method(this.api, this.data, success, fail, this.header)
     }
 }

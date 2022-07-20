@@ -16,10 +16,11 @@ use std::{
 
 use clap::{Args, Parser, Subcommand};
 use lazy_static::lazy_static;
-use rbatis::rbatis::Rbatis;
+use rbatis::{logic_delete::RbatisLogicDeletePlugin, rbatis::Rbatis};
+use tracing::log::warn;
 lazy_static! {
   // Rbatis是线程、协程安全的，运行时的方法是Send+Sync，无需担心线程竞争
-  pub static ref DB:Rbatis=Rbatis::new();
+  pub static ref DB:Rbatis= new_db();
 }
 
 lazy_static! {
@@ -61,6 +62,8 @@ impl AppCli {
 
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct ApplicationConfig {
+    pub uuid: String,
+    pub key: String,
     pub debug: bool,
     pub server_url: String,
     pub db_url: String,
@@ -98,6 +101,8 @@ impl ApplicationConfig {
     }
     pub fn defaut() -> Self {
         Self {
+            uuid: "FR9P5t8debxc11aFF".to_string(),
+            key: "AMpjwQHwVjGsb1WC4WG6".to_string(),
             debug: true,
             server_url: "127.0.0.1:4001".to_string(),
             db_url: "127.0.0.1:3306".to_string(),
@@ -124,18 +129,29 @@ impl ApplicationConfig {
     }
 }
 
+fn new_db() -> rbatis::rbatis::Rbatis {
+    let mut rb = rbatis::rbatis::Rbatis::new();
+    rb.logic_plugin = Some(Box::new(RbatisLogicDeletePlugin::new("delete_flag")));
+    rb
+}
+
+pub async fn dbtx() -> rbatis::executor::RBatisTxExecutorGuard<'static> {
+    DB.acquire_begin()
+        .await
+        .unwrap()
+        .defer_async(|mut tx1| async move {
+            if !tx1.is_done() {
+                _ = tx1.rollback().await;
+                warn!("db rollback!")
+            }
+        })
+}
+
 struct FormatTime;
 impl tracing_subscriber::fmt::time::FormatTime for FormatTime {
     fn format_time(&self, w: &mut tracing_subscriber::fmt::format::Writer<'_>) -> std::fmt::Result {
-        let d =
-            time::OffsetDateTime::now_utc().to_offset(time::UtcOffset::from_hms(8, 0, 0).unwrap());
-        w.write_str(&format!(
-            "{} {}:{}:{}",
-            d.date(),
-            d.hour(),
-            d.minute(),
-            d.second()
-        ))
+        let d = chrono::Local::now();
+        w.write_str(&d.format("%Y-%m-%d %H:%M:%S").to_string())
     }
 }
 
