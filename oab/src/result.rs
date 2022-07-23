@@ -16,6 +16,7 @@ use actix_web::{
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error as ThisError;
+use tracing::info;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -114,13 +115,13 @@ impl From<actix_web::Error> for Error {
         Error::BusinessException(format!("{:?}", e))
     }
 }
-impl From<jsonwebtoken::errors::Error> for Error {
-    fn from(e: jsonwebtoken::errors::Error) -> Self {
+impl From<sqlx::Error> for Error {
+    fn from(e: sqlx::Error) -> Self {
         Error::BusinessException(format!("{:?}", e))
     }
 }
-impl From<rbatis::error::Error> for Error {
-    fn from(e: rbatis::error::Error) -> Self {
+impl From<jsonwebtoken::errors::Error> for Error {
+    fn from(e: jsonwebtoken::errors::Error) -> Self {
         Error::BusinessException(format!("{:?}", e))
     }
 }
@@ -145,9 +146,11 @@ impl actix_web::Responder for Error {
 
 impl error::ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
+        info!("{}", self.to_string());
         HttpResponse::build(self.status_code())
             .insert_header(ContentType::html())
-            .body(self.to_string())
+            .insert_header(("error", self.to_string()))
+            .body("".to_string())
     }
 
     fn status_code(&self) -> StatusCode {

@@ -29,19 +29,14 @@ function baseRequests(url: string, method: any = 'GET', query: any, data: any, s
         method: method,
         headers: headers,
     }).then((res: any) => {
-        if ('auth_token' in res.headers) {
-            localStorage.auth_token = res.headers.auth_token
-            store.commit('user/refreshToken', localStorage.auth_token)
-        }
         if ('redirect_url' in res.headers) {
             window.location.href = res.headers.redirect_url
             return
         }
-        console.log(res)
         if (method === 'HEAD') {
             success(res.headers)
         } else {
-            success(res)
+            success(res.data)
         }
     })
         .catch((e: any) => {
@@ -51,7 +46,7 @@ function baseRequests(url: string, method: any = 'GET', query: any, data: any, s
             }
             let code = e.response.status
             if (code === 400) {
-                msg.Warn(e.response.data)
+                msg.Warn(e.response.headers.error)
                 return
             } else if (code === 401) {
                 console.log(e)

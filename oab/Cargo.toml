@@ -12,15 +12,15 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "*"
 serde_yaml = "*"
 clap = { version = "3", features = ["derive"] }
-chrono = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
 tokio = { version = "1", features = ["full"] }
 futures-util = "*"
 tracing = "*"
 tracing-subscriber = "*"
 thiserror = "1.0"
 
-rbson = "2"
-rbatis = { version = "*", default-features = false, features = ["runtime-tokio-rustls","mysql","debug_mode"] }
+sqlx = { version = "0.5", features = [ "runtime-tokio-rustls", "mysql", "macros", "migrate", "chrono"] }
+
 actix-web = "4"
 jsonwebtoken = "8"
 
@@ -30,3 +30,5 @@ block-padding = "0.3.2"
 generic-array = "0.14.5"
 serde-big-array = "0.4.1"
 base64 = "0.13.0"
+
+uuid = { version = "1.1", features = ["v3","v4", "fast-rng", "macro-diagnostics"]}

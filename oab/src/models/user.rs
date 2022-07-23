@@ -7,11 +7,9 @@
 //
 
 use actix_web::ResponseError;
-use chrono::{prelude::*, Duration};
 
-use generic_array::typenum::U32;
+use chrono::{prelude::*, Duration};
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
-use rbatis::{crud_table, DateTimeNative};
 use serde::{Deserialize, Serialize};
 use tracing::info;
 
@@ -20,7 +18,8 @@ use aes_gcm::aead::{Aead, NewAead};
 use aes_gcm::{Aes256Gcm, Key, Nonce};
 use block_padding::{Padding, Pkcs7};
 
-use generic_array::{ArrayLength, GenericArray};
+use generic_array::typenum::U32;
+use generic_array::GenericArray;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 
@@ -44,12 +43,11 @@ fn rand_str(l: usize) -> String {
 //     block
 // }
 
-#[crud_table]
-#[derive(Debug, Clone)]
+#[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct User {
     pub id: String,
-    pub created: Option<DateTimeNative>,
-    pub updated: Option<DateTimeNative>,
+    pub created: Option<NaiveDateTime>,
+    pub updated: Option<NaiveDateTime>,
     pub delete_flag: bool,
 
     pub username: String,
@@ -58,10 +56,10 @@ pub struct User {
     pub phone: Option<String>,
     pub icon: Option<String>,
     pub real_code: Option<String>,
-    pub check_code: Option<rbatis::Bytes>,
-    pub status: usize,
-    pub used: usize,
-    pub space: usize,
+    pub check_code: Option<Vec<u8>>,
+    pub status: i32,
+    pub used: i32,
+    pub space: i32,
 }
 
 impl User {
@@ -74,6 +72,30 @@ impl User {
             id: self.id.clone(),
         };
         t
+    }
+    pub fn check_pass(&self, p: &str) -> Result<()> {
+        let p = p.as_bytes();
+        let mut key_block: GenericArray<u8, U32> = [0xff; 32].into();
+        key_block[..p.len()].copy_from_slice(p);
+        Pkcs7::pad(&mut key_block, p.len());
+        // key 32 Byte
+        let key = Key::from_slice(&key_block);
+        let cipher = Aes256Gcm::new(&key);
+
+        // 12 Byte
+        // 96-bits; unique per message
+        let nonce = Nonce::from_slice(&self.id.as_bytes()[..12]);
+
+        let plaintext = match cipher.decrypt(nonce, self.check_code.as_ref().unwrap().as_slice()) {
+            Ok(p) => p,
+            Err(_) => return Err(Error::ArgInvalid("password".to_string())),
+        };
+        let plaintext = std::str::from_utf8(&plaintext).unwrap();
+        if plaintext.eq(self.real_code.as_ref().unwrap()) {
+            Ok(())
+        } else {
+            Err(Error::ArgInvalid("password".to_string()))
+        }
     }
     pub fn update_pass(&mut self, p: &str) -> Result<()> {
         if p.len() < 6 || p.len() > 32 {
@@ -107,8 +129,8 @@ impl User {
 impl Default for User {
     fn default() -> Self {
         Self {
-            id: rbatis::plugin::object_id::ObjectId::new().to_string(),
-            created: Some(DateTimeNative::now()),
+            id: uuid::Uuid::new_v4().to_string().replace("-", ""),
+            created: None,
             updated: None,
             delete_flag: false,
 

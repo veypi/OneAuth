@@ -10,5 +10,5 @@ mod cfg;
 pub mod libs;
 pub mod models;
 mod result;
-pub use cfg::{dbtx, init_log, ApplicationConfig, Clis, CLI, CONFIG, DB};
+pub use cfg::{init_log, ApplicationConfig, Clis, CLI, CONFIG};
 pub use result::{Error, Result};

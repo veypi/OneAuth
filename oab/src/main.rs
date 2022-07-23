@@ -4,7 +4,11 @@
 // 2022-07-07 23:51
 // Distributed under terms of the Apache license.
 //
-use actix_web::{middleware, web, App, HttpServer};
+use actix_web::{
+    middleware,
+    web::{self, Data},
+    App, HttpServer,
+};
 
 use oab::{api, init_log, models, Clis, Result, CLI, CONFIG};
 use tracing::{info, warn};
@@ -15,14 +19,12 @@ async fn main() -> Result<()> {
     if let Some(c) = &CLI.command {
         match c {
             Clis::Init => {
-                CONFIG.connect().await;
                 models::init().await;
                 return Ok(());
             }
             _ => {}
         };
     };
-    CONFIG.connect().await;
     web().await?;
     Ok(())
 }
@@ -33,7 +35,7 @@ async fn web() -> Result<()> {
         let logger = middleware::Logger::default();
         let json_config = web::JsonConfig::default()
             .limit(4096)
-            .error_handler(|err, _req|{
+            .error_handler(|err, _req| {
                 // create custom error response
                 // oab::Error::InternalServerError
                 warn!("{:#?}", err);
@@ -49,6 +51,7 @@ async fn web() -> Result<()> {
             .service(
                 web::scope("api")
                     .app_data(json_config)
+                    .app_data(Data::new(CONFIG.db()))
                     .configure(api::routes),
             )
     });

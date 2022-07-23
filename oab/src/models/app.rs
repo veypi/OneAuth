@@ -5,29 +5,28 @@
 // Distributed under terms of the Apache license.
 //
 
-use rbatis::{crud_table, DateTimeNative};
+use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, Clone)]
-#[serde(rename_all = "lowercase")]
+#[derive(Debug, Serialize, Deserialize, Clone, sqlx::Type)]
+#[repr(i64)]
 pub enum AppJoin {
-    Auto,
-    Disabled,
-    Applying,
+    Auto = 0,
+    Disabled = 1,
+    Applying = 2,
 }
 
-#[crud_table]
-#[derive(Debug, Clone)]
+#[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct App {
     pub id: String,
-    pub created: Option<DateTimeNative>,
-    pub updated: Option<DateTimeNative>,
+    pub created: Option<NaiveDateTime>,
+    pub updated: Option<NaiveDateTime>,
     pub delete_flag: bool,
 
     pub name: Option<String>,
     pub des: Option<String>,
     pub icon: Option<String>,
-    pub user_count: usize,
+    pub user_count: i64,
 
     pub hide: bool,
     pub join_method: AppJoin,
@@ -40,7 +39,7 @@ pub struct App {
 impl App {
     pub fn new() -> Self {
         Self {
-            id: rbatis::plugin::object_id::ObjectId::new().to_string(),
+            id: "".to_string(),
             created: None,
             updated: None,
             delete_flag: false,
@@ -58,20 +57,19 @@ impl App {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
-#[serde(rename_all = "lowercase")]
+#[derive(Debug, Deserialize, Serialize, Clone, sqlx::Type)]
+#[repr(i64)]
 pub enum AUStatus {
-    OK,
-    Disabled,
-    Applying,
-    Deny,
+    OK = 0,
+    Disabled = 1,
+    Applying = 2,
+    Deny = 3,
 }
 
-#[crud_table]
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct AppUser {
-    pub created: Option<DateTimeNative>,
-    pub updated: Option<DateTimeNative>,
+    pub created: Option<NaiveDateTime>,
+    pub updated: Option<NaiveDateTime>,
     pub app_id: String,
     pub user_id: String,
     pub status: AUStatus,

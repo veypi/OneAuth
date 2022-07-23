@@ -4,14 +4,15 @@
 // 2022-07-09 02:42
 // Distributed under terms of the Apache license.
 //
-use rbatis::{crud_table, DateTimeNative};
 
-#[crud_table]
-#[derive(Debug, Clone, Default)]
+use chrono::NaiveDateTime;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Role {
     pub id: String,
-    pub created: Option<DateTimeNative>,
-    pub updated: Option<DateTimeNative>,
+    pub created: Option<NaiveDateTime>,
+    pub updated: Option<NaiveDateTime>,
     pub delete_flag: bool,
 
     pub app_id: String,
@@ -20,11 +21,10 @@ pub struct Role {
     pub user_count: usize,
 }
 
-#[crud_table]
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Resource {
-    pub created: Option<DateTimeNative>,
-    pub updated: Option<DateTimeNative>,
+    pub created: Option<NaiveDateTime>,
+    pub updated: Option<NaiveDateTime>,
     pub delete_flag: bool,
 
     pub app_id: String,
@@ -32,11 +32,10 @@ pub struct Resource {
     pub des: Option<String>,
 }
 
-#[crud_table]
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Access {
-    pub created: Option<DateTimeNative>,
-    pub updated: Option<DateTimeNative>,
+    pub created: Option<NaiveDateTime>,
+    pub updated: Option<NaiveDateTime>,
     pub delete_flag: bool,
 
     pub app_id: String,

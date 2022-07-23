@@ -16,12 +16,8 @@ use std::{
 
 use clap::{Args, Parser, Subcommand};
 use lazy_static::lazy_static;
-use rbatis::{logic_delete::RbatisLogicDeletePlugin, rbatis::Rbatis};
+use sqlx::{mysql::MySqlPoolOptions, Pool};
 use tracing::log::warn;
-lazy_static! {
-  // Rbatis是线程、协程安全的，运行时的方法是Send+Sync，无需担心线程竞争
-  pub static ref DB:Rbatis= new_db();
-}
 
 lazy_static! {
     pub static ref CLI: AppCli = AppCli::new();
@@ -60,7 +56,7 @@ impl AppCli {
     }
 }
 
-#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct ApplicationConfig {
     pub uuid: String,
     pub key: String,
@@ -76,28 +72,35 @@ pub struct ApplicationConfig {
     pub log_pack_compress: Option<String>,
     pub log_level: Option<String>,
     pub jwt_secret: Option<String>,
+
+    #[serde(skip)]
+    pub _pool: Option<Pool<sqlx::MySql>>,
 }
 
 impl ApplicationConfig {
     pub fn new() -> Self {
+        let mut res = Self::defaut();
         let mut f = match File::open(CLI.cfg.clone()) {
             Ok(f) => f,
-            Err(ref e) if e.kind() == io::ErrorKind::NotFound => return Self::defaut(),
+            Err(ref e) if e.kind() == io::ErrorKind::NotFound => {
+                res._pool = Some(res.connect());
+                return res;
+            }
             Err(e) => panic!("{}", e),
         };
         File::open(CLI.cfg.clone()).unwrap();
         let mut yml_data = String::new();
         f.read_to_string(&mut yml_data).unwrap();
         //读取配置
-        let result: ApplicationConfig =
-            serde_yaml::from_str(&yml_data).expect("load config file fail");
-        if result.debug {
-            println!("load config:{:?}", result);
+        res = serde_yaml::from_str(&yml_data).expect("load config file fail");
+        if res.debug {
+            println!("load config:{:?}", res);
             println!("///////////////////// Start On Debug Mode ////////////////////////////");
         } else {
             println!("release_mode is enable!")
         }
-        result
+        res._pool = Some(res.connect());
+        res
     }
     pub fn defaut() -> Self {
         Self {
@@ -114,37 +117,27 @@ impl ApplicationConfig {
             log_pack_compress: None,
             log_level: None,
             jwt_secret: None,
+            _pool: None,
         }
     }
     pub fn save(&self) {}
-    pub fn db(&self) -> &DB {
-        DB.borrow()
+    pub fn db(&self) -> &sqlx::MySqlPool {
+        match &self._pool {
+            Some(d) => d,
+            None => panic!("failed"),
+        }
     }
-    pub async fn connect(&self) {
+    fn connect(&self) -> Pool<sqlx::MySql> {
         let url = format!(
             "mysql://{}:{}@{}/{}",
             self.db_user, self.db_pass, self.db_url, self.db_name
         );
-        DB.link(&url).await.unwrap();
+        let p = MySqlPoolOptions::new()
+            .max_connections(5)
+            .connect_lazy(&url)
+            .unwrap();
+        p
     }
-}
-
-fn new_db() -> rbatis::rbatis::Rbatis {
-    let mut rb = rbatis::rbatis::Rbatis::new();
-    rb.logic_plugin = Some(Box::new(RbatisLogicDeletePlugin::new("delete_flag")));
-    rb
-}
-
-pub async fn dbtx() -> rbatis::executor::RBatisTxExecutorGuard<'static> {
-    DB.acquire_begin()
-        .await
-        .unwrap()
-        .defer_async(|mut tx1| async move {
-            if !tx1.is_done() {
-                _ = tx1.rollback().await;
-                warn!("db rollback!")
-            }
-        })
 }
 
 struct FormatTime;

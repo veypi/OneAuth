@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `app`
     `des`           varchar(255),
     `user_count`    int NOT NULL DEFAULT 0,
     `hide`          tinyint(1) NOT NULL DEFAULT 0,
-    `join_method`   enum('auto','disabled','applying') NOT NULL DEFAULT 'auto',
+    `join_method`   int NOT NULL DEFAULT 0,
 
     `role_id`       varchar(32),
     `redirect`      varchar(255),
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS `app_user`
 
     `app_id`        varchar(32) NOT NULL,
     `user_id`       varchar(32) NOT NULL,
-    `status`        enum('ok', 'disabled', 'applying', 'deny') NOT NULL,
+    `status`        int NOT NULL DEFAULT 0,
 
     PRIMARY KEY (`user_id`,`app_id`) USING BTREE,
     FOREIGN KEY (`app_id`) REFERENCES `app`(`id`),
