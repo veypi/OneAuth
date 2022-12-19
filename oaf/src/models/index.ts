@@ -14,31 +14,44 @@ export interface modelsBread {
     RQuery?: any
 }
 
+export interface modelsApp2 {
+
+}
 
 export interface modelsApp {
-    CreatedAt: string
-    UpdatedAt: string
-    DeletedAt: null
-    Creator: number
-    Des: string
-    EnableEmail: boolean
-    EnablePhone: boolean
-    EnableRegister: true
-    EnableUser: boolean
-    EnableUserKey: boolean
-    EnableWx: boolean
-    Hide: boolean
-    Host: string
-    Icon: string
-    InitRole: null
-    InitRoleID: number
-    Name: string
-    UUID: string
-    UserCount: number
-    UserKeyUrl: string
-    UserRefreshUrl: string
-    UserStatus: string
-    Users: null
+    created: string
+    updated: string
+    delete_flag: boolean
+    des: string
+    hide: boolean
+    icon: string
+    id: string
+    name: string
+    redirect: string
+    role_id: string
+    status: number
+    user_count: number
+
+    // Creator: number
+    // Des: string
+    // EnableEmail: boolean
+    // EnablePhone: boolean
+    // EnableRegister: true
+    // EnableUser: boolean
+    // EnableUserKey: boolean
+    // EnableWx: boolean
+    // Hide: boolean
+    // Host: string
+    // Icon: string
+    // InitRole?: null
+    // InitRoleID: number
+    // Name: string
+    // UUID: string
+    // UserCount: number
+    // UserKeyUrl: string
+    // UserRefreshUrl: string
+    // UserStatus: string
+    // Users: null
 }
 
 export interface modelsUser {

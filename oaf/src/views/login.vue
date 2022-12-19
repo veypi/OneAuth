@@ -74,7 +74,8 @@ function login() {
                     store.commit('user/refreshToken', localStorage.auth_token)
                     msg.Info('登录成功')
                     store.dispatch('user/fetchUserData')
-                    redirect(route.query.redirect as string)
+                    let url = route.query.redirect || headers.redirect || '/'
+                    redirect(url)
                 } else {
                     msg.Info('正在申请加入，请等待管理员审批')
                 }

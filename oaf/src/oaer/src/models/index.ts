@@ -14,11 +14,28 @@ export interface modelsBread {
     RQuery?: any
 }
 
+export enum AppJoin {
+    Auto = 0,
+    Disabled = 1,
+    Applying = 2,
+}
 
-export interface modelsApp {
-    CreatedAt: string
-    UpdatedAt: string
-    DeletedAt: null
+
+export interface App {
+    created: string
+    updated: string
+    delete_flag: boolean
+    des: string
+    hide: boolean
+    icon: string
+    id: string
+    join_method: AppJoin
+    name: string
+    redirect: string
+    role_id: string
+    status: number
+    user_count: number
+
     Creator: number
     Des: string
     EnableEmail: boolean
@@ -44,7 +61,7 @@ export interface modelsApp {
 export interface modelsUser {
     // Index 前端缓存
     Index?: number
-    Apps: modelsApp[]
+    Apps: App[]
     Auths: null
     CreatedAt: string
     DeletedAt: null
@@ -58,8 +75,6 @@ export interface modelsUser {
     Email: string
     Nickname: string
     Phone: string
-    Used: number
-    Space: number
 }
 
 export interface modelsSimpleAuth {
@@ -69,7 +84,7 @@ export interface modelsSimpleAuth {
 }
 
 export interface modelsAuth {
-    App?: modelsApp
+    App?: App
     AppUUID: string
     CreatedAt: string
     DeletedAt: null
@@ -87,7 +102,7 @@ export interface modelsAuth {
 }
 
 export interface modelsRole {
-    App?: modelsApp
+    App?: App
     AppUUID: string
     Auths: null
     CreatedAt: string
@@ -100,7 +115,7 @@ export interface modelsRole {
 }
 
 export interface modelsResource {
-    App?: modelsApp
+    App?: App
     AppUUID: string
     CreatedAt: string
     DeletedAt: null

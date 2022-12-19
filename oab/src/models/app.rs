@@ -7,8 +7,9 @@
 
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
+use serde_repr::*;
 
-#[derive(Debug, Serialize, Deserialize, Clone, sqlx::Type)]
+#[derive(Debug, Serialize_repr, Deserialize_repr, Clone, sqlx::Type)]
 #[repr(i64)]
 pub enum AppJoin {
     Auto = 0,
@@ -57,7 +58,7 @@ impl App {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, sqlx::Type)]
+#[derive(Debug, Deserialize_repr, Serialize_repr, Clone, sqlx::Type)]
 #[repr(i64)]
 pub enum AUStatus {
     OK = 0,

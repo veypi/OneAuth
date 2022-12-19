@@ -1,8 +1,8 @@
-import {InjectionKey} from 'vue'
-import {createStore, useStore as baseUseStore, Store} from 'vuex'
+import { InjectionKey } from 'vue'
+import { createStore, useStore as baseUseStore, Store } from 'vuex'
 import api from '@/api'
-import {User, UserState} from './user'
-import {modelsBread} from '@/models'
+import { User, UserState } from './user'
+import { modelsBread } from '@/models'
 
 type Map = { [key: string]: string }
 
@@ -24,15 +24,15 @@ export const store = createStore<State>({
     modules: {
         user: User,
     },
-// @ts-ignore
+    // @ts-ignore
     state: {
-        oauuid: 'jU5Jo5hM',
+        oauuid: 'FR9P5t8debxc11aFF',
         title: '',
         height: 'calc(100vh - 108px)',
         hideHeader: false,
         apps: [],
         translateCache: {},
-        breads: [{Index: 0, Name: 'home', Type: 'icon', RName: 'home'}],
+        breads: [{ Index: 0, Name: 'home', Type: 'icon', RName: 'home' }],
     },
     getters: {
         cache: (state: State) => (key: string) => {
@@ -72,12 +72,12 @@ export const store = createStore<State>({
         },
     },
     actions: {
-        fetchSelf({commit}) {
+        fetchSelf({ commit }) {
             api.app.self().Start(d => {
                 commit('setOA', d)
             })
         },
-        fetchApps({commit}) {
+        fetchApps({ commit }) {
             api.app.list().Start(e => {
                 commit('setApps', e)
             })

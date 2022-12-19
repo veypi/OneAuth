@@ -5,14 +5,13 @@
 // Distributed under terms of the Apache license.
 //
 
-use std::fmt::{format, Debug};
+use std::fmt::Debug;
 
 use crate::{models, Error, Result, CONFIG};
 use actix_web::{delete, get, head, http, post, web, HttpResponse, Responder};
 use base64;
 use serde::{Deserialize, Serialize};
 use tracing::info;
-use uuid::uuid;
 
 #[get("/user/{id}")]
 pub async fn get(id: web::Path<String>) -> Result<models::User> {

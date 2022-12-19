@@ -12,9 +12,8 @@
 <script setup lang="ts">
 // This starter template is using Vue 3 <script setup> SFCs
 import BaseFrame from './components/frame.vue'
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount } from 'vue'
 import { useStore } from "./store";
-import msg from '@veypi/msg'
 
 let store = useStore()
 
@@ -25,10 +24,9 @@ onBeforeMount(() => {
     }
     store.dispatch('fetchSelf')
     store.dispatch('user/fetchUserData')
-    msg.Warn('asd')
 })
 
-let collapsed = ref(true)
+// let collapsed = ref(true)
 
 </script>
 

@@ -8,7 +8,8 @@
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize, sqlx::Type, sqlx::FromRow)]
+#[sqlx(type_name = "role")]
 pub struct Role {
     pub id: String,
     pub created: Option<NaiveDateTime>,

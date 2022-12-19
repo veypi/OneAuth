@@ -30,5 +30,9 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         .service(user::register)
         .service(user::login)
         .service(user::delete);
+    cfg.service(app::get)
+        .service(app::list)
+        .service(app::create)
+        .service(app::del);
     cfg.service(greet);
 }

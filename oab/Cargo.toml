@@ -32,3 +32,4 @@ serde-big-array = "0.4.1"
 base64 = "0.13.0"
 
 uuid = { version = "1.1", features = ["v3","v4", "fast-rng", "macro-diagnostics"]}
+serde_repr = "0.1.8"
