@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OA</title>
+</head>
+
+<body>
+    <div id="app"></div>
+    <div id="v-msg"></div>
+    <div id="loader-wrapper">
+        <div class="lds-ripple">
+            <div></div>
+            <div></div>
+        </div>
+        <div class="load_title">Loading...
+        </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+</body>
+<style>
+    body,
+    html {
+        height: 100vh;
+        width: 100vw;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* 周围滑动留白 */
+    html {
+        overflow: hidden;
+        height: 100%;
+    }
+
+    body {
+        overflow: auto;
+        height: 100%;
+    }
+
+    #loader-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 999999;
+        background: #999;
+    }
+
+    #loader-wrapper .load_title {
+        font-family: 'Open Sans';
+        color: #FFF;
+        font-size: 19px;
+        width: 100%;
+        text-align: center;
+        z-index: 9999999999999;
+        position: absolute;
+        top: 70%;
+        opacity: 1;
+        line-height: 30px;
+    }
+
+    #loader-wrapper .load_title span {
+        font-weight: normal;
+        font-style: italic;
+        font-size: 13px;
+        color: #FFF;
+        opacity: 0.5;
+    }
+
+    .lds-ripple {
+        display: inline-block;
+        position: relative;
+        left: calc(50% - 40px);
+        top: calc(70% - 100px);
+        width: 80px;
+        height: 80px;
+    }
+
+    .lds-ripple div {
+        position: absolute;
+        border: 4px solid #fff;
+        opacity: 1;
+        border-radius: 50%;
+        animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+    }
+
+    .lds-ripple div:nth-child(2) {
+        animation-delay: -0.5s;
+    }
+
+    @keyframes lds-ripple {
+        0% {
+            top: 36px;
+            left: 36px;
+            width: 0;
+            height: 0;
+            opacity: 1;
+        }
+
+        100% {
+            top: 0px;
+            left: 0px;
+            width: 72px;
+            height: 72px;
+            opacity: 0;
+        }
+    }
+</style>
+
+</html>

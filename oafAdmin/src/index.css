@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    transition: all 0.2s linear;
+    --base-color: #000;
+    --base-bg: #fff;
+}
+
+:root[theme=dark] {
+    --base-color: #fff;
+    --base-bg: #000;
+}
