@@ -5,11 +5,9 @@
 // Distributed under terms of the Apache license.
 //
 
-use actix_web::http::header;
-use actix_web::middleware::ErrorHandlerResponse;
 use actix_web::ResponseError;
 use actix_web::{
-    dev, error,
+    error,
     http::{header::ContentType, StatusCode},
     HttpResponse,
 };
@@ -19,6 +17,28 @@ use thiserror::Error as ThisError;
 use tracing::info;
 
 pub type Result<T> = std::result::Result<T, Error>;
+pub type JsonResult<T> = std::result::Result<JsonResponse<T>, Error>;
+
+#[derive(Serialize, Deserialize)]
+pub struct JsonResponse<T> {
+    pub content: T,
+}
+impl<T> From<T> for JsonResponse<T> {
+    fn from(e: T) -> Self {
+        Self { content: e }
+    }
+}
+impl<T> actix_web::Responder for JsonResponse<T>
+where
+    T: serde::Serialize,
+{
+    type Body = actix_web::body::BoxBody;
+    fn respond_to(self, _req: &actix_web::HttpRequest) -> HttpResponse<Self::Body> {
+        HttpResponse::build(StatusCode::OK)
+            .insert_header(ContentType::json())
+            .body(serde_json::to_string(&self.content).unwrap())
+    }
+}
 
 // pub type AsyncResult<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
@@ -65,6 +85,11 @@ pub enum Error {
     InvalidSessionId,
     #[error("invalid verify code")]
     InvalidVerifyCode,
+    #[error("invalid token")]
+    InvalidToken,
+    #[error("expired token")]
+    ExpiredToken,
+
     #[error("no access")]
     NotAuthed,
     #[error("login failed")]
@@ -98,6 +123,7 @@ pub enum Error {
 
     #[error("{0}")]
     BusinessException(String),
+
     #[error("invalid header (expected {expected:?}, found {found:?})")]
     InvalidHeader { expected: String, found: String },
 

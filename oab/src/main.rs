@@ -4,14 +4,17 @@
 // 2022-07-07 23:51
 // Distributed under terms of the Apache license.
 //
+use actix_files as fs;
 use actix_web::{
-    middleware,
+    dev,
+    http::StatusCode,
+    middleware::{self, ErrorHandlerResponse, ErrorHandlers},
     web::{self, Data},
     App, HttpServer,
 };
 
-use oab::{api, init_log, models, Clis, Result, CLI, CONFIG};
-use tracing::{info, warn};
+use oab::{api, init_log, libs, models, Clis, Result, CLI, CONFIG};
+use tracing::{error, info, warn};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -48,8 +51,14 @@ async fn web() -> Result<()> {
         let app = App::new();
         app.wrap(logger)
             .wrap(middleware::Compress::default())
+            .service(fs::Files::new("/media", CONFIG.media_path.clone()).show_files_listing())
             .service(
                 web::scope("api")
+                    .wrap(
+                        ErrorHandlers::new()
+                            .handler(StatusCode::INTERNAL_SERVER_ERROR, add_error_header),
+                    )
+                    .wrap(libs::auth::Auth)
                     .app_data(json_config)
                     .app_data(Data::new(CONFIG.db()))
                     .configure(api::routes),
@@ -58,4 +67,12 @@ async fn web() -> Result<()> {
     info!("listen to {}", CONFIG.server_url);
     serv.bind(CONFIG.server_url.clone())?.run().await?;
     Ok(())
+}
+
+fn add_error_header<B>(
+    res: dev::ServiceResponse<B>,
+) -> std::result::Result<ErrorHandlerResponse<B>, actix_web::Error> {
+    error!("{}", res.response().error().unwrap());
+
+    Ok(ErrorHandlerResponse::Response(res.map_into_left_body()))
 }

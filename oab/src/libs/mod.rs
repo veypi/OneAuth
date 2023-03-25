@@ -5,6 +5,8 @@
 // Distributed under terms of the Apache license.
 //
 
+pub mod auth;
+
 use std::future::{ready, Ready};
 
 use actix_web::{

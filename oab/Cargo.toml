@@ -22,6 +22,7 @@ thiserror = "1.0"
 sqlx = { version = "0.5", features = [ "runtime-tokio-rustls", "mysql", "macros", "migrate", "chrono"] }
 
 actix-web = "4"
+actix-files = "0.6.2"
 jsonwebtoken = "8"
 
 aes-gcm="0.9"
@@ -33,3 +34,5 @@ base64 = "0.13.0"
 
 uuid = { version = "1.1", features = ["v3","v4", "fast-rng", "macro-diagnostics"]}
 serde_repr = "0.1.8"
+
+proc = {path="proc"}

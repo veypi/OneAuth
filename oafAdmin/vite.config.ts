@@ -1,6 +1,6 @@
-import {defineConfig} from 'vite'
+import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import {resolve} from 'path'
+import { resolve } from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -14,12 +14,12 @@ export default defineConfig({
         port: 3000,
         proxy: {
             '/api': {
-                target: 'http://127.0.0.1:4000/',
+                target: 'http://127.0.0.1:4001/',
                 changeOrigin: true,
                 ws: true,
             },
             '/media': {
-                target: 'http://127.0.0.1:4000/',
+                target: 'http://127.0.0.1:4001/',
                 changeOrigin: true,
                 ws: true,
             },

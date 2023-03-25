@@ -21,7 +21,7 @@
         leave-active-class="animate__slideOutUp"
       >
         <div
-          class="animate__animated"
+          class="animate__animated header"
           v-if="!app.hideHeader"
           bordered
           style="height: 64px; line-height: 64px"
@@ -37,8 +37,9 @@
                 glassdoor
               </one-icon>
             </div>
-            <div class="h-full" style="margin-left: 10px">
-              <span type="primary">统一认证系统</span>
+            <div class="h-full flex gap-1" style="">
+              <div style="width: 3px; height: 100%; background: var(--L0)"></div>
+              <span style="color: var(--L0)">统一认证系统</span>
             </div>
             <div class="flex-grow flex justify-center">
               <span class="text-2xl" style="line-height: 64px">{{ app.title }}</span>
@@ -46,8 +47,8 @@
             <div class="h-full px-3">
               <fullscreen v-model="isFullScreen" class="header-icon">fullscreen</fullscreen>
               <div class="header-icon">
-                <one-icon @click="">
-                  {{ app.isDark ? 'Daytimemode' : 'nightmode-fill' }}
+                <one-icon @click="app.toggle_theme()">
+                  {{ app.isDark ? 'Daytimemode-fill' : 'night' }}
                 </one-icon>
               </div>
               <div class="header-icon" @click="app.hideHeader = true">
@@ -60,14 +61,14 @@
           </div>
         </div>
       </transition>
-      <div>
+      <div style="height: calc(100vh - 88px)">
         <slot></slot>
       </div>
     </div>
     <div
       bordered
       style="height: 24px; line-height: 24px"
-      class="flex justify-around px-3 text-gray-500 text-xs"
+      class="flex justify-around px-3 text-gray-500 text-xs header"
     >
       <span class="hover:text-black cursor-pointer" @click="$router.push({ name: 'about' })">
         关于OA
@@ -90,6 +91,9 @@ let isFullScreen = false
 </script>
 
 <style scoped>
+.header {
+  background: var(--base-bg);
+}
 .header-icon {
   display: inline-block;
   font-size: 24px;

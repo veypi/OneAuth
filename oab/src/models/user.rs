@@ -20,8 +20,10 @@ use block_padding::{Padding, Pkcs7};
 
 use generic_array::typenum::U32;
 use generic_array::GenericArray;
+use proc::MyDisplay;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
+use serde_repr::*;
 
 fn rand_str(l: usize) -> String {
     thread_rng()
@@ -43,7 +45,7 @@ fn rand_str(l: usize) -> String {
 //     block
 // }
 
-#[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Debug, Default, Serialize, Deserialize, sqlx::FromRow)]
 pub struct User {
     pub id: String,
     pub created: Option<NaiveDateTime>,
@@ -63,13 +65,21 @@ pub struct User {
 }
 
 impl User {
-    pub fn token(&self) -> Token {
+    pub fn token(&self, ac: Vec<AccessCore>) -> Token {
+        let default_ico = "/media/".to_string();
         let t = Token {
-            iss: "oa".to_string(),
+            iss: "onedt".to_string(),
             aud: "".to_string(),
             exp: (Utc::now() + Duration::days(4)).timestamp(),
             iat: Utc::now().timestamp(),
             id: self.id.clone(),
+            ico: self.icon.as_ref().unwrap_or(&default_ico).to_string(),
+            access: Some(ac),
+            nickname: self
+                .nickname
+                .as_ref()
+                .unwrap_or(&self.username.clone())
+                .to_string(),
         };
         t
     }
@@ -126,28 +136,6 @@ impl User {
     }
 }
 
-impl Default for User {
-    fn default() -> Self {
-        Self {
-            id: uuid::Uuid::new_v4().to_string().replace("-", ""),
-            created: None,
-            updated: None,
-            delete_flag: false,
-
-            username: "".to_string(),
-            nickname: None,
-            email: None,
-            phone: None,
-            icon: None,
-            check_code: None,
-            real_code: None,
-            status: 0,
-            used: 0,
-            space: 300,
-        }
-    }
-}
-
 impl actix_web::Responder for User {
     type Body = actix_web::body::BoxBody;
 
@@ -164,13 +152,55 @@ impl actix_web::Responder for User {
         }
     }
 }
-#[derive(Debug, Serialize, Deserialize)]
+
+#[derive(Debug, Serialize, Deserialize, Clone, sqlx::FromRow)]
+pub struct Access {
+    pub created: Option<NaiveDateTime>,
+    pub updated: Option<NaiveDateTime>,
+    pub user_id: String,
+    pub domain: String,
+    pub did: Option<String>,
+    pub l: AccessLevel,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, sqlx::FromRow)]
+pub struct AccessCore {
+    pub name: String,
+    pub rid: Option<String>,
+    pub level: AccessLevel,
+}
+
+#[derive(
+    MyDisplay,
+    Debug,
+    Deserialize_repr,
+    Serialize_repr,
+    Clone,
+    sqlx::Type,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+)]
+#[repr(i64)]
+pub enum AccessLevel {
+    No = 0,
+    Read = 1,
+    Create = 2,
+    Update = 3,
+    Delete = 4,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Token {
     pub iss: String, // Optional. token 发行者
     pub aud: String, // Optional. token 使用者
     pub exp: i64,    // Required  失效时间
     pub iat: i64,    // Optional. 发布时间
     pub id: String,  // 用户id
+    pub nickname: String,
+    pub ico: String,
+    pub access: Option<Vec<AccessCore>>,
 }
 
 impl Token {
@@ -180,7 +210,19 @@ impl Token {
             &DecodingKey::from_secret("secret".as_ref()),
             &Validation::default(),
         )?;
-        Ok(token.claims)
+        if token.claims.is_valid() {
+            Ok(token.claims)
+        } else {
+            Err(Error::ExpiredToken)
+        }
+    }
+    pub fn is_valid(&self) -> bool {
+        info!("{}/{}", self.exp, Utc::now().timestamp());
+        if self.exp > Utc::now().timestamp() {
+            true
+        } else {
+            false
+        }
     }
     pub fn to_string(&self) -> Result<String> {
         let token = encode(
@@ -189,5 +231,42 @@ impl Token {
             &EncodingKey::from_secret("secret".as_ref()),
         )?;
         Ok(token)
+    }
+
+    fn check(&self, domain: &str, did: &str, l: AccessLevel) -> bool {
+        println!("{:#?}|{:#?}|{}|", self.access, domain, did);
+        match &self.access {
+            Some(ac) => {
+                for ele in ac {
+                    if ele.name == domain && ele.level >= l {
+                        match &ele.rid {
+                            Some(temp) => {
+                                if temp == did {
+                                    return true;
+                                }
+                            }
+                            None => return true,
+                        }
+                    }
+                }
+                false
+            }
+            None => false,
+        }
+    }
+    pub fn can_read(&self, domain: &str, did: &str) -> bool {
+        self.check(domain, did, AccessLevel::Read)
+    }
+
+    pub fn can_create(&self, domain: &str, did: &str) -> bool {
+        self.check(domain, did, AccessLevel::Create)
+    }
+
+    pub fn can_update(&self, domain: &str, did: &str) -> bool {
+        self.check(domain, did, AccessLevel::Update)
+    }
+
+    pub fn can_delete(&self, domain: &str, did: &str) -> bool {
+        self.check(domain, did, AccessLevel::Delete)
     }
 }

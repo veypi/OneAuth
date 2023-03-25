@@ -137,13 +137,17 @@ INSERT INTO `app` (`id`, `name`, `key`, `role_id`)
 VALUES ('FR9P5t8debxc11aFF', 'oa', 'AMpjwQHwVjGsb1WC4WG6', '1lytMwQL4uiNd0vsc');
 
 INSERT INTO `resource` (`app_id`, `name`)
-VALUES ('FR9P5t8debxc11aFF', 'app');
+VALUES ('FR9P5t8debxc11aFF', 'app'),
+('FR9P5t8debxc11aFF', 'user');
 
 INSERT INTO `role` (`id`, `app_id`, `name`)
 VALUES ('1lytMwQL4uiNd0vsc', 'FR9P5t8debxc11aFF', 'admin');
 
-INSERT INTO `access` (`app_id`, `name`, `role_id`, `user_id`)
-VALUES ('FR9P5t8debxc11aFF', 'app', '1lytMwQL4uiNd0vsc', null);
+INSERT INTO `access` (`app_id`, `name`, `role_id`, `user_id`,`level`)
+VALUES ('FR9P5t8debxc11aFF', 'app', '1lytMwQL4uiNd0vsc', NULL,6),
+('FR9P5t8debxc11aFF', 'user', '1lytMwQL4uiNd0vsc', NULL,6);
+
+
 
 ALTER TABLE `app`
 ADD FOREIGN KEY (`role_id`) REFERENCES `role`(`id`);

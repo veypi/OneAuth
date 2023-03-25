@@ -1,0 +1,135 @@
+/*
+ * index.css
+ * Copyright (C) 2022 veypi <veypi@qq.com>
+ *
+ * Distributed under terms of the MIT license.
+ */
+
+:root {
+    --msg-box-color: #fff;
+    --msg-box-info: #0a0;
+    --msg-box-warn: #f90;
+    --z-index: 99999;
+    --font-size: 1rem;
+}
+
+.v-msg-box {
+    color: var(--msg-box-color);
+    position: fixed;
+    z-index: var(--z-index);
+    left: 0;
+    top: 0;
+    padding-top: 5vh;
+    width: 100vw;
+    height: 100vh;
+    color: var(--msg-box-color);
+    font-size: var(--font-size);
+    line-height: var(--font-size);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    user-select: none;
+}
+
+.v-msg-box-mask {
+    background: rgba(0, 0, 0, 0.2);
+    /* filter: blur(6px); */
+}
+
+.v-msg-box-none-event {
+    pointer-events: none;
+}
+
+.v-msg-item {
+    min-width: 10rem;
+    margin: 0 auto;
+    text-align: center;
+    padding: 0.5rem 2rem;
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+    transition: filter 0.2s;
+    animation: item-show 0.4s 1;
+}
+
+.v-msg-item:hover {
+    filter: brightness(80%);
+}
+
+.v-msg-item-remove {
+    animation: item-remove 0.4s 1;
+}
+
+.v-msg-prompt {
+    margin: 0 auto;
+    text-align: center;
+    padding: 2rem 2rem;
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+    transition: filter 0.2s;
+    /* animation: item-show 0.4s 0; */
+
+    background: #e9e9e9;
+    height: 12rem;
+    width: 25rem;
+    color: #000;
+}
+
+.v-msg-prompt .v-msg-title {
+    text-align: left;
+    font-size: 1.2rem;
+}
+.v-msg-prompt .v-msg-input {
+    background: none;
+    margin: 1rem;
+    font-size: 1.2rem;
+    color: #000;
+    width: 100%;
+    height: 3rem;
+    outline: none;
+    border-bottom: 2px solid #000;
+    border-top: 0px;
+    border-left: 0px;
+    border-right: 0px;
+}
+.v-msg-prompt .v-msg-ok {
+    width: 6rem;
+    height: 2rem;
+    line-height: 2rem;
+    font-size: 1.2rem;
+    float: right;
+    border-radius: 4px;
+    background: #4caf50;
+}
+
+.v-msg-info {
+    background: var(--msg-box-info);
+}
+.v-msg-warn {
+    background: var(--msg-box-warn);
+}
+
+@keyframes item-show {
+    from {
+        opacity: 0;
+        margin-top: 2.5rem;
+        transform: scaleX(0);
+    }
+    to {
+        opacity: 1;
+        margin-top: 0.5rem;
+        transform: scaleX(1);
+    }
+}
+
+@keyframes item-remove {
+    from {
+        opacity: 1;
+        margin-top: 0.5rem;
+        transform: scaleX(1);
+    }
+    to {
+        opacity: 0;
+        margin-top: -2.5rem;
+        transform: scaleX(0);
+    }
+}

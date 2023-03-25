@@ -1,0 +1,18 @@
+/*
+ * dark.css
+ * Copyright (C) 2022 veypi
+ *
+ * Distributed under terms of the Apache license.
+ */
+
+:root[theme="dark"] {
+    --base-color: #fff;
+    --base-bg: #252525;
+    --base-bg-1: #303030;
+    --base-bg-2: #404040;
+    --base-bg-3: #505050;
+
+    --header-bg: #404040;
+
+    --L0: #63e2b7;
+}

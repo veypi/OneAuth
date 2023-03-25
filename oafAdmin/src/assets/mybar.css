@@ -1,0 +1,31 @@
+.mybar {
+    overflow: auto;
+}
+
+.mybar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    color: transparent;
+}
+
+.mybar::-webkit-scrollbar-track {
+    border-radius: 3px;
+}
+
+.mybar::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background-color: transparent;
+}
+.mybar:hover::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .2);
+}
+
+.mybar:hover::-webkit-scrollbar-thumb {
+    /*background: linear-gradient(to top, #fcf5ee, #faf7e6, #73d2f3, #eeeeee);*/
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .8);
+}
+
+
+.mybar::-webkit-scrollbar-track-piece {
+    background: transparent;
+}

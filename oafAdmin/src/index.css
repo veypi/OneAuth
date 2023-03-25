@@ -1,14 +1,39 @@
+@import "./assets/mybar.css";
+@import "./assets/light.css";
+@import "./assets/dark.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-    transition: all 0.2s linear;
-    --base-color: #000;
-    --base-bg: #fff;
+.animate__400ms {
+    --animate-duration: 400ms;
 }
 
-:root[theme=dark] {
-    --base-color: #fff;
-    --base-bg: #000;
+.div-center {
+    @apply flex justify-center items-center;
+}
+
+.div-btn {
+    @apply cursor-pointer transition duration-500 ease-in-out transform hover:scale-110 hover:opacity-50;
+}
+
+.div-btn hr {
+    right: 50%;
+    position: absolute;
+    bottom: 1px;
+    width: 0;
+    border: var(--color-primary) solid 1px;
+    visibility: hidden;
+    transition: all 0.2s linear;
+}
+
+.div-btn:hover {
+    /*border-bottom: #03a9f4 1px solid;*/
+}
+
+.div-btn:hover hr {
+    visibility: visible;
+    width: 80%;
+    right: 10%;
 }

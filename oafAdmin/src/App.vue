@@ -1,6 +1,22 @@
 <style>
 #app {
   @apply h-full w-full flex justify-center items-center;
+  color: var(--base-color);
+  background: var(--base-bg-3);
+}
+.animate__400ms {
+  --animate-duration: 400ms;
+}
+.page-h1 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  margin-left: 2.5rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+::-webkit-scrollbar {
+  display: none;
+  /* Chrome Safari */
 }
 </style>
 
@@ -24,7 +40,6 @@ import { useUserStore } from '@/store/user'
 import { onBeforeMount } from 'vue'
 
 let user = useUserStore()
-user.setUser()
 onBeforeMount(() => {
   let loader = document.getElementById('loader-wrapper')
   if (loader && loader.parentElement) {
@@ -32,5 +47,6 @@ onBeforeMount(() => {
   }
   // store.dispatch('fetchSelf')
   // store.dispatch('user/fetchUserData')
+  user.fetchUserData()
 })
 </script>

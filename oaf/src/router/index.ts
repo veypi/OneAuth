@@ -1,7 +1,7 @@
-import {createRouter, createWebHistory, RouteLocationNormalized} from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import util from '@/libs/util'
-import {Auths, R} from '@/auth'
-import {store} from '@/store'
+import { Auths, R } from '@/auth'
+import { store } from '@/store'
 
 
 declare module 'vue-router' {
@@ -29,7 +29,7 @@ const router = createRouter({
         {
             path: '/app/:uuid?',
             component: () => import('@/views/app.vue'),
-            redirect: {name: 'app.main'},
+            redirect: { name: 'app.main' },
             children: [
                 {
                     path: 'main',
@@ -125,7 +125,7 @@ router.beforeEach((to, from) => {
         return {
             name: 'login',
             // 保存我们所在的位置，以便以后再来
-            query: {redirect: to.fullPath},
+            query: { redirect: to.fullPath },
         }
     }
     if (to.meta.checkAuth) {
