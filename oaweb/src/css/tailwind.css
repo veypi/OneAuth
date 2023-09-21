@@ -1,0 +1,10 @@
+/*
+ * tailwind.css
+ * Copyright (C) 2023 veypi
+ *
+ * Distributed under terms of the MIT license.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

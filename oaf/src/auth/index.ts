@@ -56,11 +56,11 @@ export class Auths {
         this.list = auths
     }
 
-    Get(rid: string, ruid: string): authLevel {
+    Get(name: string, rid: string): authLevel {
         let l = level.None
         for (let i of this.list) {
-            if (i.RID == rid && (i.RUID === '' || i.RUID === ruid) && i.Level > l) {
-                l = i.Level
+            if (i.name == name && (i.rid === '' || i.rid === rid) && i.level > l) {
+                l = i.level
             }
         }
         return new authLevel(l)

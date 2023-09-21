@@ -97,6 +97,7 @@ let ofApps = ref<modelsApp[]>([]);
 
 function getApps() {
   bar.start();
+  console.log(store.state.user.id)
   api.app.list().Start(
     (e) => {
       apps.value = e;

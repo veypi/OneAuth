@@ -74,9 +74,11 @@ export interface modelsUser {
 }
 
 export interface modelsSimpleAuth {
-    Level: number
-    RID: string
-    RUID: string
+    level: number
+    name: string
+    rid: string
+    // RID: string
+    // RUID: string
 }
 
 export interface modelsAuth {

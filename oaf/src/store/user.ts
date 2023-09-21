@@ -48,9 +48,11 @@ export const User: Module<UserState, State> = {
                 return false
             }
             let data = JSON.parse(Base64.decode(token[1]))
-            if (data.ID > 0) {
+            console.log(data)
+            if (data.id) {
                 context.commit('setAuth', data.Auth)
-                api.user.get(data.ID).Start(e => {
+                api.user.get(data.id).Start(e => {
+                    console.log(e)
                     context.commit('setBase', e)
                 },e=> {
                     context.commit('logout')
