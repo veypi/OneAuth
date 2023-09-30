@@ -1,0 +1,107 @@
+<template>
+  <div class="flex items-center justify-center">
+    <div class="px-10 pb-9 pt-28 rounded-xl w-96">
+      <q-form autofocus @submit="onSubmit" @reset="onReset">
+        <q-input v-model="data.username" label="用户名" hint="username" lazy-rules :rules="data_rules.username" />
+        <q-input v-model="data.password" :type="isPwd ? 'password' :
+          'text'" hint="password" :rules="data_rules.password">
+          <template v-slot:append>
+            <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
+          </template>
+        </q-input>
+
+        <div class="flex justify-around mt-4">
+          <q-btn label="注册" @click="router.push({ name: 'register' })" color="info"></q-btn>
+          <q-btn label="登录" type="submit" color="primary" />
+          <q-btn label="重置" type="reset" color="primary" flat class="q-ml-sm" />
+        </div>
+      </q-form>
+    </div>
+  </div>
+</template>
+<script lang="ts" setup>
+import { computed, onMounted, ref, } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import api from 'src/boot/api'
+import msg from '@veypi/msg'
+import util from 'src/libs/util'
+import { useUserStore } from 'src/stores/user'
+import { useAppStore } from 'src/stores/app'
+import { modelsApp } from 'src/models'
+
+
+const app = useAppStore()
+const user = useUserStore()
+const route = useRoute()
+const router = useRouter()
+
+
+let data = ref({
+  username: '',
+  password: '',
+})
+const data_rules = {
+  username: [
+    (v: string) => v && v.length >= 3 && v.length <= 16 || '长度要求3~16'
+  ],
+  password: [
+    (v: string) => v && v.length >= 6 && v.length <= 16 || '长度要求6~16'
+  ]
+}
+let isPwd = ref(true)
+
+const onSubmit = () => {
+  console.log(data.value)
+  api.user.login(data.value.username,
+    data.value.password).then((data: any) => {
+      localStorage.auth_token = data.auth_token
+      msg.Info('登录成功')
+      user.fetchUserData()
+      let url = route.query.redirect || data.redirect || '/'
+      redirect(url)
+      console.log(data)
+    })
+}
+const onReset = () => {
+  data.value.password = ''
+  data.value.username = ''
+}
+
+let uuid = computed(() => {
+  return route.query.uuid
+})
+let ifLogOut = computed(() => {
+  return route.query.logout === '1'
+})
+
+
+function redirect(url: string) {
+  if (uuid.value && uuid.value !== app.id) {
+
+    api.app.get(uuid.value as string).then((app: modelsApp) => {
+      api.token(uuid.value as string).get().then(e => {
+        url = url || app.redirect
+        console.log(e)
+        // e = encodeURIComponent(e)
+        // url = url.replaceAll('$token', e)
+        window.location.href = url
+
+      })
+    })
+  } else if (util.checkLogin()) {
+    if (url) {
+      router.push(url)
+    } else {
+      router.push({ name: 'home' })
+    }
+  }
+}
+
+onMounted(() => {
+  if (!ifLogOut.value) {
+    redirect('')
+  }
+})
+</script>
+
+<style scoped></style>

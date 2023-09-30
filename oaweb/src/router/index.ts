@@ -1,4 +1,6 @@
 import { route } from 'quasar/wrappers';
+import util from 'src/libs/util';
+import { useUserStore } from 'src/stores/user';
 import {
   createMemoryHistory,
   createRouter,
@@ -17,7 +19,7 @@ import routes from './routes';
  * with the Router instance.
  */
 
-export default route(function (/* { store, ssrContext } */) {
+export default route(function(/* { store, ssrContext } */) {
   const createHistory = process.env.SERVER
     ? createMemoryHistory
     : (process.env.VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory);
@@ -31,6 +33,28 @@ export default route(function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
+  const u = useUserStore()
 
+  Router.beforeEach((to, from) => {
+    console.log(to.meta)
+    if (to.meta.requiresAuth && !util.checkLogin()) {
+      // 此路由需要授权，请检查是否已登录
+      // 如果没有，则重定向到登录页面
+      return {
+        name: 'login',
+        // 保存我们所在的位置，以便以后再来
+        query: { redirect: to.fullPath },
+      }
+    }
+    if (to.meta.checkAuth) {
+      if (!to.meta.checkAuth(u.auth, to)) {
+
+        // if (window.$msg) {
+        //   window.$msg.warning('无权访问')
+        // }
+        return from
+      }
+    }
+  })
   return Router;
 });

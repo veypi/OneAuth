@@ -21,6 +21,11 @@ thiserror = "1.0"
 
 sqlx = { version = "0.5", features = [ "runtime-tokio-rustls", "mysql", "macros", "migrate", "chrono"] }
 
+sea-orm = { version = "^0.12.0", features = [ "sqlx-mysql",
+    "runtime-tokio-rustls", "macros", "debug-print", "with-chrono",
+    "with-json", "with-uuid" ] }
+
+
 actix-web = "4"
 actix-files = "0.6.2"
 jsonwebtoken = "8"

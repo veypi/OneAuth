@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.16.4",
+    "@veypi/msg": "^0.1.0",
     "axios": "^1.2.1",
+    "js-base64": "^3.7.5",
     "pinia": "^2.0.11",
     "quasar": "^2.6.0",
     "vue": "^3.0.0",

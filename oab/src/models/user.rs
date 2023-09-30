@@ -189,6 +189,7 @@ pub enum AccessLevel {
     Create = 2,
     Update = 3,
     Delete = 4,
+    ALL = 5,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -217,7 +218,6 @@ impl Token {
         }
     }
     pub fn is_valid(&self) -> bool {
-        info!("{}/{}", self.exp, Utc::now().timestamp());
         if self.exp > Utc::now().timestamp() {
             true
         } else {
@@ -234,7 +234,7 @@ impl Token {
     }
 
     fn check(&self, domain: &str, did: &str, l: AccessLevel) -> bool {
-        println!("{:#?}|{:#?}|{}|", self.access, domain, did);
+        info!("{:#?}|{:#?}|{}|", self.access, domain, did);
         match &self.access {
             Some(ac) => {
                 for ele in ac {

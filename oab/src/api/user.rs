@@ -184,7 +184,7 @@ pub struct RegisterOpt {
 pub async fn register(q: web::Json<RegisterOpt>) -> Result<String> {
     let q = q.into_inner();
     // let mut tx = dbtx().await;
-    println!("{:#?}", q);
+    info!("{:#?}", q);
     let u: Option<models::User> =
         sqlx::query_as::<_, models::User>("select * from user where username = ?")
             .bind(q.username.clone())

@@ -1,53 +1,54 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+  <q-layout view="hHh LpR fFf">
+    <q-header elevated class="bg-primary text-white" height-hint="98">
       <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
+        <q-icon size="xl" color="aqua" name='svguse:#icon-glassdoor'></q-icon>
 
         <q-toolbar-title>
-          Quasar App
+          统一认证系统
         </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div>OneAuth v2.0.0</div>
+      </q-toolbar>
+      <q-toolbar class="">
+        <q-icon @click="toggleLeftDrawer" class="cursor-pointer" name="menu" size="sm"></q-icon>
+        <q-tabs align="left">
+          <q-route-tab to="/page1" label="Page One" />
+          <q-route-tab to="/page2" label="Page Two" />
+          <q-route-tab to="/page3" label="Page Three" />
+        </q-tabs>
+
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
+    <q-drawer v-model="leftDrawerOpen" side="left" bordered>
       <q-list>
-        <q-item-label
-          header
-        >
+        <q-item-label header>
           Essential Links
         </q-item-label>
 
-        <EssentialLink
-          v-for="link in essentialLinks"
-          :key="link.title"
-          v-bind="link"
-        />
+        <EssentialLink v-for="link in essentialLinks" :key="link.title" v-bind="link" />
       </q-list>
     </q-drawer>
 
     <q-page-container>
       <router-view />
     </q-page-container>
+    <q-footer bordered class="bg-grey-8 text-white flex justify-around">
+      <span class="hover:text-black cursor-pointer" @click="$router.push({ name: 'about' })">关于OA</span>
+      <span class="hover:text-black cursor-pointer">使用须知</span>
+      <span class="hover:text-black cursor-pointer" @click="util.goto('https://veypi.com')">
+        ©2021 veypi
+      </span>
+    </q-footer>
+
   </q-layout>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import EssentialLink, { EssentialLinkProps } from 'components/EssentialLink.vue';
+import { util } from 'src/libs';
 
 const essentialLinks: EssentialLinkProps[] = [
   {
@@ -62,37 +63,7 @@ const essentialLinks: EssentialLinkProps[] = [
     icon: 'code',
     link: 'https://github.com/quasarframework'
   },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-];
+]
 
 const leftDrawerOpen = ref(false)
 

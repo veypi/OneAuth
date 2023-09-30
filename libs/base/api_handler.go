@@ -41,6 +41,8 @@ func JSONResponse(m OneBD.Meta, data interface{}, err error) {
 		res["err"] = err.Error()
 	} else {
 		res["status"] = 1
+	}
+	if data != nil {
 		res["content"] = data
 	}
 	p, err := json.Marshal(res)

@@ -9,7 +9,6 @@
 //
 
 use std::{
-    borrow::Borrow,
     fs::File,
     io::{self, Read},
 };
@@ -17,7 +16,6 @@ use std::{
 use clap::{Args, Parser, Subcommand};
 use lazy_static::lazy_static;
 use sqlx::{mysql::MySqlPoolOptions, Pool};
-use tracing::log::warn;
 
 lazy_static! {
     pub static ref CLI: AppCli = AppCli::new();
@@ -110,7 +108,7 @@ impl ApplicationConfig {
             debug: true,
             server_url: "127.0.0.1:4001".to_string(),
             media_path: "/Users/veypi/test/media/".to_string(),
-            db_url: "127.0.0.1:3306".to_string(),
+            db_url: "localhost:3306".to_string(),
             db_user: "root".to_string(),
             db_pass: "123456".to_string(),
             db_name: "test".to_string(),

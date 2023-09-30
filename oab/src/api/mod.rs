@@ -8,6 +8,7 @@
 
 mod access;
 mod app;
+mod appuser;
 mod resource;
 mod role;
 mod user;
@@ -34,5 +35,8 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         .service(app::list)
         .service(app::create)
         .service(app::del);
+
+    cfg.service(appuser::get);
+
     cfg.service(greet);
 }
