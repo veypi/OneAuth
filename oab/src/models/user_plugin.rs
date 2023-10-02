@@ -6,8 +6,6 @@
 //
 //
 
-use actix_web::ResponseError;
-
 use chrono::{prelude::*, Duration};
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
@@ -45,27 +43,15 @@ fn rand_str(l: usize) -> String {
 //     block
 // }
 
-#[derive(Debug, Default, Serialize, Deserialize, sqlx::FromRow)]
-pub struct User {
-    pub id: String,
-    pub created: Option<NaiveDateTime>,
-    pub updated: Option<NaiveDateTime>,
-    pub delete_flag: bool,
-
-    pub username: String,
-    pub nickname: Option<String>,
-    pub email: Option<String>,
-    pub phone: Option<String>,
-    pub icon: Option<String>,
-    pub real_code: Option<String>,
-    pub check_code: Option<Vec<u8>>,
-    pub status: i32,
-    pub used: i32,
-    pub space: i32,
+pub trait UserPlugin {
+    fn token(&self, ac: Vec<super::entity::access::Model>) -> Token;
+    fn check_pass(&self, p: &str) -> Result<()>;
+    fn update_pass(&mut self, p: &str) -> Result<()>;
 }
 
-impl User {
-    pub fn token(&self, ac: Vec<AccessCore>) -> Token {
+// impl User {
+impl UserPlugin for super::entity::user::Model {
+    fn token(&self, ac: Vec<super::entity::access::Model>) -> Token {
         let default_ico = "/media/".to_string();
         let t = Token {
             iss: "onedt".to_string(),
@@ -83,13 +69,13 @@ impl User {
         };
         t
     }
-    pub fn check_pass(&self, p: &str) -> Result<()> {
+    fn check_pass(&self, p: &str) -> Result<()> {
         let p = p.as_bytes();
         let mut key_block: GenericArray<u8, U32> = [0xff; 32].into();
         key_block[..p.len()].copy_from_slice(p);
         Pkcs7::pad(&mut key_block, p.len());
         // key 32 Byte
-        let key = Key::from_slice(&key_block);
+        let key = Key::from_slice(&key_block.as_slice());
         let cipher = Aes256Gcm::new(&key);
 
         // 12 Byte
@@ -107,7 +93,7 @@ impl User {
             Err(Error::ArgInvalid("password".to_string()))
         }
     }
-    pub fn update_pass(&mut self, p: &str) -> Result<()> {
+    fn update_pass(&mut self, p: &str) -> Result<()> {
         if p.len() < 6 || p.len() > 32 {
             return Err(Error::ArgInvalid("password".to_string()));
         }
@@ -116,7 +102,7 @@ impl User {
         key_block[..p.len()].copy_from_slice(p);
         Pkcs7::pad(&mut key_block, p.len());
         // key 32 Byte
-        let key = Key::from_slice(&key_block);
+        let key = Key::from_slice(&key_block.as_slice());
         let cipher = Aes256Gcm::new(&key);
 
         // 12 Byte
@@ -134,40 +120,6 @@ impl User {
 
         Ok(())
     }
-}
-
-impl actix_web::Responder for User {
-    type Body = actix_web::body::BoxBody;
-
-    fn respond_to(self, _req: &actix_web::HttpRequest) -> actix_web::HttpResponse<Self::Body> {
-        match serde_json::to_string(&self) {
-            Ok(body) => match actix_web::HttpResponse::Ok()
-                .content_type(actix_web::http::header::ContentType::json())
-                .message_body(body)
-            {
-                Ok(res) => res.map_into_boxed_body(),
-                Err(err) => Error::from(err).error_response(),
-            },
-            Err(_err) => Error::SerdeError.error_response(),
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, sqlx::FromRow)]
-pub struct Access {
-    pub created: Option<NaiveDateTime>,
-    pub updated: Option<NaiveDateTime>,
-    pub user_id: String,
-    pub domain: String,
-    pub did: Option<String>,
-    pub l: AccessLevel,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, sqlx::FromRow)]
-pub struct AccessCore {
-    pub name: String,
-    pub rid: Option<String>,
-    pub level: AccessLevel,
 }
 
 #[derive(
@@ -192,6 +144,20 @@ pub enum AccessLevel {
     ALL = 5,
 }
 
+impl From<i32> for AccessLevel {
+    fn from(v: i32) -> Self {
+        match v {
+            x if x == AccessLevel::No as i32 => AccessLevel::No,
+            x if x == AccessLevel::Read as i32 => AccessLevel::Read,
+            x if x == AccessLevel::Create as i32 => AccessLevel::Create,
+            x if x == AccessLevel::Update as i32 => AccessLevel::Update,
+            x if x == AccessLevel::Delete as i32 => AccessLevel::Delete,
+            x if x == AccessLevel::ALL as i32 => AccessLevel::ALL,
+            _ => AccessLevel::No,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Token {
     pub iss: String, // Optional. token 发行者
@@ -201,7 +167,7 @@ pub struct Token {
     pub id: String,  // 用户id
     pub nickname: String,
     pub ico: String,
-    pub access: Option<Vec<AccessCore>>,
+    pub access: Option<Vec<super::access::Model>>,
 }
 
 impl Token {
@@ -235,6 +201,7 @@ impl Token {
 
     fn check(&self, domain: &str, did: &str, l: AccessLevel) -> bool {
         info!("{:#?}|{:#?}|{}|", self.access, domain, did);
+        let l = l as i32;
         match &self.access {
             Some(ac) => {
                 for ele in ac {

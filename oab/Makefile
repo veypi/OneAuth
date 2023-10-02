@@ -9,3 +9,9 @@ run:
 	@cargo run
 init:
 	@cargo run -- init
+
+sqlx:
+	@sqlx migrate run
+
+entity:
+	@sea-orm-cli generate entity --database-url mysql://root:123456@localhost:3306/test -o ./src/models/entity/ --with-serde both --model-extra-derives Default,sqlx::FromRow --serde-skip-hidden-column --date-time-crate chrono

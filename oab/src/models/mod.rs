@@ -5,19 +5,20 @@
 // Distributed under terms of the MIT license.
 //
 
-pub mod app;
+mod app_plugin;
+pub mod entity;
 mod role;
-mod user;
+mod user_plugin;
 
 use tracing::info;
 
-pub use app::{AUStatus, App, AppJoin, AppUser};
-pub use role::{Access, Resource, Role};
-pub use user::{AccessCore, AccessLevel, Token, User};
+pub use app_plugin::{AUStatus, AppJoin};
+pub use entity::{access, app, app_user, user};
+pub use user_plugin::{AccessLevel, Token, UserPlugin};
 
 use crate::CONFIG;
 
 pub async fn init() {
     info!("init database");
-    sqlx::migrate!().run(CONFIG.db()).await.unwrap();
+    sqlx::migrate!().run(CONFIG.sqlx()).await.unwrap();
 }

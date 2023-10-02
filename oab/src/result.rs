@@ -81,7 +81,7 @@ pub enum Error {
     InternalServerError,
 
     // business
-    #[error("无效的 Session ID")]
+    #[error("invalid 的 Session ID")]
     InvalidSessionId,
     #[error("invalid verify code")]
     InvalidVerifyCode,
@@ -151,6 +151,12 @@ impl From<jsonwebtoken::errors::Error> for Error {
         Error::BusinessException(format!("{:?}", e))
     }
 }
+
+impl From<sea_orm::DbErr> for Error {
+    fn from(e: sea_orm::DbErr) -> Self {
+        Error::BusinessException(format!("{:?}", e))
+    }
+}
 impl From<aes_gcm::Error> for Error {
     fn from(e: aes_gcm::Error) -> Self {
         Error::BusinessException(format!("{:?}", e))
@@ -172,7 +178,7 @@ impl actix_web::Responder for Error {
 
 impl error::ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
-        info!("{}", self.to_string());
+        info!("{}", self);
         HttpResponse::build(self.status_code())
             .insert_header(ContentType::html())
             .insert_header(("error", self.to_string()))

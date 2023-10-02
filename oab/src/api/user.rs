@@ -7,37 +7,27 @@
 
 use std::fmt::Debug;
 
-use crate::{models, Error, Result, CONFIG};
+use crate::{
+    models::{self, access, app, app_user, user, UserPlugin},
+    AppState, Error, Result, CONFIG,
+};
 use actix_web::{delete, get, head, http, post, web, HttpResponse, Responder};
 use base64;
 use proc::access_read;
 use rand::Rng;
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
 use tracing::info;
 
 #[get("/user/{id}")]
 #[access_read("user", id = "&id.clone()")]
-pub async fn get(id: web::Path<String>) -> Result<impl Responder> {
+pub async fn get(id: web::Path<String>, data: web::Data<AppState>) -> Result<impl Responder> {
     let n = id.into_inner();
+    let db = &data.db;
     if !n.is_empty() {
-        let s = sqlx::query!(
-            "select id,updated,created,username,nickname,email,icon,status, used, space from user where id = ?",n
-        ).map(|row| models::User {
-            id: row.id,
-        created: row.created,
-        updated: row.updated,
-        username: row.username,
-        nickname: row.nickname,
-        email: row.email,
-        status: row.status,
-        used: row.used,
-        space: row.space.unwrap_or(0),
-        icon: row.icon,
-            ..Default::default()
-        })
-        .fetch_one(CONFIG.db())
-        .await?;
-        Ok(web::Json(s))
+        let d: Option<models::entity::user::Model> =
+            models::entity::user::Entity::find_by_id(n).one(db).await?;
+        Ok(web::Json(d))
     } else {
         Err(Error::Missing("id".to_string()))
     }
@@ -49,7 +39,7 @@ pub async fn list() -> Result<impl Responder> {
     let result = sqlx::query!(
         "select id,updated,created,username,nickname,email,icon,status, used, space from user",
     )
-    .map(|row| models::User {
+    .map(|row| models::user::Model {
         id: row.id,
         created: row.created,
         updated: row.updated,
@@ -58,11 +48,11 @@ pub async fn list() -> Result<impl Responder> {
         email: row.email,
         status: row.status,
         used: row.used,
-        space: row.space.unwrap_or(0),
+        space: row.space,
         icon: row.icon,
         ..Default::default()
     })
-    .fetch_all(CONFIG.db())
+    .fetch_all(CONFIG.sqlx())
     .await?;
     Ok(web::Json(result))
 }
@@ -74,16 +64,21 @@ pub struct LoginOpt {
 }
 
 #[head("/user/{id}")]
-pub async fn login(q: web::Query<LoginOpt>, id: web::Path<String>) -> Result<HttpResponse> {
+pub async fn login(
+    q: web::Query<LoginOpt>,
+    id: web::Path<String>,
+    data: web::Data<AppState>,
+) -> Result<HttpResponse> {
+    let db = &data.db;
     let id = id.into_inner();
     let q = q.into_inner();
-    let typ = match q.typ {
+    let filter = match q.typ {
         Some(t) => match t.as_str() {
-            "phone" => "phone",
-            "email" => "email",
-            _ => "username",
+            "phone" => user::Column::Phone.eq(id),
+            "email" => user::Column::Email.eq(id),
+            _ => user::Column::Username.eq(id),
         },
-        _ => "username",
+        _ => user::Column::Username.eq(id),
     };
     let p = match base64::decode(q.password.as_bytes()) {
         Err(_) => return Err(Error::ArgInvalid("password".to_string())),
@@ -93,26 +88,27 @@ pub async fn login(q: web::Query<LoginOpt>, id: web::Path<String>) -> Result<Htt
         Ok(p) => p,
         Err(_) => return Err(Error::ArgInvalid("password".to_string())),
     };
-    let sql = format!("select * from user where {} = ?", typ);
-    let u = sqlx::query_as::<_, models::User>(&sql)
-        .bind(id)
-        .fetch_optional(CONFIG.db())
-        .await?;
+    let u: Option<user::Model> = models::user::Entity::find().filter(filter).one(db).await?;
     let u = match u {
         Some(u) => u,
         None => return Err(Error::NotFound("user".to_string())),
     };
 
     u.check_pass(p)?;
-    let au = sqlx::query_as::<_, models::AppUser>(
-        "select * from app_user where app_id = ? and user_id = ?",
-    )
-    .bind(&CONFIG.uuid)
-    .bind(&u.id)
-    .fetch_optional(CONFIG.db())
-    .await?;
+    let au: Option<app_user::Model> = app_user::Entity::find()
+        .filter(app_user::Column::AppId.eq(&CONFIG.uuid))
+        .filter(app_user::Column::UserId.eq(&u.id))
+        .one(db)
+        .await?;
+    // let au = sqlx::query_as::<_, models::AppUser>(
+    //     "select * from app_user where app_id = ? and user_id = ?",
+    // )
+    // .bind(&CONFIG.uuid)
+    // .bind(&u.id)
+    // .fetch_optional(CONFIG.sqlx())
+    // .await?;
     let i: i64 = match au {
-        Some(au) => match au.status {
+        Some(au) => match au.status.into() {
             models::AUStatus::OK => 0,
             models::AUStatus::Deny => {
                 return Err(Error::BusinessException("apply denied".to_string()))
@@ -125,19 +121,18 @@ pub async fn login(q: web::Query<LoginOpt>, id: web::Path<String>) -> Result<Htt
             }
         },
         None => {
-            let app = sqlx::query_as::<_, models::App>("select * from app where id = ?")
-                .bind(CONFIG.uuid.clone())
-                .fetch_one(CONFIG.db())
-                .await?;
-            info!("{:#?}", u);
-            let s = match app.join_method {
-                models::app::AppJoin::Disabled => {
+            let app_obj: app::Model = app::Entity::find_by_id(CONFIG.uuid.clone())
+                .one(db)
+                .await?
+                .unwrap();
+            let s = match app_obj.join_method.into() {
+                models::AppJoin::Disabled => {
                     return Err(Error::BusinessException(
                         "this app diabled login".to_string(),
                     ))
                 }
-                models::app::AppJoin::Auto => models::AUStatus::OK,
-                models::app::AppJoin::Applying => models::AUStatus::Applying,
+                models::AppJoin::Auto => models::AUStatus::OK,
+                models::AppJoin::Applying => models::AUStatus::Applying,
             };
             sqlx::query(
                 r#"
@@ -145,10 +140,10 @@ insert into app_user (app_id,user_id,status)
 values ( ?, ?, ? )
         "#,
             )
-            .bind(&app.id)
+            .bind(&app_obj.id)
             .bind(&u.id)
             .bind(&s)
-            .execute(CONFIG.db())
+            .execute(CONFIG.sqlx())
             .await?;
             match s {
                 models::AUStatus::OK => 0,
@@ -157,12 +152,13 @@ values ( ?, ?, ? )
         }
     };
     if i == 0 {
-        let result = sqlx::query_as::<_, models::AccessCore>(
+        // let result: Vec<models::access::Model> = access::Entity::find().all(db).await?;
+        let result = sqlx::query_as::<_, access::Model>(
             "select access.name,access.rid,access.level from access, user_role, role WHERE user_role.user_id = ? && access.role_id=user_role.role_id && role.id=user_role.role_id && role.app_id = ?",
         )
         .bind(&u.id)
         .bind(CONFIG.uuid.clone())
-        .fetch_all(CONFIG.db())
+        .fetch_all(CONFIG.sqlx())
         .await?;
         Ok(HttpResponse::build(http::StatusCode::OK)
             .insert_header(("auth_token", u.token(result).to_string()?))
@@ -185,15 +181,15 @@ pub async fn register(q: web::Json<RegisterOpt>) -> Result<String> {
     let q = q.into_inner();
     // let mut tx = dbtx().await;
     info!("{:#?}", q);
-    let u: Option<models::User> =
-        sqlx::query_as::<_, models::User>("select * from user where username = ?")
+    let u: Option<models::user::Model> =
+        sqlx::query_as::<_, models::user::Model>("select * from user where username = ?")
             .bind(q.username.clone())
-            .fetch_optional(CONFIG.db())
+            .fetch_optional(CONFIG.sqlx())
             .await?;
-    let u: models::User = match u {
+    let u: models::user::Model = match u {
         Some(_) => return Err(Error::ArgDuplicated(format!("username: {}", q.username))),
         None => {
-            let mut u = models::User::default();
+            let mut u = models::user::Model::default();
             u.username = q.username.clone();
             u.id = uuid::Uuid::new_v4().to_string().replace("-", "");
             let p = match base64::decode(q.password.as_bytes()) {
@@ -212,26 +208,26 @@ pub async fn register(q: web::Json<RegisterOpt>) -> Result<String> {
             u
         }
     };
-    let oa: models::App = sqlx::query_as::<_, models::App>("select * from app where id = ?")
+    let oa: app::Model = sqlx::query_as::<_, app::Model>("select * from app where id = ?")
         .bind(CONFIG.uuid.clone())
-        .fetch_one(CONFIG.db())
+        .fetch_one(CONFIG.sqlx())
         .await?;
 
-    let mut au = models::AppUser::new();
+    let mut au = app_user::Model::default();
     au.app_id = oa.id;
     au.user_id = u.id.clone();
-    match oa.join_method {
-        models::app::AppJoin::Disabled => return Err(Error::AppDisabledRegister),
-        models::app::AppJoin::Auto => {
-            au.status = models::app::AUStatus::OK;
+    match oa.join_method.into() {
+        models::AppJoin::Disabled => return Err(Error::AppDisabledRegister),
+        models::AppJoin::Auto => {
+            au.status = models::AUStatus::OK as i32;
         }
-        models::app::AppJoin::Applying => au.status = models::app::AUStatus::Applying,
+        models::AppJoin::Applying => au.status = models::AUStatus::Applying as i32,
     }
-    let mut c = CONFIG.db().begin().await?;
+    let mut c = CONFIG.sqlx().begin().await?;
     // 创建用户
     sqlx::query!(
         r#"
-insert into user (id,username,real_code,check_code,icon)
+insert into user (id,username,_real_code,_check_code,icon)
 values ( ?, ?, ?, ?, ?)
         "#,
         u.id,
@@ -256,8 +252,8 @@ values ( ?, ?, ?, ?, ?)
     .execute(&mut c)
     .await?;
     if oa.role_id.is_some() {
-        match au.status {
-            models::app::AUStatus::OK => {
+        match au.status.into() {
+            models::AUStatus::OK => {
                 sqlx::query!(
                     r#"
         insert into user_role (user_id, role_id)

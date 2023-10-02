@@ -64,16 +64,27 @@ where
         let svc = self.service.clone();
 
         Box::pin(async move {
-            let value = HeaderValue::from_str("").unwrap();
-            let token = req.headers().get("auth_token").unwrap_or(&value);
-            let token = models::Token::from(token.to_str().unwrap_or(""));
-            match token {
-                Ok(t) => {
-                    req.extensions_mut().insert(t.id.clone());
-                    req.extensions_mut().insert(t);
+            match req.headers().get("auth_token") {
+                Some(h) => {
+                    match models::Token::from(h.to_str().unwrap_or("")){
+                        Ok(t) => {
+                            req.extensions_mut().insert(t.id.clone());
+                            req.extensions_mut().insert(t);
+                        }
+                        Err(e) => warn!("{}", e),
+                    } 
                 }
-                Err(e) => warn!("{}", e),
-            };
+                None => {}
+            }
+            // let value = HeaderValue::from_str("").unwrap();
+            // let token = req.headers().get("auth_token").unwrap_or(&value);
+            // let token = models::Token::from(token.to_str().unwrap_or(""));
+            // match token {
+            //     Ok(t) => {
+            //         req.extensions_mut().insert(t.id.clone());
+            //         req.extensions_mut().insert(t);
+            //     }
+            // };
             Ok(svc.call(req).await?)
         })
     }

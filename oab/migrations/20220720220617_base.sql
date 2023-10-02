@@ -17,12 +17,12 @@ CREATE TABLE IF NOT EXISTS `user`
     `email`         varchar(255) UNIQUE,
     `phone`         varchar(255) UNIQUE,
     `icon`          varchar(255),
-    `real_code`     varchar(32),
-    `check_code`    binary(48),
+    `_real_code`     varchar(32),
+    `_check_code`    binary(48),
 
     `status`        int NOT NULL COMMENT '状态（0：ok，1：disabled）' DEFAULT 0,
     `used`          int NOT NULL DEFAULT 0,
-    `space`         int DEFAULT 300,
+    `space`         int NOT NULL DEFAULT 300,
 
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS `access`
     `role_id`       varchar(32) NULL DEFAULT NULL,
     `user_id`       varchar(32) NULL DEFAULT NULL,
     `rid`           varchar(32) DEFAULT NULL COMMENT '资源子id',
-    `level`         int DEFAULT 0,
+    `level`         int NOT NULL DEFAULT 0,
 
     -- PRIMARY KEY (`app_id`,`name`, `role_id`, `user_id`) USING BTREE,
     PRIMARY KEY (`id`),

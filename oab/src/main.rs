@@ -9,11 +9,11 @@ use actix_web::{
     dev,
     http::StatusCode,
     middleware::{self, ErrorHandlerResponse, ErrorHandlers},
-    web::{self, Data},
+    web::{self},
     App, HttpServer,
 };
 
-use oab::{api, init_log, libs, models, Clis, Result, CLI, CONFIG};
+use oab::{api, init_log, libs, models, AppState, Clis, Result, CLI, CONFIG};
 use tracing::{error, info, warn};
 
 #[tokio::main]
@@ -32,6 +32,8 @@ async fn main() -> Result<()> {
     Ok(())
 }
 async fn web() -> Result<()> {
+    let db = CONFIG.connect().await?;
+    let data = AppState { db };
     std::env::set_var("RUST_LOG", "info");
     std::env::set_var("RUST_BACKTRACE", "1");
     let serv = HttpServer::new(move || {
@@ -54,13 +56,13 @@ async fn web() -> Result<()> {
             .service(fs::Files::new("/media", CONFIG.media_path.clone()).show_files_listing())
             .service(
                 web::scope("api")
+                    .app_data(web::Data::new(data.clone()))
                     .wrap(
                         ErrorHandlers::new()
                             .handler(StatusCode::INTERNAL_SERVER_ERROR, add_error_header),
                     )
                     .wrap(libs::auth::Auth)
                     .app_data(json_config)
-                    .app_data(Data::new(CONFIG.db()))
                     .configure(api::routes),
             )
     });

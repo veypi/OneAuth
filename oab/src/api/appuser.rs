@@ -10,7 +10,10 @@ use proc::access_read;
 use serde::{Deserialize, Serialize};
 use tracing::info;
 
-use crate::{models, Error, Result, CONFIG};
+use crate::{
+    models::{self, app_user},
+    Error, Result, CONFIG,
+};
 
 #[get("/app/{aid}/user/{uid}")]
 #[access_read("app")]
@@ -27,12 +30,12 @@ pub async fn get(params: web::Path<(String, String)>) -> Result<impl Responder> 
     if uid.is_empty() && aid.is_empty() {
         Err(Error::Missing("uid or aid".to_string()))
     } else {
-        let s = sqlx::query_as::<_, models::AppUser>(
+        let s = sqlx::query_as::<_, app_user::Model>(
             "select * from app_user where app_id = ? and user_id = ?",
         )
         .bind(aid)
         .bind(uid)
-        .fetch_all(CONFIG.db())
+        .fetch_all(CONFIG.sqlx())
         .await?;
         Ok(web::Json(s))
     }
