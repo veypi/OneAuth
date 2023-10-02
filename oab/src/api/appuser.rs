@@ -5,15 +5,11 @@
 // Distributed under terms of the MIT license.
 //
 
-use actix_web::{delete, get, post, web, Responder};
+use actix_web::{get, web, Responder};
 use proc::access_read;
-use serde::{Deserialize, Serialize};
-use tracing::info;
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 
-use crate::{
-    models::{self, app_user},
-    AppState, Error, Result,
-};
+use crate::{models::app_user, AppState, Error, Result};
 
 #[get("/app/{aid}/user/{uid}")]
 #[access_read("app")]
@@ -22,24 +18,28 @@ pub async fn get(
     stat: web::Data<AppState>,
 ) -> Result<impl Responder> {
     let (mut aid, mut uid) = params.into_inner();
+    let mut q = app_user::Entity::find();
     if uid == "-" {
         uid = "".to_string();
+    } else {
+        q = q.filter(app_user::Column::UserId.eq(uid.clone()));
     }
     if aid == "-" {
         aid = "".to_string();
+    } else {
+        q = q.filter(app_user::Column::AppId.eq(aid.clone()));
     }
-    let sql = format!("select * from app_user where");
-    info!("111|{}|{}|", aid, uid);
     if uid.is_empty() && aid.is_empty() {
         Err(Error::Missing("uid or aid".to_string()))
     } else {
-        let s = sqlx::query_as::<_, app_user::Model>(
-            "select * from app_user where app_id = ? and user_id = ?",
-        )
-        .bind(aid)
-        .bind(uid)
-        .fetch_all(stat.sqlx())
-        .await?;
+        let s: Vec<app_user::Model> = q.all(stat.db()).await?;
+        // let s = sqlx::query_as::<_, app_user::Model>(
+        //     "select * from app_user where app_id = ? and user_id = ?",
+        // )
+        // .bind(aid)
+        // .bind(uid)
+        // .fetch_all(stat.sqlx())
+        // .await?;
         Ok(web::Json(s))
     }
 }

@@ -17,7 +17,6 @@ use thiserror::Error as ThisError;
 use tracing::info;
 
 pub type Result<T> = std::result::Result<T, Error>;
-pub type JsonResult<T> = std::result::Result<JsonResponse<T>, Error>;
 
 #[derive(Serialize, Deserialize)]
 pub struct JsonResponse<T> {

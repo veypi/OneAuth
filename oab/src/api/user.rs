@@ -37,24 +37,6 @@ pub async fn get(id: web::Path<String>, stat: web::Data<AppState>) -> Result<imp
 #[access_read("user")]
 pub async fn list(stat: web::Data<AppState>) -> Result<impl Responder> {
     let res: Vec<user::Model> = user::Entity::find().all(stat.db()).await?;
-    // let result = sqlx::query!(
-    //     "select id,updated,created,username,nickname,email,icon,status, used, space from user",
-    // )
-    // .map(|row| models::user::Model {
-    //     id: row.id,
-    //     created: row.created,
-    //     updated: row.updated,
-    //     username: row.username,
-    //     nickname: row.nickname,
-    //     email: row.email,
-    //     status: row.status,
-    //     used: row.used,
-    //     space: row.space,
-    //     icon: row.icon,
-    //     ..Default::default()
-    // })
-    // .fetch_all(CONFIG.sqlx())
-    // .await?;
     Ok(web::Json(res))
 }
 
@@ -154,8 +136,9 @@ values ( ?, ?, ? )
     };
     if i == 0 {
         // let result: Vec<models::access::Model> = access::Entity::find().all(db).await?;
+        info!("asd");
         let result = sqlx::query_as::<_, access::Model>(
-            "select access.name,access.rid,access.level from access, user_role, role WHERE user_role.user_id = ? && access.role_id=user_role.role_id && role.id=user_role.role_id && role.app_id = ?",
+            "select access.* from access, user_role, role WHERE user_role.user_id = ? && access.role_id=user_role.role_id && role.id=user_role.role_id && role.app_id = ?",
         )
         .bind(&u.id)
         .bind(stat.uuid.clone())

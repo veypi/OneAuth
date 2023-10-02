@@ -11,13 +11,17 @@
 use std::{
     fs::File,
     io::{self, Read},
+    str::FromStr,
     time::Duration,
 };
 
 use clap::{Args, Parser, Subcommand};
 use lazy_static::lazy_static;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
-use sqlx::{mysql::MySqlPoolOptions, Pool};
+use sqlx::{
+    mysql::{MySqlConnectOptions, MySqlPoolOptions},
+    Pool,
+};
 
 use crate::Result;
 
@@ -153,6 +157,7 @@ impl AppState {
             "mysql://{}:{}@{}/{}",
             self.db_user, self.db_pass, self.db_url, self.db_name
         );
+
         let p = MySqlPoolOptions::new()
             .max_connections(5)
             .connect_lazy(&url)?;
@@ -170,6 +175,7 @@ impl AppState {
             .connect_timeout(Duration::from_secs(8))
             .acquire_timeout(Duration::from_secs(8))
             .idle_timeout(Duration::from_secs(8))
+            .sqlx_logging(false)
             .max_lifetime(Duration::from_secs(8));
 
         self._db = Some(Database::connect(opt).await?);
