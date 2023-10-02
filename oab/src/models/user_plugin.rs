@@ -9,7 +9,6 @@
 use chrono::{prelude::*, Duration};
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
-use tracing::info;
 
 use crate::{Error, Result};
 use aes_gcm::aead::{Aead, NewAead};
@@ -23,7 +22,7 @@ use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use serde_repr::*;
 
-fn rand_str(l: usize) -> String {
+pub fn rand_str(l: usize) -> String {
     thread_rng()
         .sample_iter(&Alphanumeric)
         .take(l)
@@ -42,16 +41,24 @@ fn rand_str(l: usize) -> String {
 //     assert_eq!(res, msg);
 //     block
 // }
+//
+
+#[derive(Debug, Serialize, Deserialize, Clone, sqlx::FromRow)]
+pub struct AccessCore {
+    pub name: String,
+    pub rid: Option<String>,
+    pub level: AccessLevel,
+}
 
 pub trait UserPlugin {
-    fn token(&self, ac: Vec<super::entity::access::Model>) -> Token;
+    fn token(&self, ac: Vec<AccessCore>) -> Token;
     fn check_pass(&self, p: &str) -> Result<()>;
     fn update_pass(&mut self, p: &str) -> Result<()>;
 }
 
 // impl User {
 impl UserPlugin for super::entity::user::Model {
-    fn token(&self, ac: Vec<super::entity::access::Model>) -> Token {
+    fn token(&self, ac: Vec<AccessCore>) -> Token {
         let default_ico = "/media/".to_string();
         let t = Token {
             iss: "onedt".to_string(),
@@ -167,7 +174,7 @@ pub struct Token {
     pub id: String,  // 用户id
     pub nickname: String,
     pub ico: String,
-    pub access: Option<Vec<super::access::Model>>,
+    pub access: Option<Vec<AccessCore>>,
 }
 
 impl Token {
@@ -200,8 +207,6 @@ impl Token {
     }
 
     fn check(&self, domain: &str, did: &str, l: AccessLevel) -> bool {
-        info!("{:#?}|{:#?}|{}|", self.access, domain, did);
-        let l = l as i32;
         match &self.access {
             Some(ac) => {
                 for ele in ac {

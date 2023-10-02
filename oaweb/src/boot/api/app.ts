@@ -34,8 +34,8 @@ export default {
     }
     return {
       local: this.local + uuid + '/user/',
-      list(uid: number) {
-        return ajax.get(this.local + uid)
+      list(id: string) {
+        return ajax.get(this.local + id)
       },
       add(uid: number) {
         return ajax.post(this.local + uid)

@@ -35,9 +35,9 @@ export const useUserStore = defineStore('user', {
       }
       let data = JSON.parse(Base64.decode(token[1]))
       if (data.id) {
-        this.auth = NewAuths(data.Auth)
+        console.log(data)
+        this.auth = NewAuths(data.access)
         api.user.get(data.id).then((e: modelsUser) => {
-          console.log(e)
           this.id = e.id
           this.local = e
           this.ready = true

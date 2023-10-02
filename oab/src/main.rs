@@ -18,6 +18,8 @@ use tracing::{error, info, warn};
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    std::env::set_var("RUST_LOG", "debug");
+    std::env::set_var("RUST_BACKTRACE", "1");
     init_log();
     let mut data = AppState::new();
     data.connect().await?;
@@ -35,8 +37,6 @@ async fn main() -> Result<()> {
     Ok(())
 }
 async fn web(data: AppState) -> Result<()> {
-    std::env::set_var("RUST_LOG", "info");
-    std::env::set_var("RUST_BACKTRACE", "1");
     let url = data.server_url.clone();
     let serv = HttpServer::new(move || {
         let logger = middleware::Logger::default();

@@ -7,14 +7,13 @@
 
 mod app_plugin;
 pub mod entity;
-mod role;
 mod user_plugin;
 
 use tracing::info;
 
 pub use app_plugin::{AUStatus, AppJoin};
-pub use entity::{access, app, app_user, user};
-pub use user_plugin::{AccessLevel, Token, UserPlugin};
+pub use entity::{access, app, app_user, role, user, user_role};
+pub use user_plugin::{rand_str, AccessCore, AccessLevel, Token, UserPlugin};
 
 use crate::AppState;
 

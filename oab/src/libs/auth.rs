@@ -12,7 +12,7 @@ use std::task::{Context, Poll};
 
 use actix_web::body::MessageBody;
 use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform};
-use actix_web::http::header::HeaderValue;
+
 use actix_web::{Error, HttpMessage};
 use futures_util::future::{ok, Ready};
 use futures_util::Future;

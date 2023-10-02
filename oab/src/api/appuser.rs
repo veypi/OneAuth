@@ -33,13 +33,6 @@ pub async fn get(
         Err(Error::Missing("uid or aid".to_string()))
     } else {
         let s: Vec<app_user::Model> = q.all(stat.db()).await?;
-        // let s = sqlx::query_as::<_, app_user::Model>(
-        //     "select * from app_user where app_id = ? and user_id = ?",
-        // )
-        // .bind(aid)
-        // .bind(uid)
-        // .fetch_all(stat.sqlx())
-        // .await?;
         Ok(web::Json(s))
     }
 }

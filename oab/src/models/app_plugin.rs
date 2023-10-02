@@ -7,7 +7,7 @@
 
 use serde_repr::*;
 
-#[derive(Debug, Serialize_repr, Deserialize_repr, Clone, sqlx::Type)]
+#[derive(Debug, Serialize_repr, Deserialize_repr, Clone, sqlx::Type, PartialEq, Eq)]
 #[repr(i32)]
 pub enum AppJoin {
     Auto = 0,
@@ -25,7 +25,7 @@ impl From<i32> for AppJoin {
     }
 }
 
-#[derive(Debug, Deserialize_repr, Serialize_repr, Clone, sqlx::Type)]
+#[derive(Debug, Deserialize_repr, Serialize_repr, Clone, sqlx::Type, PartialEq, Eq)]
 #[repr(i32)]
 pub enum AUStatus {
     OK = 0,

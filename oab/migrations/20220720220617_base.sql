@@ -10,7 +10,6 @@ CREATE TABLE IF NOT EXISTS `user`
     `id`            varchar(32)  NOT NULL DEFAULT '' COMMENT 'User UUID',
     `created`       datetime DEFAULT CURRENT_TIMESTAMP,
     `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `delete_flag`   tinyint(1) NOT NULL DEFAULT 0,
 
     `username`      varchar(255) NOT NULL UNIQUE,
     `nickname`      varchar(255),
@@ -32,7 +31,6 @@ CREATE TABLE IF NOT EXISTS `app`
     `id`            varchar(32)  NOT NULL,
     `created`       datetime DEFAULT CURRENT_TIMESTAMP,
     `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `delete_flag`   tinyint(1) NOT NULL DEFAULT 0,
 
     `key`           varchar(32) NOT NULL,
     `name`          varchar(255) NOT NULL,
@@ -70,7 +68,6 @@ CREATE TABLE IF NOT EXISTS `role`
     `id`            varchar(32)  NOT NULL,
     `created`       datetime DEFAULT CURRENT_TIMESTAMP,
     `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `delete_flag`   tinyint(1) NOT NULL DEFAULT 0,
     `app_id`        varchar(32) NOT NULL,
 
     `name`          varchar(255) NOT NULL,
@@ -99,7 +96,6 @@ CREATE TABLE IF NOT EXISTS `resource`
 (
     `created`       datetime DEFAULT CURRENT_TIMESTAMP,
     `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `delete_flag`   tinyint(1) NOT NULL DEFAULT 0,
 
     `app_id`        varchar(32) NOT NULL,
     `name`          varchar(32) NOT NULL,
@@ -116,7 +112,6 @@ CREATE TABLE IF NOT EXISTS `access`
     `id`            int NOT NULL AUTO_INCREMENT,
     `created`       datetime DEFAULT CURRENT_TIMESTAMP,
     `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `delete_flag`   tinyint(1) NOT NULL DEFAULT 0,
 
     `app_id`        varchar(32) NOT NULL,
     `name`          varchar(32) NOT NULL,

@@ -36,7 +36,6 @@ export default route(function(/* { store, ssrContext } */) {
   const u = useUserStore()
 
   Router.beforeEach((to, from) => {
-    console.log(to.meta)
     if (to.meta.requiresAuth && !util.checkLogin()) {
       // 此路由需要授权，请检查是否已登录
       // 如果没有，则重定向到登录页面

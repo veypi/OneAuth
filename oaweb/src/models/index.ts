@@ -5,10 +5,10 @@
 * @description：index
 */
 
-import { NewAuths, Auths, modelsSimpleAuth } from './auth'
+
+export { type Auths, type modelsSimpleAuth, NewAuths, R } from './auth'
 
 
-export { NewAuths }
 
 export interface modelsBread {
   Index: number

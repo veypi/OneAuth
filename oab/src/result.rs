@@ -14,7 +14,7 @@ use actix_web::{
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error as ThisError;
-use tracing::info;
+use tracing::warn;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -177,7 +177,7 @@ impl actix_web::Responder for Error {
 
 impl error::ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
-        info!("{}", self);
+        warn!("{}", self);
         HttpResponse::build(self.status_code())
             .insert_header(ContentType::html())
             .insert_header(("error", self.to_string()))

@@ -49,23 +49,13 @@ const responseSuccess = (response: AxiosResponse) => {
 
 const responseFailed = (error: AxiosError) => {
   const { response } = error
-  const code = error.response?.status
-  const e_msg = error.response?.headers.error
-  if (e_msg) {
-    msg.Warn(e_msg)
-  }
-  if (code == 404) {
-    console.warn('api not exist: ')
-    return
-  }
-  if (response) {
-    return Promise.reject()
-  } else if (!window.navigator.onLine) {
+  if (!window.navigator.onLine) {
 
     alert('没有网络')
     return Promise.reject(new Error('请检查网络连接'))
   }
-  return Promise.reject(error.response)
+  console.log(response)
+  return Promise.reject(response?.data || response?.headers.error)
 }
 
 proxy.interceptors.response.use(responseSuccess, responseFailed)

@@ -14,7 +14,6 @@ $q.iconMapFn = (iconName) => {
 
   // your custom approach, the following
   // is just an example:
-  console.log(iconName)
   if (iconName.startsWith('app:') === true) {
     // we strip the "app:" part
     const name = iconName.substring(4)

@@ -1,10 +1,16 @@
+/*
+ * auth.ts
+ * Copyright (C) 2023 veypi <i@veypi.com>
+ * 2023-10-02 16:44
+ * Distributed under terms of the MIT license.
+ */
+
+
 
 export interface modelsSimpleAuth {
   level: number
   name: string
   rid: string
-  // RID: string
-  // RUID: string
 }
 
 
@@ -67,7 +73,7 @@ export class auths {
   Get(name: string, rid: string): authLevel {
     let l = level.None
     for (let i of this.list) {
-      if (i.name == name && (i.rid === '' || i.rid === rid) && i.level > l) {
+      if (i.name == name && (!i.rid || i.rid === rid) && i.level > l) {
         l = i.level
       }
     }

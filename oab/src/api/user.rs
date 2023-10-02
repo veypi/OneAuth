@@ -8,14 +8,18 @@
 use std::fmt::Debug;
 
 use crate::{
-    models::{self, access, app, app_user, user, UserPlugin},
+    libs,
+    models::{self, access, app, app_user, user, user_role, AUStatus, UserPlugin},
     AppState, Error, Result,
 };
 use actix_web::{delete, get, head, http, post, web, HttpResponse, Responder};
 use base64;
 use proc::access_read;
 use rand::Rng;
-use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, ConnectionTrait, DatabaseConnection, DatabaseTransaction,
+    EntityTrait, QueryFilter, TransactionTrait,
+};
 use serde::{Deserialize, Serialize};
 use tracing::info;
 
@@ -52,7 +56,6 @@ pub async fn login(
     id: web::Path<String>,
     stat: web::Data<AppState>,
 ) -> Result<HttpResponse> {
-    let db = stat.db();
     let id = id.into_inner();
     let q = q.into_inner();
     let filter = match q.typ {
@@ -71,7 +74,10 @@ pub async fn login(
         Ok(p) => p,
         Err(_) => return Err(Error::ArgInvalid("password".to_string())),
     };
-    let u: Option<user::Model> = models::user::Entity::find().filter(filter).one(db).await?;
+    let u: Option<user::Model> = models::user::Entity::find()
+        .filter(filter)
+        .one(stat.db())
+        .await?;
     let u = match u {
         Some(u) => u,
         None => return Err(Error::NotFound("user".to_string())),
@@ -81,64 +87,22 @@ pub async fn login(
     let au: Option<app_user::Model> = app_user::Entity::find()
         .filter(app_user::Column::AppId.eq(&stat.uuid))
         .filter(app_user::Column::UserId.eq(&u.id))
-        .one(db)
+        .one(stat.db())
         .await?;
-    // let au = sqlx::query_as::<_, models::AppUser>(
-    //     "select * from app_user where app_id = ? and user_id = ?",
-    // )
-    // .bind(&CONFIG.uuid)
-    // .bind(&u.id)
-    // .fetch_optional(CONFIG.sqlx())
-    // .await?;
-    let i: i64 = match au {
-        Some(au) => match au.status.into() {
-            models::AUStatus::OK => 0,
-            models::AUStatus::Deny => {
-                return Err(Error::BusinessException("apply denied".to_string()))
-            }
-            models::AUStatus::Disabled => {
-                return Err(Error::BusinessException("login disabled".to_string()))
-            }
-            models::AUStatus::Applying => {
-                return Err(Error::BusinessException("applying".to_string()))
-            }
-        },
+    let au = match au {
+        Some(au) => au,
         None => {
-            let app_obj: app::Model = app::Entity::find_by_id(stat.uuid.clone())
-                .one(db)
-                .await?
-                .unwrap();
-            let s = match app_obj.join_method.into() {
-                models::AppJoin::Disabled => {
-                    return Err(Error::BusinessException(
-                        "this app diabled login".to_string(),
-                    ))
-                }
-                models::AppJoin::Auto => models::AUStatus::OK,
-                models::AppJoin::Applying => models::AUStatus::Applying,
-            };
-            sqlx::query(
-                r#"
-insert into app_user (app_id,user_id,status)
-values ( ?, ?, ? )
-        "#,
-            )
-            .bind(&app_obj.id)
-            .bind(&u.id)
-            .bind(&s)
-            .execute(stat.sqlx())
-            .await?;
-            match s {
-                models::AUStatus::OK => 0,
-                _ => 1,
-            }
+            // 未绑定应用时进行绑定操作
+            let aid = stat.uuid.clone();
+            let db = stat.db().begin().await?;
+            let s = libs::user::connect_to_app(u.clone(), aid, &db).await?;
+            db.commit().await?;
+            s
         }
     };
-    if i == 0 {
-        // let result: Vec<models::access::Model> = access::Entity::find().all(db).await?;
-        info!("asd");
-        let result = sqlx::query_as::<_, access::Model>(
-            "select access.* from access, user_role, role WHERE user_role.user_id = ? && access.role_id=user_role.role_id && role.id=user_role.role_id && role.app_id = ?",
+    if au.status == AUStatus::OK as i32 {
+        let result = sqlx::query_as::<_, models::AccessCore>(
+            "select access.name, access.rid, access.level from access, user_role, role WHERE user_role.user_id = ? && access.role_id=user_role.role_id && role.id=user_role.role_id && role.app_id = ?",
         )
         .bind(&u.id)
         .bind(stat.uuid.clone())
@@ -148,8 +112,8 @@ values ( ?, ?, ? )
             .insert_header(("auth_token", u.token(result).to_string()?))
             .body("".to_string()))
     } else {
-        Ok(HttpResponse::build(http::StatusCode::OK)
-            .insert_header(("stat", "applying"))
+        Ok(HttpResponse::build(http::StatusCode::FORBIDDEN)
+            .insert_header(("error", au.status))
             .body("".to_string()))
     }
 }
@@ -161,21 +125,21 @@ pub struct RegisterOpt {
 }
 
 #[post("/user/")]
-pub async fn register(q: web::Json<RegisterOpt>, stat: web::Data<AppState>) -> Result<String> {
+pub async fn register(
+    q: web::Json<RegisterOpt>,
+    stat: web::Data<AppState>,
+) -> Result<impl Responder> {
     let q = q.into_inner();
     // let mut tx = dbtx().await;
     info!("{:#?}", q);
-    let u: Option<models::user::Model> =
-        sqlx::query_as::<_, models::user::Model>("select * from user where username = ?")
-            .bind(q.username.clone())
-            .fetch_optional(stat.sqlx())
-            .await?;
-    let u: models::user::Model = match u {
+    let u: Option<models::user::Model> = user::Entity::find()
+        .filter(user::Column::Username.eq(&q.username))
+        .one(stat.db())
+        .await?;
+    // 初始化用户信息
+    let u: models::user::ActiveModel = match u {
         Some(_) => return Err(Error::ArgDuplicated(format!("username: {}", q.username))),
         None => {
-            let mut u = models::user::Model::default();
-            u.username = q.username.clone();
-            u.id = uuid::Uuid::new_v4().to_string().replace("-", "");
             let p = match base64::decode(q.password.as_bytes()) {
                 Err(_) => return Err(Error::ArgInvalid("password".to_string())),
                 Ok(p) => p,
@@ -185,75 +149,27 @@ pub async fn register(q: web::Json<RegisterOpt>, stat: web::Data<AppState>) -> R
                 Err(_) => return Err(Error::ArgInvalid("password".to_string())),
             };
             info!("{}", p);
+            let mut u = models::user::Model::default();
+            u.username = q.username.clone();
+            u.id = uuid::Uuid::new_v4().to_string().replace("-", "");
             u.update_pass(&p)?;
             let mut rng = rand::thread_rng();
             let idx: i64 = rng.gen_range(1..221);
             u.icon = Some(format!("/media/icon/usr/{:04}.jpg", idx));
-            u
+            u.into()
         }
     };
-    let oa: app::Model = sqlx::query_as::<_, app::Model>("select * from app where id = ?")
-        .bind(stat.uuid.clone())
-        .fetch_one(stat.sqlx())
-        .await?;
+    let db = stat.db().begin().await?;
 
-    let mut au = app_user::Model::default();
-    au.app_id = oa.id;
-    au.user_id = u.id.clone();
-    match oa.join_method.into() {
-        models::AppJoin::Disabled => return Err(Error::AppDisabledRegister),
-        models::AppJoin::Auto => {
-            au.status = models::AUStatus::OK as i32;
-        }
-        models::AppJoin::Applying => au.status = models::AUStatus::Applying as i32,
-    }
-    let mut c = stat.sqlx().begin().await?;
     // 创建用户
-    sqlx::query!(
-        r#"
-insert into user (id,username,_real_code,_check_code,icon)
-values ( ?, ?, ?, ?, ?)
-        "#,
-        u.id,
-        u.username,
-        u.real_code,
-        u.check_code,
-        u.icon,
-    )
-    .execute(&mut c)
-    .await?;
+    let u = u.insert(&db).await?;
 
     // 关联应用
-    sqlx::query!(
-        r#"
-        insert into app_user ( app_id, user_id, status)
-        values (?, ?, ? )
-        "#,
-        au.app_id,
-        au.user_id,
-        au.status,
-    )
-    .execute(&mut c)
-    .await?;
-    if oa.role_id.is_some() {
-        match au.status.into() {
-            models::AUStatus::OK => {
-                sqlx::query!(
-                    r#"
-        insert into user_role (user_id, role_id)
-        values (?, ?)
-        "#,
-                    au.user_id,
-                    oa.role_id.unwrap(),
-                )
-                .execute(&mut c)
-                .await?;
-            }
-            _ => {}
-        }
-    }
-    c.commit().await?;
-    Ok("ok".to_string())
+    libs::user::connect_to_app(u.clone(), stat.uuid.clone(), &db).await?;
+
+    db.commit().await?;
+
+    Ok(web::Json(u))
 }
 
 #[delete("/user/")]

@@ -11,17 +11,13 @@
 use std::{
     fs::File,
     io::{self, Read},
-    str::FromStr,
     time::Duration,
 };
 
 use clap::{Args, Parser, Subcommand};
 use lazy_static::lazy_static;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
-use sqlx::{
-    mysql::{MySqlConnectOptions, MySqlPoolOptions},
-    Pool,
-};
+use sqlx::{mysql::MySqlPoolOptions, Pool};
 
 use crate::Result;
 
