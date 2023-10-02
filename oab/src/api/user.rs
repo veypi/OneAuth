@@ -9,7 +9,7 @@ use std::fmt::Debug;
 
 use crate::{
     models::{self, access, app, app_user, user, UserPlugin},
-    AppState, Error, Result, CONFIG,
+    AppState, Error, Result,
 };
 use actix_web::{delete, get, head, http, post, web, HttpResponse, Responder};
 use base64;
@@ -21,9 +21,9 @@ use tracing::info;
 
 #[get("/user/{id}")]
 #[access_read("user", id = "&id.clone()")]
-pub async fn get(id: web::Path<String>, data: web::Data<AppState>) -> Result<impl Responder> {
+pub async fn get(id: web::Path<String>, stat: web::Data<AppState>) -> Result<impl Responder> {
     let n = id.into_inner();
-    let db = &data.db;
+    let db = stat.db();
     if !n.is_empty() {
         let d: Option<models::entity::user::Model> =
             models::entity::user::Entity::find_by_id(n).one(db).await?;
@@ -35,26 +35,27 @@ pub async fn get(id: web::Path<String>, data: web::Data<AppState>) -> Result<imp
 
 #[get("/user/")]
 #[access_read("user")]
-pub async fn list() -> Result<impl Responder> {
-    let result = sqlx::query!(
-        "select id,updated,created,username,nickname,email,icon,status, used, space from user",
-    )
-    .map(|row| models::user::Model {
-        id: row.id,
-        created: row.created,
-        updated: row.updated,
-        username: row.username,
-        nickname: row.nickname,
-        email: row.email,
-        status: row.status,
-        used: row.used,
-        space: row.space,
-        icon: row.icon,
-        ..Default::default()
-    })
-    .fetch_all(CONFIG.sqlx())
-    .await?;
-    Ok(web::Json(result))
+pub async fn list(stat: web::Data<AppState>) -> Result<impl Responder> {
+    let res: Vec<user::Model> = user::Entity::find().all(stat.db()).await?;
+    // let result = sqlx::query!(
+    //     "select id,updated,created,username,nickname,email,icon,status, used, space from user",
+    // )
+    // .map(|row| models::user::Model {
+    //     id: row.id,
+    //     created: row.created,
+    //     updated: row.updated,
+    //     username: row.username,
+    //     nickname: row.nickname,
+    //     email: row.email,
+    //     status: row.status,
+    //     used: row.used,
+    //     space: row.space,
+    //     icon: row.icon,
+    //     ..Default::default()
+    // })
+    // .fetch_all(CONFIG.sqlx())
+    // .await?;
+    Ok(web::Json(res))
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -67,9 +68,9 @@ pub struct LoginOpt {
 pub async fn login(
     q: web::Query<LoginOpt>,
     id: web::Path<String>,
-    data: web::Data<AppState>,
+    stat: web::Data<AppState>,
 ) -> Result<HttpResponse> {
-    let db = &data.db;
+    let db = stat.db();
     let id = id.into_inner();
     let q = q.into_inner();
     let filter = match q.typ {
@@ -96,7 +97,7 @@ pub async fn login(
 
     u.check_pass(p)?;
     let au: Option<app_user::Model> = app_user::Entity::find()
-        .filter(app_user::Column::AppId.eq(&CONFIG.uuid))
+        .filter(app_user::Column::AppId.eq(&stat.uuid))
         .filter(app_user::Column::UserId.eq(&u.id))
         .one(db)
         .await?;
@@ -121,7 +122,7 @@ pub async fn login(
             }
         },
         None => {
-            let app_obj: app::Model = app::Entity::find_by_id(CONFIG.uuid.clone())
+            let app_obj: app::Model = app::Entity::find_by_id(stat.uuid.clone())
                 .one(db)
                 .await?
                 .unwrap();
@@ -143,7 +144,7 @@ values ( ?, ?, ? )
             .bind(&app_obj.id)
             .bind(&u.id)
             .bind(&s)
-            .execute(CONFIG.sqlx())
+            .execute(stat.sqlx())
             .await?;
             match s {
                 models::AUStatus::OK => 0,
@@ -157,15 +158,15 @@ values ( ?, ?, ? )
             "select access.name,access.rid,access.level from access, user_role, role WHERE user_role.user_id = ? && access.role_id=user_role.role_id && role.id=user_role.role_id && role.app_id = ?",
         )
         .bind(&u.id)
-        .bind(CONFIG.uuid.clone())
-        .fetch_all(CONFIG.sqlx())
+        .bind(stat.uuid.clone())
+        .fetch_all(stat.sqlx())
         .await?;
         Ok(HttpResponse::build(http::StatusCode::OK)
             .insert_header(("auth_token", u.token(result).to_string()?))
             .body("".to_string()))
     } else {
         Ok(HttpResponse::build(http::StatusCode::OK)
-            .insert_header(("data", "applying"))
+            .insert_header(("stat", "applying"))
             .body("".to_string()))
     }
 }
@@ -177,14 +178,14 @@ pub struct RegisterOpt {
 }
 
 #[post("/user/")]
-pub async fn register(q: web::Json<RegisterOpt>) -> Result<String> {
+pub async fn register(q: web::Json<RegisterOpt>, stat: web::Data<AppState>) -> Result<String> {
     let q = q.into_inner();
     // let mut tx = dbtx().await;
     info!("{:#?}", q);
     let u: Option<models::user::Model> =
         sqlx::query_as::<_, models::user::Model>("select * from user where username = ?")
             .bind(q.username.clone())
-            .fetch_optional(CONFIG.sqlx())
+            .fetch_optional(stat.sqlx())
             .await?;
     let u: models::user::Model = match u {
         Some(_) => return Err(Error::ArgDuplicated(format!("username: {}", q.username))),
@@ -209,8 +210,8 @@ pub async fn register(q: web::Json<RegisterOpt>) -> Result<String> {
         }
     };
     let oa: app::Model = sqlx::query_as::<_, app::Model>("select * from app where id = ?")
-        .bind(CONFIG.uuid.clone())
-        .fetch_one(CONFIG.sqlx())
+        .bind(stat.uuid.clone())
+        .fetch_one(stat.sqlx())
         .await?;
 
     let mut au = app_user::Model::default();
@@ -223,7 +224,7 @@ pub async fn register(q: web::Json<RegisterOpt>) -> Result<String> {
         }
         models::AppJoin::Applying => au.status = models::AUStatus::Applying as i32,
     }
-    let mut c = CONFIG.sqlx().begin().await?;
+    let mut c = stat.sqlx().begin().await?;
     // 创建用户
     sqlx::query!(
         r#"

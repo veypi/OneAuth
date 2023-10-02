@@ -12,12 +12,15 @@ use tracing::info;
 
 use crate::{
     models::{self, app_user},
-    Error, Result, CONFIG,
+    AppState, Error, Result,
 };
 
 #[get("/app/{aid}/user/{uid}")]
 #[access_read("app")]
-pub async fn get(params: web::Path<(String, String)>) -> Result<impl Responder> {
+pub async fn get(
+    params: web::Path<(String, String)>,
+    stat: web::Data<AppState>,
+) -> Result<impl Responder> {
     let (mut aid, mut uid) = params.into_inner();
     if uid == "-" {
         uid = "".to_string();
@@ -35,7 +38,7 @@ pub async fn get(params: web::Path<(String, String)>) -> Result<impl Responder> 
         )
         .bind(aid)
         .bind(uid)
-        .fetch_all(CONFIG.sqlx())
+        .fetch_all(stat.sqlx())
         .await?;
         Ok(web::Json(s))
     }

@@ -11,18 +11,18 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     models::{self, app},
-    Error, Result, CONFIG,
+    AppState, Error, Result,
 };
 use chrono::NaiveDateTime;
 
 #[get("/app/{id}")]
 #[access_read("app")]
-pub async fn get(id: web::Path<String>) -> Result<impl Responder> {
+pub async fn get(id: web::Path<String>, stat: web::Data<AppState>) -> Result<impl Responder> {
     let n = id.into_inner();
     if !n.is_empty() {
         let s = sqlx::query_as::<_, app::Model>("select * from app where id = ?")
             .bind(n)
-            .fetch_one(CONFIG.sqlx())
+            .fetch_one(stat.sqlx())
             .await?;
         Ok(web::Json(s))
     } else {
@@ -52,11 +52,11 @@ pub struct App {
 
 #[get("/app/")]
 #[access_read("app")]
-pub async fn list() -> Result<impl Responder> {
+pub async fn list(stat: web::Data<AppState>) -> Result<impl Responder> {
     let result = sqlx::query_as::<_, App>(
         "select app.id,app.created, app.updated, app.icon, app.name, app.des, app.user_count, app.hide,app.join_method, app.role_id, app.redirect, app.status, app_user.status as u_status from app left join  app_user on app_user.user_id = ? && app_user.app_id = app.id",
         ).bind(_auth_token.id)
-        .fetch_all(CONFIG.sqlx())
+        .fetch_all(stat.sqlx())
         .await?;
 
     Ok(web::Json(result))

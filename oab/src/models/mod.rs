@@ -16,9 +16,9 @@ pub use app_plugin::{AUStatus, AppJoin};
 pub use entity::{access, app, app_user, user};
 pub use user_plugin::{AccessLevel, Token, UserPlugin};
 
-use crate::CONFIG;
+use crate::AppState;
 
-pub async fn init() {
+pub async fn init(data: AppState) {
     info!("init database");
-    sqlx::migrate!().run(CONFIG.sqlx()).await.unwrap();
+    sqlx::migrate!().run(data.sqlx()).await.unwrap();
 }

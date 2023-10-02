@@ -13,29 +13,31 @@ use actix_web::{
     App, HttpServer,
 };
 
-use oab::{api, init_log, libs, models, AppState, Clis, Result, CLI, CONFIG};
+use oab::{api, init_log, libs, models, AppState, Clis, Result, CLI};
 use tracing::{error, info, warn};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     init_log();
+    let mut data = AppState::new();
+    data.connect().await?;
+    data.connect_sqlx()?;
     if let Some(c) = &CLI.command {
         match c {
             Clis::Init => {
-                models::init().await;
+                models::init(data).await;
                 return Ok(());
             }
             _ => {}
         };
     };
-    web().await?;
+    web(data).await?;
     Ok(())
 }
-async fn web() -> Result<()> {
-    let db = CONFIG.connect().await?;
-    let data = AppState { db };
+async fn web(data: AppState) -> Result<()> {
     std::env::set_var("RUST_LOG", "info");
     std::env::set_var("RUST_BACKTRACE", "1");
+    let url = data.server_url.clone();
     let serv = HttpServer::new(move || {
         let logger = middleware::Logger::default();
         let json_config = web::JsonConfig::default()
@@ -53,7 +55,7 @@ async fn web() -> Result<()> {
         let app = App::new();
         app.wrap(logger)
             .wrap(middleware::Compress::default())
-            .service(fs::Files::new("/media", CONFIG.media_path.clone()).show_files_listing())
+            .service(fs::Files::new("/media", data.media_path.clone()).show_files_listing())
             .service(
                 web::scope("api")
                     .app_data(web::Data::new(data.clone()))
@@ -66,8 +68,8 @@ async fn web() -> Result<()> {
                     .configure(api::routes),
             )
     });
-    info!("listen to {}", CONFIG.server_url);
-    serv.bind(CONFIG.server_url.clone())?.run().await?;
+    info!("listen to {}", url);
+    serv.bind(url)?.run().await?;
     Ok(())
 }
 

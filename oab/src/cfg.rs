@@ -25,9 +25,9 @@ lazy_static! {
     pub static ref CLI: AppCli = AppCli::new();
 }
 
-lazy_static! {
-    pub static ref CONFIG: ApplicationConfig = ApplicationConfig::new();
-}
+// lazy_static! {
+//     pub static ref CONFIG: ApplicationConfig = ApplicationConfig::new();
+// }
 
 #[derive(Debug, Parser)]
 #[clap(name = "oab")]
@@ -58,13 +58,14 @@ impl AppCli {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct AppState {
+#[derive(Debug, serde::Serialize, serde::Deserialize, Clone)]
+pub struct ApplicationConfig {
+    #[serde(skip)]
     pub db: DatabaseConnection,
 }
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-pub struct ApplicationConfig {
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct AppState {
     pub uuid: String,
     pub key: String,
     pub debug: bool,
@@ -82,10 +83,12 @@ pub struct ApplicationConfig {
     pub jwt_secret: Option<String>,
 
     #[serde(skip)]
-    pub sqlx_pool: Option<Pool<sqlx::MySql>>,
+    pub _sqlx: Option<Pool<sqlx::MySql>>,
+    #[serde(skip)]
+    pub _db: Option<DatabaseConnection>,
 }
 
-impl ApplicationConfig {
+impl AppState {
     pub fn new() -> Self {
         let mut res = Self::defaut();
         let mut f = match File::open(CLI.cfg.clone()) {
@@ -126,29 +129,37 @@ impl ApplicationConfig {
             log_pack_compress: None,
             log_level: None,
             jwt_secret: None,
-            sqlx_pool: None,
+            _sqlx: None,
+            _db: None,
         }
     }
     pub fn save(&self) {}
-    pub fn sqlx(&self) -> &sqlx::MySqlPool {
-        match &self.sqlx_pool {
+
+    pub fn db(&self) -> &DatabaseConnection {
+        match &self._db {
             Some(d) => d,
             None => panic!("failed"),
         }
     }
-    fn connect_sqlx(&mut self) -> Result<()> {
+    pub fn sqlx(&self) -> &sqlx::MySqlPool {
+        match &self._sqlx {
+            Some(d) => d,
+            None => panic!("failed"),
+        }
+    }
+
+    pub fn connect_sqlx(&mut self) -> Result<()> {
         let url = format!(
             "mysql://{}:{}@{}/{}",
             self.db_user, self.db_pass, self.db_url, self.db_name
         );
         let p = MySqlPoolOptions::new()
             .max_connections(5)
-            .connect_lazy(&url)
-            .unwrap();
-        self.sqlx_pool = Some(p);
+            .connect_lazy(&url)?;
+        self._sqlx = Some(p);
         Ok(())
     }
-    pub async fn connect(&self) -> Result<DatabaseConnection> {
+    pub async fn connect(&mut self) -> Result<()> {
         let url = format!(
             "mysql://{}:{}@{}/{}",
             self.db_user, self.db_pass, self.db_url, self.db_name
@@ -161,8 +172,9 @@ impl ApplicationConfig {
             .idle_timeout(Duration::from_secs(8))
             .max_lifetime(Duration::from_secs(8));
 
-        let db = Database::connect(opt).await?;
-        Ok(db)
+        self._db = Some(Database::connect(opt).await?);
+
+        Ok(())
     }
 }
 
