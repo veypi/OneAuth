@@ -16,6 +16,9 @@ module.exports = configure(function(/* ctx */) {
   return {
     resolve: {
     },
+    define: {
+      _global: ({})
+    },
 
     eslint: {
       fix: true,

@@ -16,6 +16,8 @@
     "@quasar/extras": "^1.16.4",
     "@veypi/msg": "^0.1.0",
     "@veypi/one-icon": "2",
+    "@veypi/oaer": "file:~/test/oaer",
+    "animate.css": "^4.1.1",
     "axios": "^1.2.1",
     "js-base64": "^3.7.5",
     "mitt": "^3.0.1",

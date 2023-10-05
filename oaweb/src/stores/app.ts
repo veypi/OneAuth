@@ -7,11 +7,10 @@
 
 
 import { defineStore } from 'pinia';
-import { useQuasar } from 'quasar'
 
 export const useAppStore = defineStore('app', {
   state: () => ({
-    id: '',
+    id: 'FR9P5t8debxc11aFF',
     is_dark: false,
     title: '',
   }),

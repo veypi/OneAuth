@@ -23,10 +23,10 @@ export const useUserStore = defineStore('user', {
   },
   actions: {
     logout() {
-      this.ready = false
-      localStorage.removeItem('auth_token')
-      const r = useRouter()
-      r.push({ name: 'login' })
+      // this.ready = false
+      // localStorage.removeItem('auth_token')
+      // const r = useRouter()
+      // r.push({ name: 'login' })
     },
     fetchUserData() {
       let token = localStorage.getItem('auth_token')?.split('.');
@@ -35,7 +35,6 @@ export const useUserStore = defineStore('user', {
       }
       let data = JSON.parse(Base64.decode(token[1]))
       if (data.id) {
-        console.log(data)
         this.auth = NewAuths(data.access)
         api.user.get(data.id).then((e: modelsUser) => {
           this.id = e.id

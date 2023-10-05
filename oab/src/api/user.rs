@@ -156,6 +156,8 @@ pub async fn register(
             let mut rng = rand::thread_rng();
             let idx: i64 = rng.gen_range(1..221);
             u.icon = Some(format!("/media/icon/usr/{:04}.jpg", idx));
+            u.space = 300;
+            u.used = 0;
             u.into()
         }
     };

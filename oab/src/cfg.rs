@@ -83,6 +83,7 @@ pub struct AppState {
     pub log_pack_compress: Option<String>,
     pub log_level: Option<String>,
     pub jwt_secret: Option<String>,
+    pub user_init_space: i64,
 
     #[serde(skip)]
     pub _sqlx: Option<Pool<sqlx::MySql>>,
@@ -134,6 +135,7 @@ impl AppState {
             jwt_secret: None,
             _sqlx: None,
             _db: None,
+            user_init_space: 300,
         }
     }
     pub fn save(&self) {}

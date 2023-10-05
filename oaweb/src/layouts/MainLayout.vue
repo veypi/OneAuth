@@ -16,7 +16,7 @@
 
         <q-icon class="mx-2" size="1.5rem" @click="$q.dark.toggle"
           :name="$q.dark.mode ? 'light_mode' : 'dark_mode'"></q-icon>
-        <OAer @logout="user.logout" :is-dark="$q.dark.mode"></OAer>
+        <OAer @logout="user.logout" :is-dark="$q.dark.mode as boolean"></OAer>
       </q-toolbar>
       <!-- <q-toolbar class=""> -->
       <!--   <q-icon @click="toggleLeftDrawer" class="cursor-pointer" name="menu" size="sm"></q-icon> -->
@@ -56,8 +56,7 @@ import { useRouter } from 'vue-router';
 import Menu from 'src/components/menu.vue'
 import { useAppStore } from 'src/stores/app';
 import { useUserStore } from 'src/stores/user';
-import { OAer, Cfg } from "src/oaer";
-Cfg.token.value = util.getToken();
+import { OAer } from "src/oaer";
 
 const app = useAppStore()
 const user = useUserStore()

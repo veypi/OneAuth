@@ -6,7 +6,7 @@
     </div>
     <div @click.self="setValue(false)" class="core" style="height: 100vh;width: 100vw;" v-if="props.modelValue">
       <div style="height: 100%; width: 300px" class="core-right">
-        <transition appear enter-active-class="animate__slideInRight">
+        <transition appear enter-active-class=" animate__slideInRight">
           <div class="flex right-title animate__animated animate__faster px-3">
             <div class="flex-grow text-left" style="font-size: 1.2rem">
               <slot name="title"></slot>
@@ -18,8 +18,7 @@
         </transition>
         <div class="right-main">
           <transition appear enter-active-class="animate__slideInDown">
-            <div class="right-main-core animate__animated animate__faster"
-                 :style="{'background': backgound}">
+            <div class="right-main-core animate__animated animate__faster" :style="{ 'background': backgound }">
               <slot name="main"></slot>
             </div>
           </transition>
@@ -30,8 +29,8 @@
 </template>
 
 <script lang="ts" setup>
-import {OneIcon} from '@veypi/one-icon'
-import {computed, watch} from 'vue'
+import { OneIcon } from '@veypi/one-icon'
+import { computed, watch } from 'vue'
 
 let emits = defineEmits<{
   (e: 'update:modelValue', v: boolean): void
