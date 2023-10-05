@@ -10,13 +10,13 @@
 import { boot } from 'quasar/wrappers'
 import '@veypi/msg/index.css'
 import '../assets/icon.js'
-import s from '@veypi/oaer'
+// import { Cfg } from '@veypi/oaer'
+import { Cfg } from '@veypi/oaer'
+// import { Cfg } from '/Users/veypi/test/oaer'
 
-
-// import { Cfg } from 'src/oaer'
-// Cfg.host.value = 'http://' + window.location.host
-// Cfg.token.value = localStorage.getItem('auth_token') || ''
-// Cfg.uuid.value = 'FR9P5t8debxc11aFF'
+Cfg.host.value = 'http://' + window.location.host
+Cfg.token.value = localStorage.getItem('auth_token') || ''
+Cfg.uuid.value = 'FR9P5t8debxc11aFF'
 
 // "async" is optional;
 // more info on params: https://v2.quasar.dev/quasar-cli/boot-files

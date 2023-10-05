@@ -54,14 +54,15 @@ async fn web(data: AppState) -> Result<()> {
                 .into()
             });
         let cors = actix_cors::Cors::default()
+            .allow_any_header()
             .allow_any_origin()
             .allow_any_method();
         let app = App::new();
         app.wrap(logger)
+            .wrap(cors)
             .wrap(middleware::Compress::default())
             .app_data(web::Data::new(data.clone()))
             .service(fs::Files::new("/media", data.media_path.clone()).show_files_listing())
-            .wrap(cors)
             .service(
                 web::scope("api")
                     .wrap(

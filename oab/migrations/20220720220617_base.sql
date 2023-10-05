@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `app`
     `created`       datetime DEFAULT CURRENT_TIMESTAMP,
     `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    `key`           varchar(32) NOT NULL,
+    `_key`           varchar(32) NOT NULL,
     `name`          varchar(255) NOT NULL,
     `icon`          varchar(255),
     `des`           varchar(255),
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS `access`
 
 
 
-INSERT INTO `app` (`id`, `name`, `key`, `role_id`)
+INSERT INTO `app` (`id`, `name`, `_key`, `role_id`)
 VALUES ('FR9P5t8debxc11aFF', 'oa', 'AMpjwQHwVjGsb1WC4WG6', '1lytMwQL4uiNd0vsc');
 
 INSERT INTO `resource` (`app_id`, `name`)

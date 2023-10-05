@@ -9,7 +9,10 @@ use actix_web::{get, web, Responder};
 use proc::access_read;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 
-use crate::{models::app_user, AppState, Error, Result};
+use crate::{
+    models::{app, app_user},
+    AppState, Error, Result,
+};
 
 #[get("/app/{aid}/user/{uid}")]
 #[access_read("app")]
@@ -32,7 +35,19 @@ pub async fn get(
     if uid.is_empty() && aid.is_empty() {
         Err(Error::Missing("uid or aid".to_string()))
     } else {
-        let s: Vec<app_user::Model> = q.all(stat.db()).await?;
-        Ok(web::Json(s))
+        let s: Vec<(app_user::Model, Option<app::Model>)> =
+            q.find_also_related(app::Entity).all(stat.db()).await?;
+        let res: Vec<app::Model> = s
+            .into_iter()
+            .filter_map(|(l, a)| match a {
+                Some(a) => Some(app::Model {
+                    status: l.status,
+                    ..a
+                }),
+                None => None,
+            })
+            .collect();
+        // let s: Vec<app_user::Model> = q.all(stat.db()).await?;
+        Ok(web::Json(res))
     }
 }
