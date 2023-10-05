@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use tracing::info;
 
 use crate::{
+    libs,
     models::{self, access, app, app_user, rand_str, AUStatus, AccessLevel, Token},
     AppState, Error, Result,
 };
@@ -101,13 +102,7 @@ pub async fn create(
         ..Default::default()
     };
     let ac: access::Model = ac.insert(&db).await?;
-    let au = app_user::ActiveModel {
-        app_id: sea_orm::ActiveValue::Set(obj.id.clone()),
-        user_id: sea_orm::ActiveValue::Set(t.id.clone()),
-        status: sea_orm::ActiveValue::Set(AUStatus::OK as i32),
-        ..Default::default()
-    };
-    let au: app_user::Model = au.insert(&db).await?;
+    libs::user::connect_to_app(t.id.clone(), obj.id.clone(), &db, Some(obj.clone())).await?;
     db.commit().await?;
     Ok(web::Json(obj))
 }

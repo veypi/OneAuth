@@ -18,6 +18,7 @@ use clap::{Args, Parser, Subcommand};
 use lazy_static::lazy_static;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use sqlx::{mysql::MySqlPoolOptions, Pool};
+use tracing::Level;
 
 use crate::Result;
 
@@ -76,6 +77,7 @@ pub struct AppState {
     pub db_pass: String,
     pub db_name: String,
     pub log_dir: Option<String>,
+    pub fs_root: String,
     /// "100MB" 日志分割尺寸-单位KB,MB,GB
     pub log_temp_size: Option<String>,
     pub log_pack_compress: Option<String>,
@@ -119,7 +121,6 @@ impl AppState {
             key: "AMpjwQHwVjGsb1WC4WG6".to_string(),
             debug: true,
             server_url: "127.0.0.1:4001".to_string(),
-            media_path: "/Users/veypi/test/media/".to_string(),
             db_url: "localhost:3306".to_string(),
             db_user: "root".to_string(),
             db_pass: "123456".to_string(),
@@ -127,6 +128,8 @@ impl AppState {
             log_dir: None,
             log_temp_size: None,
             log_pack_compress: None,
+            media_path: "/Users/veypi/test/media/".to_string(),
+            fs_root: "/Users/veypi/test/media/".to_string(),
             log_level: None,
             jwt_secret: None,
             _sqlx: None,
@@ -192,5 +195,8 @@ pub fn init_log() {
     tracing_subscriber::fmt()
         .with_line_number(true)
         .with_timer(FormatTime {})
+        .with_max_level(Level::DEBUG)
+        .with_target(false)
+        .with_file(true)
         .init();
 }

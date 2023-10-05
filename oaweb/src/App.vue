@@ -30,3 +30,19 @@ onBeforeMount(() => {
 })
 
 </script>
+
+<style>
+html,
+body,
+#q-app {
+  @apply font-mono h-full w-full select-none;
+}
+
+.page-h1 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  margin-left: 2.5rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+</style>

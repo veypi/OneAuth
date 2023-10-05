@@ -168,6 +168,7 @@ impl From<Box<dyn std::fmt::Display>> for Error {
     }
 }
 
+
 impl actix_web::Responder for Error {
     type Body = actix_web::body::BoxBody;
     fn respond_to(self, _req: &actix_web::HttpRequest) -> HttpResponse<Self::Body> {

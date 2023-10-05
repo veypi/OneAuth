@@ -7,6 +7,7 @@
 
 pub mod auth;
 pub mod user;
+pub mod fs;
 
 use std::future::{ready, Ready};
 

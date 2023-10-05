@@ -465,6 +465,13 @@
   resolved "https://registry.yarnpkg.com/@veypi/msg/-/msg-0.1.0.tgz#2ebe899527a11ed11f68c2c96f468cfcc66ad3d4"
   integrity sha512-58dj5nnpHsxaiK5sbPiDK5t8OF4uvN+kAmWhU0BRAgXHpkxkZNZ8rn7hXvSVybG1BbM8EuMNkq0lIxGYNKl8aw==
 
+"@veypi/one-icon@2":
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/@veypi/one-icon/-/one-icon-2.0.6.tgz#158c692971848524cd59db1a61d88805d2e45646"
+  integrity sha512-ldfRE8vDSqZEFk+94wqieWP4s1Mz1EDG1VhXmckWI0cat2RT/Kk9hcICImkLhsOmhNRX7nwxSU4UbUiJVix/Jw==
+  dependencies:
+    vue "^3.2.20"
+
 "@vitejs/plugin-vue@^2.2.0":
   version "2.3.4"
   resolved "https://registry.yarnpkg.com/@vitejs/plugin-vue/-/plugin-vue-2.3.4.tgz#966a6279060eb2d9d1a02ea1a331af071afdcf9e"
@@ -2433,6 +2440,11 @@ minimist@^1.2.6:
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.8.tgz#c1a464e7693302e082a075cee0c057741ac4772c"
   integrity sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==
 
+mitt@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/mitt/-/mitt-3.0.1.tgz#ea36cf0cc30403601ae074c8f77b7092cdab36d1"
+  integrity sha512-vKivATfr97l2/QBCYAkXYDbrIWPM2IIKEl7YPhjCvKlG3kE2gm+uBo6nEXK3M5/Ffh/FLpKExzOQ3JJoJGFKBw==
+
 ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
@@ -3447,7 +3459,7 @@ vue-router@^4.0.0:
   dependencies:
     "@vue/devtools-api" "^6.5.0"
 
-vue@^3.0.0:
+vue@^3.0.0, vue@^3.2.20:
   version "3.3.4"
   resolved "https://registry.yarnpkg.com/vue/-/vue-3.3.4.tgz#8ed945d3873667df1d0fcf3b2463ada028f88bd6"
   integrity sha512-VTyEYn3yvIeY1Py0WaYGZsXnz3y5UnGi62GjVEqvEGPl6nxbOrCXbVOTQWBEJUqAyTUk2uJ5JLVnYJ6ZzGbrSw==

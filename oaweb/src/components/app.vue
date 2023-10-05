@@ -2,7 +2,8 @@
   <div class="core rounded-2xl p-3">
     <div class="grid gap-4 grid-cols-5">
       <div class="col-span-2">
-        <q-avatar style="--color: none" @click="Go" round size="xl" :icon="core.icon">
+        <q-avatar class="cursor-pointer" style="--color: none" @click="Go" round size="5rem">
+          <img :src="core.icon">
         </q-avatar>
       </div>
       <div class="col-span-3 grid grid-cols-1 items-center text-left">
@@ -36,7 +37,7 @@ let props = withDefaults(defineProps<{
 function Go() {
   switch (props.core.au.status) {
     case AUStatus.OK:
-      router.push({ name: "app.main", params: { uuid: props.core.UUID } });
+      router.push({ name: "app.home", params: { id: props.core.id } });
       return;
     case AUStatus.Applying:
       msg.Info("请等待管理员审批进入");

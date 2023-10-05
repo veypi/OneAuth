@@ -5,10 +5,18 @@
 * @description：index
 */
 
+import { RouteLocationRaw } from 'vue-router';
 
 export { type Auths, type modelsSimpleAuth, NewAuths, R } from './auth'
 
 
+export interface MenuLink {
+  title: string;
+  caption?: string;
+  to?: RouteLocationRaw;
+  link?: string;
+  icon?: string;
+}
 
 export interface modelsBread {
   Index: number

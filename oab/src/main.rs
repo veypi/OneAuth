@@ -38,6 +38,7 @@ async fn main() -> Result<()> {
 }
 async fn web(data: AppState) -> Result<()> {
     let url = data.server_url.clone();
+    let dav = libs::fs::core();
     let serv = HttpServer::new(move || {
         let logger = middleware::Logger::default();
         let json_config = web::JsonConfig::default()
@@ -55,10 +56,10 @@ async fn web(data: AppState) -> Result<()> {
         let app = App::new();
         app.wrap(logger)
             .wrap(middleware::Compress::default())
+            .app_data(web::Data::new(data.clone()))
             .service(fs::Files::new("/media", data.media_path.clone()).show_files_listing())
             .service(
                 web::scope("api")
-                    .app_data(web::Data::new(data.clone()))
                     .wrap(
                         ErrorHandlers::new()
                             .handler(StatusCode::INTERNAL_SERVER_ERROR, add_error_header),
@@ -66,6 +67,11 @@ async fn web(data: AppState) -> Result<()> {
                     .wrap(libs::auth::Auth)
                     .app_data(json_config)
                     .configure(api::routes),
+            )
+            .service(
+                web::scope("file")
+                    .app_data(web::Data::new(dav.clone()))
+                    .service(web::resource("/{tail:.*}").to(libs::fs::dav_handler)),
             )
     });
     info!("listen to {}", url);

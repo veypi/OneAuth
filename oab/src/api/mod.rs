@@ -11,21 +11,12 @@ mod app;
 mod appuser;
 mod resource;
 mod role;
+mod upload;
 mod user;
-use crate::{Error, Result};
-use actix_web::{get, web};
-
-#[get("/hello/{name}")]
-async fn greet(name: web::Path<u32>) -> Result<String> {
-    let n = name.into_inner();
-    if n > 0 {
-        Ok(format!("Hello {n}!"))
-    } else {
-        Err(Error::Unknown)
-    }
-}
+use actix_web::web;
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
+    cfg.service(upload::save_files);
     cfg.service(user::get)
         .service(user::list)
         .service(user::register)
@@ -37,6 +28,4 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         .service(app::del);
 
     cfg.service(appuser::get);
-
-    cfg.service(greet);
 }

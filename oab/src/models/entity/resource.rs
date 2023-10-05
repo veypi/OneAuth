@@ -10,7 +10,6 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     pub created: Option<DateTime>,
     pub updated: Option<DateTime>,
-    pub delete_flag: i8,
     #[sea_orm(primary_key, auto_increment = false)]
     pub app_id: String,
     #[sea_orm(primary_key, auto_increment = false)]

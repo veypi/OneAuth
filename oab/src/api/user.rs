@@ -95,7 +95,7 @@ pub async fn login(
             // 未绑定应用时进行绑定操作
             let aid = stat.uuid.clone();
             let db = stat.db().begin().await?;
-            let s = libs::user::connect_to_app(u.clone(), aid, &db).await?;
+            let s = libs::user::connect_to_app(u.id.clone(), aid, &db, None).await?;
             db.commit().await?;
             s
         }
@@ -165,7 +165,7 @@ pub async fn register(
     let u = u.insert(&db).await?;
 
     // 关联应用
-    libs::user::connect_to_app(u.clone(), stat.uuid.clone(), &db).await?;
+    libs::user::connect_to_app(u.id.clone(), stat.uuid.clone(), &db, None).await?;
 
     db.commit().await?;
 

@@ -41,4 +41,9 @@ uuid = { version = "1.1", features = ["v3","v4", "fast-rng", "macro-diagnostics"
 serde_repr = "0.1.8"
 
 proc = {path="proc"}
+# dav-server = {version = "0.5.7", features = ["default","actix-compat"], path = "../../../test/dav-server-rs/" }
+dav-server = {version = "0.5.7", features = ["default","actix-compat"]}
+http = "0.2.9"
+http-auth-basic = "0.3.3"
+actix-multipart = "0.6.1"
 

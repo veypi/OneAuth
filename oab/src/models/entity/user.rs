@@ -12,7 +12,6 @@ pub struct Model {
     pub id: String,
     pub created: Option<DateTime>,
     pub updated: Option<DateTime>,
-    pub delete_flag: i8,
     #[sea_orm(unique)]
     pub username: String,
     pub nickname: Option<String>,

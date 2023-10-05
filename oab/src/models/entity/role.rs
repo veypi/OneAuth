@@ -12,7 +12,6 @@ pub struct Model {
     pub id: String,
     pub created: Option<DateTime>,
     pub updated: Option<DateTime>,
-    pub delete_flag: i8,
     pub app_id: String,
     pub name: String,
     pub des: Option<String>,

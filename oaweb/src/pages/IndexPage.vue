@@ -4,7 +4,7 @@
       <div class="flex justify-between">
         <h1 class="page-h1">我的应用</h1>
         <div class="my-5 mr-10">
-          <q-btn @click="new_flag = true" v-if="user.auth.Get(R.App, '').CanCreate()">创建应用
+          <q-btn outline @click="new_flag = true" v-if="user.auth.Get(R.App, '').CanCreate()">创建应用
           </q-btn>
         </div>
       </div>
@@ -31,18 +31,16 @@
         <q-card-section>
           <q-form @submit="create_new">
             <q-input label="应用名" v-model="temp_app.name" :rules="rules.name"></q-input>
-            <q-field label="icon" stack-label>
-              <template v-slot:control>
-                <uploader url="test.ico" @success="(e) => {
-                  temp_app.icon = e;
-                }
-                  ">
-                  <q-avatar size="xl" round>
-                    <img :src="temp_app.icon">
-                  </q-avatar>
-                </uploader>
-              </template>
-            </q-field>
+            <div class="flex justify-center my-4 items-center" label='icon'>
+              <uploader @success="temp_app.icon = $event">
+                <q-avatar>
+                  <img :src="temp_app.icon">
+                </q-avatar>
+              </uploader>
+              <q-icon class="ml-2" size="1rem" name='autorenew' @click="temp_app.icon = rand_icon()"></q-icon>
+            </div>
+
+
             <q-separator></q-separator>
             <div class="flex justify-end mt-8">
               <q-btn class="mx-3" @click="new_flag = false">取消</q-btn>
@@ -64,6 +62,7 @@ import AppCard from 'components/app.vue'
 import { useUserStore } from 'src/stores/user';
 import { R } from 'src/models';
 import uploader from 'components/uploader'
+import { util } from 'src/libs';
 
 let user = useUserStore()
 
@@ -91,14 +90,14 @@ function getApps() {
   );
 }
 
-onMounted(() => {
-  getApps();
-});
 
+const rand_icon = () => {
+  return "/media/icon/sign/scenery-" + util.randomNum(1, 20) + ".png"
+}
 let new_flag = ref(false);
 let temp_app = ref({
   name: "",
-  icon: "",
+  icon: rand_icon()
 });
 let rules = {
   name: [
@@ -110,13 +109,15 @@ function create_new() {
   api.app.create(temp_app.value.name, temp_app.value.icon).then((e:
     modelsApp) => {
     console.log(e)
-    // e.Status = "ok";
-    // ofApps.value.push(e);
+    ofApps.value.push(e);
     msg.Info("创建成功");
     new_flag.value = false;
   }).catch(e => {
     msg.Warn("创建失败: " + e);
   })
 }
+onMounted(() => {
+  getApps();
+});
 
 </script>

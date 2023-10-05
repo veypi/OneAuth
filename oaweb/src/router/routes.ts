@@ -11,6 +11,17 @@ declare module 'vue-router' {
     checkAuth?: (a: Auths, r?: RouteLocationNormalized) => boolean
   }
 }
+
+function loadcomponents(path: string, name: string, main: string) {
+
+  return {
+    path: path,
+    name: name,
+    components: {
+      default: () => import("../pages/" + main + ".vue"),
+    }
+  }
+}
 const routes: RouteRecordRaw[] = [
 
   {
@@ -19,22 +30,31 @@ const routes: RouteRecordRaw[] = [
     meta: {
       requiresAuth: true,
     },
+    redirect: 'home',
     children: [
+      loadcomponents('home', 'home', 'IndexPage'),
+      loadcomponents('user', 'user', '404'),
+      loadcomponents('settings', 'settings', '404'),
       {
-        path: '',
-        component: () => import('pages/IndexPage.vue')
+        path: 'app/:id?',
+        component: () => import("../layouts/AppLayout.vue"),
+        redirect: { name: 'app.home' },
+        children: [
+          loadcomponents('home', 'app.home', 'IndexPage'),
+          loadcomponents('user', 'app.user', 'AppHome'),
+        ]
       }
     ],
   },
   {
     path: '/login/:uuid?',
     name: 'login',
-    component: () => import('pages/login.vue'),
+    component: () => import('../pages/login.vue'),
   },
   {
     path: '/register/:uuid?',
     name: 'register',
-    component: () => import('pages/register.vue'),
+    component: () => import('../pages/register.vue'),
   },
 
 
@@ -42,7 +62,7 @@ const routes: RouteRecordRaw[] = [
   // but you can also remove it
   {
     path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue'),
+    component: () => import('../pages/404.vue'),
   },
 ];
 
