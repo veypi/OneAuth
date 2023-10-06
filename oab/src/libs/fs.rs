@@ -18,7 +18,7 @@ use dav_server::{
     DavConfig, DavHandler,
 };
 
-use http::Response;
+use http::{header, Method, Response};
 use http_auth_basic::Credentials;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use tracing::{info, warn};
@@ -34,6 +34,32 @@ pub fn core() -> DavHandler {
         .strip_prefix("/file/")
         .build_handler()
 }
+/// Try to parse header value as HTTP method.
+fn header_value_try_into_method(hdr: &header::HeaderValue) -> Option<Method> {
+    hdr.to_str()
+        .ok()
+        .and_then(|meth| Method::try_from(meth).ok())
+}
+
+fn is_request_preflight(req: &DavRequest) -> bool {
+    // check request method is OPTIONS
+    if req.request.method() != Method::OPTIONS {
+        return false;
+    }
+
+    // check follow-up request method is present and valid
+    if req
+        .request
+        .headers()
+        .get(header::ACCESS_CONTROL_REQUEST_METHOD)
+        .and_then(header_value_try_into_method)
+        .is_none()
+    {
+        return false;
+    }
+
+    true
+}
 
 pub async fn dav_handler(
     req: DavRequest,
@@ -41,8 +67,8 @@ pub async fn dav_handler(
     stat: web::Data<AppState>,
 ) -> DavResponse {
     let root = stat.fs_root.clone();
-    match handle_file(req, stat).await {
-        Ok((p, req)) => {
+    match handle_file(&req, stat).await {
+        Ok(p) => {
             let p = Path::new(&root).join(p);
             if !p.exists() {
                 match fs::create_dir_all(p.clone()) {
@@ -58,17 +84,41 @@ pub async fn dav_handler(
         }
         Err(e) => {
             warn!("handle file failed: {}", e);
-            Response::builder()
-                .status(401)
-                .header("WWW-Authenticate", "Basic realm=\"file\"")
-                .body(Body::from("please auth".to_string()))
-                .unwrap()
-                .into()
+            if is_request_preflight(&req) {
+                let origin = match req.request.headers().get("Origin") {
+                    Some(o) => o.to_str().unwrap().clone(),
+                    None => "",
+                };
+                Response::builder()
+                    .status(200)
+                    .header("WWW-Authenticate", "Basic realm=\"file\"")
+                    .header("Access-Control-Allow-Origin", origin)
+                    .header("Access-Control-Allow-Credentials", "true")
+                    .header("Access-Control-Allow-Headers", "auth_token, depth")
+                    .header(
+                        "Access-Control-Allow-Methods",
+                        "OPTIONS, DELETE, GET, POST, PUT, HEAD, TRACE, PATCH, CONNECT, PROPFIND",
+                    )
+                    .header(
+                        "Access-Control-Expose-Headers",
+                        "access-control-allow-origin, content-type",
+                    )
+                    .body(Body::from("please auth".to_string()))
+                    .unwrap()
+                    .into()
+            } else {
+                Response::builder()
+                    .status(401)
+                    .header("WWW-Authenticate", "Basic realm=\"file\"")
+                    .body(Body::from("please auth".to_string()))
+                    .unwrap()
+                    .into()
+            }
         }
     }
 }
 
-async fn handle_file(req: DavRequest, stat: web::Data<AppState>) -> Result<(String, DavRequest)> {
+async fn handle_file(req: &DavRequest, stat: web::Data<AppState>) -> Result<String> {
     let p = req.request.uri();
     let headers = req.request.headers();
     let m = req.request.method();
@@ -87,10 +137,10 @@ async fn handle_file(req: DavRequest, stat: web::Data<AppState>) -> Result<(Stri
                     if app_id != "" {
                         // 只有秘钥才能访问app数据
                         if t.can_read("app", app_id) {
-                            return Ok((format!("app/{}/", app_id), req));
+                            return Ok(format!("app/{}/", app_id));
                         }
                     } else {
-                        return Ok((format!("user/{}/", t.id), req));
+                        return Ok(format!("user/{}/", t.id));
                     }
                 }
             }
@@ -110,7 +160,7 @@ async fn handle_file(req: DavRequest, stat: web::Data<AppState>) -> Result<(Stri
             {
                 Some(u) => {
                     u.check_pass(&credentials.password)?;
-                    return Ok((format!("user/{}/", u.id), req));
+                    return Ok(format!("user/{}/", u.id));
                 }
                 None => {}
             }

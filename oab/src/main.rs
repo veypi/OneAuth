@@ -1,3 +1,4 @@
+use actix_cors::Cors;
 //
 // main.rs
 // Copyright (C) 2022 veypi <i@veypi.com>
@@ -6,13 +7,15 @@
 //
 use actix_files as fs;
 use actix_web::{
-    dev,
+    dev::{self, Service},
     http::StatusCode,
     middleware::{self, ErrorHandlerResponse, ErrorHandlers},
     web::{self},
     App, HttpServer,
 };
+use futures_util::future::FutureExt;
 
+use http::{HeaderName, HeaderValue};
 use oab::{api, init_log, libs, models, AppState, Clis, Result, CLI};
 use tracing::{error, info, warn};
 
@@ -53,18 +56,15 @@ async fn web(data: AppState) -> Result<()> {
                 )
                 .into()
             });
-        let cors = actix_cors::Cors::default()
-            .allow_any_header()
-            .allow_any_origin()
-            .allow_any_method();
+        let cors = actix_cors::Cors::permissive();
         let app = App::new();
         app.wrap(logger)
-            .wrap(cors)
             .wrap(middleware::Compress::default())
             .app_data(web::Data::new(data.clone()))
             .service(fs::Files::new("/media", data.media_path.clone()).show_files_listing())
             .service(
                 web::scope("api")
+                    .wrap(cors)
                     .wrap(
                         ErrorHandlers::new()
                             .handler(StatusCode::INTERNAL_SERVER_ERROR, add_error_header),
@@ -75,6 +75,33 @@ async fn web(data: AppState) -> Result<()> {
             )
             .service(
                 web::scope("file")
+                    .wrap_fn(|req, srv| {
+                        let headers = &req.headers().clone();
+                        let origin = match headers.get("Origin") {
+                            Some(o) => o.to_str().unwrap().clone().to_string(),
+                            None => "".to_string(),
+                        };
+                        srv.call(req).map(move |res| {
+                            let res = match res {
+                                Ok(mut expr) => {
+                                    let headers = expr.headers_mut();
+                                    headers.insert(
+                                        HeaderName::try_from("Access-Control-Allow-Origin")
+                                            .unwrap(),
+                                        HeaderValue::from_str(&origin).unwrap(),
+                                    );
+                                    headers.insert(
+                                        HeaderName::try_from("123").unwrap(),
+                                        HeaderValue::from_str("asd").unwrap(),
+                                    );
+                                    Ok(expr)
+                                }
+                                Err(e) => Err(e),
+                            };
+                            println!("Hi from response");
+                            res
+                        })
+                    })
                     .app_data(web::Data::new(dav.clone()))
                     .service(web::resource("/{tail:.*}").to(libs::fs::dav_handler)),
             )

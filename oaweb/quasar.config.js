@@ -86,6 +86,9 @@ module.exports = configure(function(/* ctx */) {
 
       extendViteConf(viteConf) {
         viteConf.resolve.preserveSymlinks = true;
+        viteConf.optimizeDeps.exclude = [
+          '@veypi/oaer'
+        ];
       },
       // viteVuePluginOptions: {},
 

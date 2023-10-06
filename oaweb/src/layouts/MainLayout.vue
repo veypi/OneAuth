@@ -56,7 +56,7 @@ import { useRouter } from 'vue-router';
 import Menu from 'src/components/menu.vue'
 import { useAppStore } from 'src/stores/app';
 import { useUserStore } from 'src/stores/user';
-import { OAer } from "src/oaer";
+import { OAer } from "@veypi/oaer";
 
 const app = useAppStore()
 const user = useUserStore()

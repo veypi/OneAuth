@@ -16,7 +16,7 @@
     </div>
     <div class="mt-20" v-if="apps.length > 0">
       <h1 class="page-h1">应用中心</h1>
-      <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 text-center">
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 text-center">
         <div v-for="(item, k) in apps" class="flex items-center justify-center" :key="k">
           <AppCard :core="item"></AppCard>
         </div>
