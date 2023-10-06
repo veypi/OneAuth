@@ -8,9 +8,9 @@
           </q-btn>
         </div>
       </div>
-      <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 text-center">
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 text-center">
         <div v-for="(item, k) in ofApps" class="flex items-center justify-center" :key="k">
-          <AppCard :core="item"></AppCard>
+          <AppCard :core="item" :is_part="true"></AppCard>
         </div>
       </div>
     </div>
@@ -18,7 +18,7 @@
       <h1 class="page-h1">应用中心</h1>
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 text-center">
         <div v-for="(item, k) in apps" class="flex items-center justify-center" :key="k">
-          <AppCard :core="item"></AppCard>
+          <AppCard :core="item" :is_part="false"></AppCard>
         </div>
       </div>
     </div>
@@ -74,11 +74,10 @@ function getApps() {
   api.app.list().then(
     (e: modelsApp[]) => {
       apps.value = e;
-      api.app.user('-').list(user.id).then((aus: modelsAppUser[]) => {
+      api.app.user('-').list(user.id).then((aus: modelsApp[]) => {
         for (let i in aus) {
-          let ai = apps.value.findIndex(a => a.id === aus[i].app_id)
+          let ai = apps.value.findIndex(a => a.id === aus[i].id)
           if (ai >= 0) {
-            apps.value[ai].au = aus[i]
             if (aus[i].status === AUStatus.OK) {
               ofApps.value.push(apps.value[ai])
               apps.value.splice(ai, 1)

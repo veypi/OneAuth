@@ -27,5 +27,5 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         .service(app::create)
         .service(app::del);
 
-    cfg.service(appuser::get);
+    cfg.service(appuser::get).service(appuser::add);
 }

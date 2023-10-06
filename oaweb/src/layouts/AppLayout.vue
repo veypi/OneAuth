@@ -5,8 +5,13 @@
  * Distributed under terms of the MIT license.
  -->
 <template>
-  <div>
-    <h1>{{ app.name }}</h1>
+  <div class="p-4">
+    <div class="flex items-center">
+      <q-avatar class="mx-2" round size="4rem">
+        <img :src="app.icon">
+      </q-avatar>
+      <h1 class="text-4xl">{{ app.name }}</h1>
+    </div>
     <router-view :data="{ a: 1 }" />
   </div>
 </template>
@@ -14,10 +19,11 @@
 <script lang="ts" setup>
 import msg from '@veypi/msg';
 import api from 'src/boot/api';
-import { modelsApp } from 'src/models';
+import { MenuLink, modelsApp } from 'src/models';
 import { useMenuStore } from 'src/stores/menu';
 import { computed, watch, ref, onMounted, provide, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
+import { RouteLocationNamedRaw } from 'vue-router';
 let route = useRoute();
 let menu = useMenuStore()
 
@@ -29,19 +35,52 @@ provide('app', app)
 const sync_app = () => {
   api.app.get(id.value as string).then((e: modelsApp) => {
     app.value = e
+    Links.value[1].title = e.name
+    for (let i in Links.value) {
+      let l: RouteLocationNamedRaw = Links.value[i].to as any
+      if (l.params) {
+        l.params.id = e.id
+      }
+    }
   }).catch(e => {
     msg.Warn('sync app data failed: ' + e)
   })
 }
-watch(id, () => {
-  sync_app()
+const Links = ref([
+  {
+    title: '应用中心',
+    caption: '',
+    icon: 'apps',
+    to: { name: 'home' }
+  },
+  {
+    title: '',
+    caption: '',
+    icon: 'home',
+    to: { name: 'app.home', params: { id: id.value } }
+  },
+  {
+    title: '用户管理',
+    caption: 'oa.veypi.com',
+    icon: 'people',
+    to: { name: 'app.user', params: { id: id.value } }
+  },
+  {
+    title: '应用设置',
+    caption: '',
+    icon: 'settings',
+    to: { name: 'app.settings', params: { id: id.value } }
+  },
+] as MenuLink[])
+watch(id, (e) => {
+  if (e) {
+    sync_app()
+  }
 })
 
 onMounted(() => {
   sync_app()
-  menu.set([
-
-  ])
+  menu.set(Links.value)
 })
 onBeforeUnmount(() => {
   menu.load_default()

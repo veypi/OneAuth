@@ -9,3 +9,4 @@ pub mod auth;
 pub mod cors;
 pub mod fs;
 pub mod user;
+pub mod app;

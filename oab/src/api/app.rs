@@ -5,8 +5,8 @@
 // Distributed under terms of the Apache license.
 //
 //
-use actix_web::{delete, get, post, web, Responder};
-use proc::{access_create, access_read};
+use actix_web::{delete, get, patch, post, put, web, Responder};
+use proc::{access_create, access_delete, access_read, access_update};
 use sea_orm::{ActiveModelTrait, EntityTrait, TransactionTrait};
 use serde::{Deserialize, Serialize};
 use tracing::info;
@@ -54,12 +54,6 @@ pub struct App {
 #[access_read("app")]
 pub async fn list(stat: web::Data<AppState>) -> Result<impl Responder> {
     let res = app::Entity::find().all(stat.db()).await?;
-    // let result = sqlx::query_as::<_,app::Model>(
-    //     "select app.*,app_userstatus as status from app left join  app_user on app_user.user_id = ? && app_user.app_id = app.id",
-    //     ).bind(_auth_token.id)
-    //     .fetch_all(stat.sqlx())
-    //     .await?;
-
     Ok(web::Json(res))
 }
 
@@ -101,12 +95,46 @@ pub async fn create(
         level: sea_orm::ActiveValue::Set(AccessLevel::ALL as i32),
         ..Default::default()
     };
-    let ac: access::Model = ac.insert(&db).await?;
+    ac.insert(&db).await?;
     libs::user::connect_to_app(t.id.clone(), obj.id.clone(), &db, Some(obj.clone())).await?;
     db.commit().await?;
     Ok(web::Json(obj))
 }
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct UpdateOpt {
+    name: Option<String>,
+    icon: Option<String>,
+    enable_register: Option<String>,
+    des: Option<String>,
+    host: Option<String>,
+    redirect: Option<String>,
+}
+
+#[patch("/app/{id}")]
+#[access_update("app")]
+pub async fn update(
+    id: web::Path<String>,
+    stat: web::Data<AppState>,
+    data: web::Json<UpdateOpt>,
+) -> Result<impl Responder> {
+    let data = data.into_inner();
+    let id = id.into_inner();
+    let obj = app::Entity::find_by_id(&id).one(stat.db()).await?;
+    let mut obj: app::ActiveModel = match obj {
+        Some(o) => o.into(),
+        None => return Err(Error::NotFound(id)),
+    };
+    if let Some(name) = data.name {
+        obj.name = sea_orm::Set(name)
+    };
+
+    let obj = obj.update(stat.db()).await?;
+    Ok(web::Json(obj))
+}
+
 #[delete("/app/{id}")]
+#[access_delete("app")]
 pub async fn del(_id: web::Path<String>) -> Result<impl Responder> {
     Ok("")
 }

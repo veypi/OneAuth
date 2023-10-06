@@ -34,14 +34,16 @@ const routes: RouteRecordRaw[] = [
     children: [
       loadcomponents('home', 'home', 'IndexPage'),
       loadcomponents('user', 'user', '404'),
+      loadcomponents('file', 'file', '404'),
       loadcomponents('settings', 'settings', '404'),
       {
         path: 'app/:id?',
         component: () => import("../layouts/AppLayout.vue"),
         redirect: { name: 'app.home' },
         children: [
-          loadcomponents('home', 'app.home', 'IndexPage'),
-          loadcomponents('user', 'app.user', 'AppHome'),
+          loadcomponents('home', 'app.home', 'AppHome'),
+          loadcomponents('user', 'app.user', 'AppUser'),
+          loadcomponents('settings', 'app.settings', 'IndexPage'),
         ]
       }
     ],

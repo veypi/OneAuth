@@ -19,7 +19,7 @@ import routes from './routes';
  * with the Router instance.
  */
 
-export default route(function(/* { store, ssrContext } */) {
+function newRouter(/* { store, ssrContext } */) {
   const createHistory = process.env.SERVER
     ? createMemoryHistory
     : (process.env.VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory);
@@ -33,7 +33,6 @@ export default route(function(/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
-  const u = useUserStore()
 
   Router.beforeEach((to, from) => {
     if (to.meta.requiresAuth && !util.checkLogin()) {
@@ -46,6 +45,7 @@ export default route(function(/* { store, ssrContext } */) {
       }
     }
     if (to.meta.checkAuth) {
+      const u = useUserStore()
       if (!to.meta.checkAuth(u.auth, to)) {
 
         // if (window.$msg) {
@@ -56,4 +56,6 @@ export default route(function(/* { store, ssrContext } */) {
     }
   })
   return Router;
-});
+};
+
+export default newRouter();

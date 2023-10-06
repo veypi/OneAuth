@@ -9,7 +9,9 @@ use crate::{
     models::{self, app, app_user, user_role},
     Error, Result,
 };
-use sea_orm::{ActiveModelTrait, ConnectionTrait, DatabaseTransaction, EntityTrait};
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, ConnectionTrait, DatabaseTransaction, EntityTrait, QueryFilter,
+};
 
 // 尝试绑定应用
 pub async fn connect_to_app(
@@ -18,6 +20,15 @@ pub async fn connect_to_app(
     db: &DatabaseTransaction,
     app_obj: Option<app::Model>,
 ) -> Result<app_user::Model> {
+    match app_user::Entity::find()
+        .filter(app_user::Column::AppId.eq(&aid))
+        .filter(app_user::Column::UserId.eq(&uid))
+        .one(db)
+        .await?
+    {
+        Some(au) => return Ok(au),
+        None => {}
+    };
     let app_obj = match app_obj {
         Some(o) => o,
         None => match app::Entity::find_by_id(&aid).one(db).await? {

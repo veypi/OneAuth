@@ -16,7 +16,7 @@
 
         <q-icon class="mx-2" size="1.5rem" @click="$q.dark.toggle"
           :name="$q.dark.mode ? 'light_mode' : 'dark_mode'"></q-icon>
-        <OAer @logout="user.logout" :is-dark="$q.dark.mode as boolean"></OAer>
+        <OAer v-if="user.ready" @logout="user.logout" :is-dark="$q.dark.mode as boolean"></OAer>
       </q-toolbar>
       <!-- <q-toolbar class=""> -->
       <!--   <q-icon @click="toggleLeftDrawer" class="cursor-pointer" name="menu" size="sm"></q-icon> -->
@@ -35,16 +35,20 @@
 
     <q-page-container class="flex">
       <q-page class="w-full">
-        <router-view />
+        <router-view v-slot="{ Component }">
+          <transition mode="out-in" enter-active-class="animate__fadeInLeft" leave-active-class="animate__fadeOutRight">
+            <component class="animate__animated animate__400ms" :is="Component"></component>
+          </transition>
+        </router-view>
       </q-page>
     </q-page-container>
-    <q-footer bordered class="bg-grey-8 text-white flex justify-around">
-      <span class="hover:text-black cursor-pointer" @click="$router.push({ name: 'about' })">关于OA</span>
-      <span class="hover:text-black cursor-pointer">使用须知</span>
-      <span class="hover:text-black cursor-pointer" @click="util.goto('https://veypi.com')">
-        ©2021 veypi
-      </span>
-    </q-footer>
+    <!-- <q-footer bordered class="bg-grey-8 text-white flex justify-around"> -->
+    <!--   <span class="hover:text-black cursor-pointer" @click="$router.push({ name: 'about' })">关于OA</span> -->
+    <!--   <span class="hover:text-black cursor-pointer">使用须知</span> -->
+    <!--   <span class="hover:text-black cursor-pointer" @click="util.goto('https://veypi.com')"> -->
+    <!--     ©2021 veypi -->
+    <!--   </span> -->
+    <!-- </q-footer> -->
 
   </q-layout>
 </template>
@@ -74,3 +78,9 @@ function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
 </script>
+
+<style scoped>
+.animate__400ms {
+  --animate-duration: 300ms;
+}
+</style>

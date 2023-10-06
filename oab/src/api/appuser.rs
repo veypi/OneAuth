@@ -5,11 +5,12 @@
 // Distributed under terms of the MIT license.
 //
 
-use actix_web::{get, web, Responder};
+use actix_web::{get, post, web, Responder};
 use proc::access_read;
-use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, TransactionTrait};
 
 use crate::{
+    libs,
     models::{app, app_user},
     AppState, Error, Result,
 };
@@ -50,4 +51,17 @@ pub async fn get(
         // let s: Vec<app_user::Model> = q.all(stat.db()).await?;
         Ok(web::Json(res))
     }
+}
+
+#[post("/app/{aid}/user/{uid}")]
+#[access_read("app")]
+pub async fn add(
+    params: web::Path<(String, String)>,
+    stat: web::Data<AppState>,
+) -> Result<impl Responder> {
+    let (aid, uid) = params.into_inner();
+    let db = stat.db().begin().await?;
+    let res = libs::user::connect_to_app(uid, aid, &db, None).await?;
+    db.commit().await?;
+    Ok(web::Json(res))
 }

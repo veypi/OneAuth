@@ -9,10 +9,14 @@
 
 import { boot } from 'quasar/wrappers'
 import '@veypi/msg/index.css'
+import { conf } from '@veypi/msg'
 import '../assets/icon.js'
-
 import '@veypi/oaer/dist/index.css'
 import { Cfg } from '@veypi/oaer'
+
+import 'vditor/dist/index.css';
+
+conf.timeout = 5000
 
 Cfg.host.value = 'http://' + window.location.host
 Cfg.token.value = localStorage.getItem('auth_token') || ''

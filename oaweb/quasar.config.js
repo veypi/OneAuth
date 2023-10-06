@@ -155,6 +155,7 @@ module.exports = configure(function(/* ctx */) {
       plugins: [
         'LoadingBar',
         'AppFullscreen',
+        'Dialog'
       ]
     },
 

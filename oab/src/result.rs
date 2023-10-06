@@ -168,7 +168,6 @@ impl From<Box<dyn std::fmt::Display>> for Error {
     }
 }
 
-
 impl actix_web::Responder for Error {
     type Body = actix_web::body::BoxBody;
     fn respond_to(self, _req: &actix_web::HttpRequest) -> HttpResponse<Self::Body> {
@@ -182,7 +181,7 @@ impl error::ResponseError for Error {
         HttpResponse::build(self.status_code())
             .insert_header(ContentType::html())
             .insert_header(("error", self.to_string()))
-            .body("".to_string())
+            .body(self.to_string())
     }
 
     fn status_code(&self) -> StatusCode {

@@ -37,7 +37,7 @@ export default {
       list(id: string) {
         return ajax.get(this.local + id)
       },
-      add(uid: number) {
+      add(uid: string) {
         return ajax.post(this.local + uid)
       },
       update(uid: number, status: string) {

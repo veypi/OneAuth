@@ -17,7 +17,7 @@ const defaultLinks: MenuLink[] = [
     to: { name: 'home' }
   },
   {
-    title: '用户管理',
+    title: '账号设置',
     caption: 'oa.veypi.com',
     icon: 'person',
     to: { name: 'user' }
