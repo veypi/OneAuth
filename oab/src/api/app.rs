@@ -5,18 +5,17 @@
 // Distributed under terms of the Apache license.
 //
 //
-use actix_web::{delete, get, patch, post, put, web, Responder};
-use proc::{access_create, access_delete, access_read, access_update};
+use actix_web::{delete, get, patch, post, web, Responder};
+use proc::{access_create, access_delete, access_read, access_update, crud_update};
 use sea_orm::{ActiveModelTrait, EntityTrait, TransactionTrait};
 use serde::{Deserialize, Serialize};
 use tracing::info;
 
 use crate::{
     libs,
-    models::{self, access, app, app_user, rand_str, AUStatus, AccessLevel, Token},
+    models::{access, app, rand_str, AccessLevel, Token},
     AppState, Error, Result,
 };
-use chrono::NaiveDateTime;
 
 #[get("/app/{id}")]
 #[access_read("app")]
@@ -28,26 +27,6 @@ pub async fn get(id: web::Path<String>, stat: web::Data<AppState>) -> Result<imp
     } else {
         Err(Error::Missing("id".to_string()))
     }
-}
-
-#[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
-pub struct App {
-    pub id: String,
-    pub created: Option<NaiveDateTime>,
-    pub updated: Option<NaiveDateTime>,
-
-    pub name: Option<String>,
-    pub des: Option<String>,
-    pub icon: Option<String>,
-    pub user_count: i64,
-
-    pub hide: bool,
-    pub join_method: models::AppJoin,
-    pub role_id: Option<String>,
-    pub redirect: Option<String>,
-
-    pub status: i64,
-    pub u_status: i64,
 }
 
 #[get("/app/")]
@@ -101,36 +80,26 @@ pub async fn create(
     Ok(web::Json(obj))
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct UpdateOpt {
-    name: Option<String>,
-    icon: Option<String>,
-    enable_register: Option<String>,
-    des: Option<String>,
-    host: Option<String>,
-    redirect: Option<String>,
+    pub name: Option<String>,
+    pub icon: Option<String>,
+    pub des: Option<String>,
+    pub join_method: Option<i32>,
+    pub role_id: Option<String>,
+    pub redirect: Option<String>,
+    pub status: Option<i32>,
 }
 
 #[patch("/app/{id}")]
 #[access_update("app")]
+#[crud_update(app, name, icon, des, join_method, role_id, redirect, status)]
 pub async fn update(
     id: web::Path<String>,
     stat: web::Data<AppState>,
     data: web::Json<UpdateOpt>,
 ) -> Result<impl Responder> {
-    let data = data.into_inner();
-    let id = id.into_inner();
-    let obj = app::Entity::find_by_id(&id).one(stat.db()).await?;
-    let mut obj: app::ActiveModel = match obj {
-        Some(o) => o.into(),
-        None => return Err(Error::NotFound(id)),
-    };
-    if let Some(name) = data.name {
-        obj.name = sea_orm::Set(name)
-    };
-
-    let obj = obj.update(stat.db()).await?;
-    Ok(web::Json(obj))
+    Ok("")
 }
 
 #[delete("/app/{id}")]

@@ -2,15 +2,12 @@
 name = "oab"
 version = "0.1.0"
 edition = "2021"
-default-run = "web"
 
-[[bin]]
-name = "web"
-path = "src/main.rs"
+# default-run = "web"
+# [[bin]]
+# name = "web"
+# path = "src/main.rs"
 
-[[bin]]
-name = "test"
-path = "src/test.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

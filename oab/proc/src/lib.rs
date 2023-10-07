@@ -9,7 +9,9 @@ use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
 use syn::{parse_macro_input, AttributeArgs, ItemFn};
 mod access;
+mod curd;
 use access::AccessWrap;
+use curd::CrudWrap;
 
 #[proc_macro_attribute]
 pub fn have_access(args: TokenStream, input: TokenStream) -> TokenStream {
@@ -41,6 +43,21 @@ fn check_permissions(cb_fn: Option<&str>, args: TokenStream, input: TokenStream)
     let func = parse_macro_input!(input as ItemFn);
 
     match AccessWrap::new(args, func, cb_fn) {
+        Ok(ac) => ac.into_token_stream().into(),
+        Err(err) => err.to_compile_error().into(),
+    }
+}
+
+#[proc_macro_attribute]
+pub fn crud_update(args: TokenStream, input: TokenStream) -> TokenStream {
+    derive_crud(3, args, input)
+}
+
+fn derive_crud(method: i32, args: TokenStream, input: TokenStream) -> TokenStream {
+    let args = parse_macro_input!(args as AttributeArgs);
+    let func = parse_macro_input!(input as ItemFn);
+
+    match CrudWrap::new(args, func, method) {
         Ok(ac) => ac.into_token_stream().into(),
         Err(err) => err.to_compile_error().into(),
     }

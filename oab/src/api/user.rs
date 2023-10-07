@@ -9,7 +9,7 @@ use std::fmt::Debug;
 
 use crate::{
     libs,
-    models::{self, access, app, app_user, user, user_role, AUStatus, UserPlugin},
+    models::{self, app_user, user, AUStatus, UserPlugin},
     AppState, Error, Result,
 };
 use actix_web::{delete, get, head, http, post, web, HttpResponse, Responder};
@@ -17,7 +17,7 @@ use base64;
 use proc::access_read;
 use rand::Rng;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, ConnectionTrait, DatabaseConnection, DatabaseTransaction,
+    ActiveModelTrait, ColumnTrait,
     EntityTrait, QueryFilter, TransactionTrait,
 };
 use serde::{Deserialize, Serialize};

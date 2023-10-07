@@ -1,10 +1,10 @@
-use actix_cors::Cors;
 //
 // main.rs
 // Copyright (C) 2022 veypi <i@veypi.com>
 // 2022-07-07 23:51
 // Distributed under terms of the Apache license.
 //
+
 use actix_files as fs;
 use actix_web::{
     dev::{self, Service},

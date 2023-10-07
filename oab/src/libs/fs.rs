@@ -86,7 +86,7 @@ pub async fn dav_handler(
             warn!("handle file failed: {}", e);
             if is_request_preflight(&req) {
                 let origin = match req.request.headers().get("Origin") {
-                    Some(o) => o.to_str().unwrap().clone(),
+                    Some(o) => o.to_str().unwrap(),
                     None => "",
                 };
                 Response::builder()
