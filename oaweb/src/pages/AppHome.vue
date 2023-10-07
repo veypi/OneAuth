@@ -12,50 +12,47 @@
           ''
       }" round icon="save_as" class="" />
     </q-page-sticky>
-    <div v-if="edit_mode" id="vditor"></div>
-    <div v-else>
-      {{ app }}
-    </div>
+    <Editor v-if="app.id" :eid="app.id + '.des'" :content="app.des" @updated="save"></Editor>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { inject, onMounted, ref } from 'vue';
+import { inject, onMounted, ref, Ref } from 'vue';
 import { modelsApp } from 'src/models';
-import Vditor from 'vditor';
 import api from 'src/boot/api';
+import msg from '@veypi/msg';
+import Editor from 'src/components/editor'
+
+
+
 
 let edit_mode = ref(false)
 
-const vditor = ref<Vditor | null>(null);
+let app = inject('app') as Ref<modelsApp>
 
+const save = (des: string) => {
+  api.app.update(app.value.id, { des: des }).then(e => {
+    edit_mode.value = false
+    app.value.des = des as string
+  }).catch(e => {
+    msg.Warn("更新失败: " + e)
+  })
+}
 
-
-let app = inject('app') as modelsApp
 
 const sync_editor = () => {
   if (edit_mode.value) {
-    api.app.update(app.id, { des: "" }).then(e => {
-      edit_mode.value = false
-      console.log(e)
-    })
-    return
+    // console.log(editor.getHtml())
+    // let des = editor.getValue()
+    // return
   }
   edit_mode.value = true
-  setTimeout(() => {
-    vditor.value = new Vditor('vditor', {
-      toolbarConfig: {
-        hide: true
-      },
-      after: () => {
-        // vditor.value is a instance of Vditor now and thus can be safely used here
-        vditor.value!.setValue('Vue Composition API + Vditor + TypeScript Minimal Example');
-      },
-    });
-  }, 0)
 }
 
+
+
 onMounted(() => {
+
 })
 </script>
 

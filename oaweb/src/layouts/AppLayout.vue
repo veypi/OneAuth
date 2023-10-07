@@ -12,7 +12,7 @@
       </q-avatar>
       <h1 class="text-4xl">{{ app.name }}</h1>
     </div>
-    <router-view :data="{ a: 1 }" />
+    <router-view :app="app" :data="{ a: 1 }" />
   </div>
 </template>
 

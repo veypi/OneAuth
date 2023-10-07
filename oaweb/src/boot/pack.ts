@@ -12,9 +12,10 @@ import '@veypi/msg/index.css'
 import { conf } from '@veypi/msg'
 import '../assets/icon.js'
 import '@veypi/oaer/dist/index.css'
+import 'cherry-markdown/dist/cherry-markdown.css';
+
 import { Cfg } from '@veypi/oaer'
 
-import 'vditor/dist/index.css';
 
 conf.timeout = 5000
 
