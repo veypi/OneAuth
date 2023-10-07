@@ -7,6 +7,7 @@
 
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import msg from '@veypi/msg'
+import util from 'src/libs/util';
 
 // Be careful when using SSR for cross-request state pollution
 // due to creating a Singleton instance here;
@@ -27,7 +28,7 @@ const proxy = axios.create({
 // 请求拦截
 const beforeRequest = (config: any) => {
   // 设置 token
-  const token = localStorage.getItem('auth_token')
+  const token = util.getToken()
   // NOTE  添加自定义头部
   token && (config.headers.auth_token = token)
   // config.headers['auth_token'] = ''

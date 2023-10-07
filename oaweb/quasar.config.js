@@ -11,6 +11,7 @@
 
 const { configure } = require('quasar/wrappers');
 const path = require('path');
+const pluginRewriteAll = require('vite-plugin-rewrite-all');
 
 module.exports = configure(function(/* ctx */) {
   return {
@@ -68,7 +69,7 @@ module.exports = configure(function(/* ctx */) {
         node: 'node16'
       },
 
-      vueRouterMode: 'hash', // available values: 'hash', 'history'
+      vueRouterMode: 'history', // available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,
@@ -93,6 +94,7 @@ module.exports = configure(function(/* ctx */) {
       // viteVuePluginOptions: {},
 
       vitePlugins: [
+        pluginRewriteAll.default(),
         ['@intlify/vite-plugin-vue-i18n', {
           // if you want to use Vue I18n Legacy API, you need to set `compositionOnly: false`
           // compositionOnly: false,

@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-center items-center w-full h-full">
     <div class="text-center text-xl">
-      <q-icon style="font-size: 200px" name="svguse:#icon-404"></q-icon>
+      <q-icon style="font-size: 200px" name="v-404"></q-icon>
       <div>
         路径失效啦! {{ count }}秒
       </div>

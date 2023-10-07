@@ -162,6 +162,12 @@ impl From<aes_gcm::Error> for Error {
     }
 }
 
+impl From<actix_multipart::MultipartError> for Error {
+    fn from(e: actix_multipart::MultipartError) -> Self {
+        Error::BusinessException(format!("{:?}", e))
+    }
+}
+
 impl From<Box<dyn std::fmt::Display>> for Error {
     fn from(e: Box<dyn std::fmt::Display>) -> Self {
         Error::BusinessException(format!("{}", e))

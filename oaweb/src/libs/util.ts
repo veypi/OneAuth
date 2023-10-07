@@ -1,4 +1,5 @@
 import axios from 'axios'
+import evt from './evt'
 
 function padLeftZero(str: string): string {
   return ('00' + str).substr(str.length)
@@ -38,7 +39,11 @@ const util = {
       name + '=' + escape(value) + ';expires=' + exp.toLocaleString()
   },
   getToken() {
-    return localStorage.auth_token
+    return localStorage.getItem('auth_token') || ''
+  },
+  setToken(t: string) {
+    evt.emit('token', t)
+    localStorage.setItem('auth_token', t)
   },
   addTokenOf(url: string) {
     return url + '?auth_token=' + encodeURIComponent(this.getToken())

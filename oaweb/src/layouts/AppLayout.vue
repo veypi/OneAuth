@@ -50,25 +50,25 @@ const Links = ref([
   {
     title: '应用中心',
     caption: '',
-    icon: 'apps',
+    icon: 'v-apps',
     to: { name: 'home' }
   },
   {
     title: '',
     caption: '',
-    icon: 'home',
+    icon: 'v-home',
     to: { name: 'app.home', params: { id: id.value } }
   },
   {
     title: '用户管理',
     caption: 'oa.veypi.com',
-    icon: 'people',
+    icon: 'v-team',
     to: { name: 'app.user', params: { id: id.value } }
   },
   {
     title: '应用设置',
     caption: '',
-    icon: 'settings',
+    icon: 'v-setting',
     to: { name: 'app.settings', params: { id: id.value } }
   },
 ] as MenuLink[])

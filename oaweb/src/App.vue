@@ -14,12 +14,13 @@ $q.iconMapFn = (iconName) => {
 
   // your custom approach, the following
   // is just an example:
-  if (iconName.startsWith('app:') === true) {
+  if (iconName.startsWith('v-') === true) {
     // we strip the "app:" part
-    const name = iconName.substring(4)
+    const name = iconName.substring(2)
+    console.log(name)
 
     return {
-      cls: 'my-app-icon ' + name
+      icon: 'svguse:#icon-' + name
     }
   }
 }
@@ -39,10 +40,10 @@ body,
 }
 
 .page-h1 {
-  font-size: 1.5rem;
-  line-height: 2rem;
+  font-size: 2.5rem;
+  line-height: 2.5rem;
   margin-left: 2.5rem;
-  margin-top: 1.25rem;
-  margin-bottom: 1.25rem;
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
 }
 </style>

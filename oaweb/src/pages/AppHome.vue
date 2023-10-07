@@ -12,16 +12,17 @@
           ''
       }" round icon="save_as" class="" />
     </q-page-sticky>
-    <Editor v-if="app.id" :eid="app.id + '.des'" :content="app.des" @updated="save"></Editor>
+    <Editor v-if="app.id" :eid="app.id + '.des'" :preview="!edit_mode" :content="content" @updated="save"></Editor>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { inject, onMounted, ref, Ref } from 'vue';
+import { computed, inject, onMounted, ref, Ref, watch } from 'vue';
 import { modelsApp } from 'src/models';
 import api from 'src/boot/api';
 import msg from '@veypi/msg';
 import Editor from 'src/components/editor'
+import oafs from 'src/libs/oafs';
 
 
 
@@ -29,11 +30,23 @@ import Editor from 'src/components/editor'
 let edit_mode = ref(false)
 
 let app = inject('app') as Ref<modelsApp>
+let content = ref()
+
+watch(computed(() => app.value.id), () => {
+  if (app.value.des) {
+    oafs.get(app.value.des).then(e => content.value = e)
+  }
+})
 
 const save = (des: string) => {
-  api.app.update(app.value.id, { des: des }).then(e => {
-    edit_mode.value = false
-    app.value.des = des as string
+  let a = new File([des], app.value.name + '.md');
+  oafs.upload([a]).then(url => {
+    api.app.update(app.value.id, { des: url[0] }).then(e => {
+      edit_mode.value = false
+      app.value.des = url[0]
+    }).catch(e => {
+      msg.Warn("更新失败: " + e)
+    })
   }).catch(e => {
     msg.Warn("更新失败: " + e)
   })
@@ -41,12 +54,7 @@ const save = (des: string) => {
 
 
 const sync_editor = () => {
-  if (edit_mode.value) {
-    // console.log(editor.getHtml())
-    // let des = editor.getValue()
-    // return
-  }
-  edit_mode.value = true
+  edit_mode.value = !edit_mode.value
 }
 
 

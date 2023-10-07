@@ -9,6 +9,17 @@ import { RouteLocationRaw } from 'vue-router';
 
 export { type Auths, type modelsSimpleAuth, NewAuths, R } from './auth'
 
+export interface DocItem {
+  name: string
+  url: string
+  version?: string
+
+}
+export interface DocGroup {
+  name: string
+  icon: string
+  items?: DocItem[]
+}
 
 export interface MenuLink {
   title: string;

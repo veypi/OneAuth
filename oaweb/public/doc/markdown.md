@@ -20,18 +20,18 @@
 **示例**
 
 ```
-[!!#ff0000 红色超链接!!](http://www.qq.com)
-[!!#ffffff !!!#000000 黑底白字超链接!!!!!](http://www.qq.com)
-[新窗口打开](http://www.qq.com){target=_blank}
+[!!#ff0000 红色超链接!!](http://www.google.com)
+[!!#ffffff !!!#000000 黑底白字超链接!!!!!](http://www.google.com)
+[新窗口打开](http://www.google.com){target=_blank}
 鞋子 !32 特大号!
 大头 ^`儿子`^ 和小头 ^^`爸爸`^^
 爱在~~西元前~~**当下**
 ```
 
 **效果**
-[!!#ff0000 红色超链接!!](http://www.qq.com)
-[!!#ffffff !!!#000000 黑底白字超链接!!!!!](http://www.qq.com)
-[新窗口打开](http://www.qq.com){target=_blank}
+[!!#ff0000 红色超链接!!](http://www.google.com)
+[!!#ffffff !!!#000000 黑底白字超链接!!!!!](http://www.google.com)
+[新窗口打开](http://www.google.com){target=_blank}
 鞋子 !32 特大号!
 大头 ^`儿子`^ 和小头 ^^`爸爸`^^
 爱在~~西元前~~**当下**
@@ -59,21 +59,21 @@
 **示例**
 
 ```
-这是 [腾讯网](https://www.qq.com) 的链接。
+这是 [Google](https://www.google.com) 的链接。
 这是 [一个引用的][引用一个链接] 的链接。
-这是一个包含中文的链接<https://www.qq.com?param=中文>，中文
-直接识别成链接：https://www.qq.com?param=中文，中文 用空格结束
+这是一个包含中文的链接<https://www.google.com?param=中文>，中文
+直接识别成链接：https://www.google.com?param=中文，中文 用空格结束
 [引用一个链接]
-[引用一个链接]: https://www.qq.com
+[引用一个链接]: https://www.google.com
 ```
 
 **效果**
-这是 [腾讯网](https://www.qq.com) 的链接。
+这是 [Google](https://www.google.com) 的链接。
 这是 [一个引用的][引用一个链接] 的链接。
-这是一个包含中文的链接<https://www.qq.com?param=中文>，中文
-直接识别成链接：https://www.qq.com?param=中文，中文 用空格结束
+这是一个包含中文的链接<https://www.google.com?param=中文>，中文
+直接识别成链接：https://www.google.com?param=中文，中文 用空格结束
 [引用一个链接]
-[引用一个链接]: https://www.qq.com
+[引用一个链接]: https://www.google.com
 
 ---
 
@@ -217,33 +217,33 @@
 **示例**
 
 ```
-标准图片  ![一条dog#100px](images/demo-dog.png)
-设置图片大小(相对大小&绝对大小)  ![一条dog#10%#50px](images/demo-dog.png)
+标准图片  ![一条dog#100px](/cherry/images/demo-dog.png)
+设置图片大小(相对大小&绝对大小)  ![一条dog#10%#50px](/cherry/images/demo-dog.png)
 设置图片对齐方式：
 **左对齐+边框**
-![一条dog#auto#100px#left#border](images/demo-dog.png)
+![一条dog#auto#100px#left#border](/cherry/images/demo-dog.png)
 **居中+边框+阴影**
-![一条dog#auto#100px#center#B#shadow](images/demo-dog.png)
+![一条dog#auto#100px#center#B#shadow](/cherry/images/demo-dog.png)
 **右对齐+边框+阴影+圆角**
-![一条dog#auto#100px#right#B#S#radius](images/demo-dog.png)
+![一条dog#auto#100px#right#B#S#radius](/cherry/images/demo-dog.png)
 **浮动左对齐+边框+阴影+圆角**
-![一条dog#auto#100px#float-left#B#S#R](images/demo-dog.png)
+![一条dog#auto#100px#float-left#B#S#R](/cherry/images/demo-dog.png)
 开心也是一天，不开心也是一天
 这样就过了两天，汪
 ```
 
 **效果**
-标准图片  ![一条dog#100px](images/demo-dog.png)
-设置图片大小(相对大小&绝对大小)  ![一条dog#10%#50px](images/demo-dog.png)
+标准图片  ![一条dog#100px](/cherry/images/demo-dog.png)
+设置图片大小(相对大小&绝对大小)  ![一条dog#10%#50px](/cherry/images/demo-dog.png)
 设置图片对齐方式：
 **左对齐+边框**
-![一条dog#auto#100px#left#border](images/demo-dog.png)
+![一条dog#auto#100px#left#border](/cherry/images/demo-dog.png)
 **居中+边框+阴影**
-![一条dog#auto#100px#center#B#shadow](images/demo-dog.png)
+![一条dog#auto#100px#center#B#shadow](/cherry/images/demo-dog.png)
 **右对齐+边框+阴影+圆角**
-![一条dog#auto#100px#right#B#S#radius](images/demo-dog.png)
+![一条dog#auto#100px#right#B#S#radius](/cherry/images/demo-dog.png)
 **浮动左对齐+边框+阴影+圆角**
-![一条dog#auto#100px#float-left#B#S#R](images/demo-dog.png)
+![一条dog#auto#100px#float-left#B#S#R](/cherry/images/demo-dog.png)
 开心也是一天，不开心也是一天
 这样就过了两天，汪
 
@@ -443,14 +443,14 @@ $$
 **示例**
 
 ```
-这是个演示视频  !video[不带封面演示视频](images/demo.mp4)
-这是个演示视频  !video[带封面演示视频](images/demo.mp4){poster=images/demo-dog.png}
+这是个演示视频  !video[不带封面演示视频](/cherry/images/demo.mp4)
+这是个演示视频  !video[带封面演示视频](/cherry/images/demo.mp4){poster=images/demo-dog.png}
 这是个假音频!audio[描述](视频链接地址)
 ```
 **效果**
 
-这是个演示视频  !video[不带封面演示视频](images/demo.mp4)
-这是个演示视频  !video[带封面演示视频](images/demo.mp4){poster=images/demo-dog.png}
+这是个演示视频  !video[不带封面演示视频](/cherry/images/demo.mp4)
+这是个演示视频  !video[带封面演示视频](/cherry/images/demo.mp4){poster=images/demo-dog.png}
 这是个假音频!audio[描述](视频链接地址)
 
 
@@ -679,7 +679,7 @@ title 饼图
 
 
 ## 通过快捷按钮修改字体样式
-![bubble menu](images/feature_font.png)
+![bubble menu](/cherry/images/feature_font.png)
 
 
 -----
@@ -692,7 +692,7 @@ title 饼图
 - 可以拖拽调整预览区域的宽度
 
 
-![copy and paste](images/feature_copy.gif)
+![copy and paste](/cherry/images/feature_copy.gif)
 
 
 -----
@@ -761,24 +761,24 @@ title 饼图
 
 > 其中，`宽度`、`高度`支持：绝对像素值（比如200px）、相对外层容器百分比（比如50%），
 `对齐方式`候选值有：左对齐（缺省）、右对齐（right）、居中（center）、悬浮左、右对齐（float-left/right）
-![图片尺寸](images/feature_image_size.png)
+![图片尺寸](/cherry/images/feature_image_size.png)
 
 -----
 
 ### 特性 2：根据表格内容生成图表
-![表格图表](images/feature_table_chart.png)
+![表格图表](/cherry/images/feature_table_chart.png)
 
 -----
 
 ### 特性 3：字体颜色、字体大小
-![字体样式](images/feature_font.png)
+![字体样式](/cherry/images/feature_font.png)
 
 ------
 
 ## 功能特性
 
 ### 特性 1：复制Html粘贴成MD语法
-![html转md](images/feature_copy.gif)
+![html转md](/cherry/images/feature_copy.gif)
 
 #### 使用场景
 
@@ -788,7 +788,7 @@ title 饼图
 ----
 
 ### 特性 2：经典换行&常规换行
-![br](images/feature_br.gif)
+![br](/cherry/images/feature_br.gif)
 
 #### 使用场景
 
@@ -797,17 +797,17 @@ title 饼图
 -----
 
 ### 特性 3: 多光标编辑
-![br](images/feature_cursor.gif)
+![br](/cherry/images/feature_cursor.gif)
 
 #### 使用场景
 
 想要批量修改？可以试试多光标编辑（快捷键、搜索多光标选中等功能正在开发中）
 
 ### 特性 4：图片尺寸
-![wysiwyg](images/feature_image_wysiwyg.gif)
+![wysiwyg](/cherry/images/feature_image_wysiwyg.gif)
 
 ### 特性 5：导出
-![wysiwyg](images/feature_export.png)
+![wysiwyg](/cherry/images/feature_export.png)
 
 -------
 
@@ -817,10 +817,10 @@ title 饼图
 
 > CherryMarkdown会判断用户到底变更了哪个段落，做到只渲染变更的段落，从而提升修改时的渲染性能
 
-![wysiwyg](images/feature_myers.png)
+![wysiwyg](/cherry/images/feature_myers.png)
 
 ### 局部更新
 
 > CherryMarkdown利用virtual dom机制实现对预览区域需要变更的内容进行局部更新的功能，从而减少了浏览器Dom操作，提高了修改时预览内容更新的性能
 
-![wysiwyg](images/feature_vdom.gif)
+![wysiwyg](/cherry/images/feature_vdom.gif)

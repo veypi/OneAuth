@@ -7,11 +7,12 @@
 //
 
 use actix_multipart::form::{tempfile::TempFile, MultipartForm};
+
 use actix_web::{post, web, Responder};
 use proc::access_read;
 use tracing::{info, warn};
 
-use crate::{AppState, Error, Result};
+use crate::{models::Token, AppState, Error, Result};
 
 #[derive(Debug, MultipartForm)]
 struct UploadForm {
@@ -22,27 +23,28 @@ struct UploadForm {
 #[access_read("app")]
 async fn save_files(
     MultipartForm(form): MultipartForm<UploadForm>,
+    t: web::ReqData<Token>,
     stat: web::Data<AppState>,
 ) -> Result<impl Responder> {
     let l = form.files.len();
+    let t = t.into_inner();
     let mut res: Vec<String> = Vec::new();
     info!("!|||||||||||_{}_|", l);
-    for f in form.files {
-        info!("saving to {:#?}", f);
-        let fname = f.file_name.unwrap();
-        let path = format!("{}tmp/{}", stat.media_path, fname);
+    form.files.into_iter().for_each(|v| {
+        let fname = v.file_name.unwrap_or("unknown".to_string());
+        let path = format!("{}tmp/{}.{}", stat.media_path, t.id, fname);
         info!("saving to {path}");
-        match f.file.persist(path) {
-            Ok(t) => {
-                info!("{:#?}", t);
-                res.push(format!("/media/tmp/{}", fname))
+        match v.file.persist(path) {
+            Ok(p) => {
+                info!("{:#?}", p);
+                res.push(format!("/media/tmp/{}.{}", t.id, fname))
             }
             Err(e) => {
                 warn!("{}", e);
-                return Err(Error::InternalServerError);
+                // return Err(Error::InternalServerError);
             }
         };
-    }
+    });
 
     Ok(web::Json(res))
 }

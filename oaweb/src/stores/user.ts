@@ -11,6 +11,7 @@ import { Auths, modelsUser, NewAuths } from 'src/models';
 import { Base64 } from 'js-base64'
 import router from 'src/router';
 import api from 'src/boot/api';
+import util from 'src/libs/util';
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -24,11 +25,11 @@ export const useUserStore = defineStore('user', {
   actions: {
     logout() {
       this.ready = false
-      localStorage.removeItem('auth_token')
+      util.setToken('')
       router.push({ name: 'login' })
     },
     fetchUserData() {
-      let token = localStorage.getItem('auth_token')?.split('.');
+      let token = util.getToken().split('.');
       if (!token || token.length !== 3) {
         return false
       }

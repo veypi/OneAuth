@@ -54,7 +54,7 @@ const onSubmit = () => {
   console.log(data.value)
   api.user.login(data.value.username,
     data.value.password).then((data: any) => {
-      localStorage.auth_token = data.auth_token
+      util.setToken(data.auth_token)
       msg.Info('登录成功')
       user.fetchUserData()
       let url = route.query.redirect || data.redirect || '/'

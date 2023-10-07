@@ -13,19 +13,29 @@ const defaultLinks: MenuLink[] = [
   {
     title: '应用中心',
     caption: '',
-    icon: 'apps',
+    icon: 'v-apps',
     to: { name: 'home' }
   },
   {
+    title: '文件管理',
+    caption: '',
+    icon: 'v-folder',
+    to: { name: 'fs' }
+  },
+  {
     title: '账号设置',
-    caption: 'oa.veypi.com',
-    icon: 'person',
+    icon: 'v-user',
     to: { name: 'user' }
+  },
+  {
+    title: '文档中心',
+    icon: 'v-file-exception',
+    to: { name: 'doc' }
   },
   {
     title: '设置',
     caption: '',
-    icon: 'settings',
+    icon: 'v-setting',
     to: { name: 'settings' }
   },
 ]
