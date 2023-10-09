@@ -17,7 +17,6 @@ $q.iconMapFn = (iconName) => {
   if (iconName.startsWith('v-') === true) {
     // we strip the "app:" part
     const name = iconName.substring(2)
-    console.log(name)
 
     return {
       icon: 'svguse:#icon-' + name

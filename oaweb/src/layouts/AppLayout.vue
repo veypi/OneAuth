@@ -6,13 +6,17 @@
  -->
 <template>
   <div class="p-4">
-    <div class="flex items-center">
+    <div class="flex items-center mb-8">
       <q-avatar class="mx-2" round size="4rem">
         <img :src="app.icon">
       </q-avatar>
       <h1 class="text-4xl">{{ app.name }}</h1>
     </div>
-    <router-view :app="app" :data="{ a: 1 }" />
+    <router-view v-slot="{ Component }">
+      <transition mode="out-in" enter-active-class="animate__fadeIn" leave-active-class="animate__fadeOut">
+        <component class="animate__animated animate__400ms" :is="Component"></component>
+      </transition>
+    </router-view>
   </div>
 </template>
 
@@ -61,9 +65,13 @@ const Links = ref([
   },
   {
     title: '用户管理',
-    caption: 'oa.veypi.com',
     icon: 'v-team',
     to: { name: 'app.user', params: { id: id.value } }
+  },
+  {
+    title: '权限管理',
+    icon: 'v-key',
+    to: { name: 'app.auth', params: { id: id.value } }
   },
   {
     title: '应用设置',

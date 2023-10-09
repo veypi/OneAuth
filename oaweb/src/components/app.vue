@@ -10,7 +10,7 @@
         <div class="h-10 flex items-center text-2xl italic font-bold">
           {{ core.name }}
         </div>
-        <span class="truncate">{{ core.des }}</span>
+        <span class="truncate">{{ }}</span>
       </div>
     </div>
   </div>

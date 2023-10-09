@@ -60,7 +60,7 @@ const basicConfig: CherryOptions = {
     changeString2Pinyin: (s) => s,
   },
   isPreviewOnly: false,
-  fileUpload: (f) => { console.log('uploading file' + f.name) },
+  fileUpload: (f) => { console.log('upload file: ' + f) },
   fileTypeLimitMap: {
     video: "",
     audio: "",
@@ -94,13 +94,14 @@ const basicConfig: CherryOptions = {
       mathBlock: {
         engine: 'MathJax', // katex或MathJax
         // src: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js', // 如果使用MathJax plugins，则需要使用该url通过script标签引入
+        src: '/deps/mathjax/tex-svg.js',
       },
       inlineMath: {
         engine: 'MathJax', // katex或MathJax
       },
       emoji: {
         useUnicode: false,
-        customResourceURL: 'https://github.githubassets.com/images/icons/emoji/unicode/${code}.png?v8',
+        // customResourceURL: 'https://github.githubassets.com/images/icons/emoji/unicode/${code}.png?v8',
         upperCase: true,
       },
       // toc: {

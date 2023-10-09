@@ -42,13 +42,13 @@
         </router-view>
       </q-page>
     </q-page-container>
-    <!-- <q-footer bordered class="bg-grey-8 text-white flex justify-around"> -->
-    <!--   <span class="hover:text-black cursor-pointer" @click="$router.push({ name: 'about' })">关于OA</span> -->
-    <!--   <span class="hover:text-black cursor-pointer">使用须知</span> -->
-    <!--   <span class="hover:text-black cursor-pointer" @click="util.goto('https://veypi.com')"> -->
-    <!--     ©2021 veypi -->
-    <!--   </span> -->
-    <!-- </q-footer> -->
+    <q-footer bordered class="bg-grey-8 text-white flex justify-around">
+      <span class="hover:text-black cursor-pointer" @click="$router.push({ name: 'about' })">关于OA</span>
+      <span class="hover:text-black cursor-pointer">使用须知</span>
+      <span class="hover:text-black cursor-pointer" @click="util.goto('https://veypi.com')">
+        ©2021 veypi
+      </span>
+    </q-footer>
 
   </q-layout>
 </template>
@@ -59,6 +59,7 @@ import { useRouter } from 'vue-router';
 import Menu from 'src/components/menu.vue'
 import { useUserStore } from 'src/stores/user';
 import { OAer } from "@veypi/oaer";
+import { util } from 'src/libs';
 
 const user = useUserStore()
 const router = useRouter()
@@ -75,7 +76,7 @@ function toggleLeftDrawer() {
 }
 </script>
 
-<style scoped>
+<style>
 .animate__400ms {
   --animate-duration: 300ms;
 }

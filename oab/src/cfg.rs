@@ -125,7 +125,7 @@ impl AppState {
             db_url: "localhost:3306".to_string(),
             db_user: "root".to_string(),
             db_pass: "123456".to_string(),
-            db_name: "test".to_string(),
+            db_name: "oneauth".to_string(),
             log_dir: None,
             log_temp_size: None,
             log_pack_compress: None,

@@ -8,8 +8,8 @@
 CREATE TABLE IF NOT EXISTS `user`
 (
     `id`            varchar(32)  NOT NULL DEFAULT '' COMMENT 'User UUID',
-    `created`       datetime DEFAULT CURRENT_TIMESTAMP,
-    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created`       datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
 
     `username`      varchar(255) NOT NULL UNIQUE,
     `nickname`      varchar(255),
@@ -29,8 +29,8 @@ CREATE TABLE IF NOT EXISTS `user`
 CREATE TABLE IF NOT EXISTS `app`
 (
     `id`            varchar(32)  NOT NULL,
-    `created`       datetime DEFAULT CURRENT_TIMESTAMP,
-    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created`       datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
 
     `_key`           varchar(32) NOT NULL,
     `name`          varchar(255) NOT NULL,
@@ -49,8 +49,8 @@ CREATE TABLE IF NOT EXISTS `app`
 
 CREATE TABLE IF NOT EXISTS `app_user`
 (
-    `created`       datetime DEFAULT CURRENT_TIMESTAMP,
-    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created`       datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
 
     `app_id`        varchar(32) NOT NULL,
     `user_id`       varchar(32) NOT NULL,
@@ -66,8 +66,8 @@ CREATE TABLE IF NOT EXISTS `app_user`
 CREATE TABLE IF NOT EXISTS `role`
 (
     `id`            varchar(32)  NOT NULL,
-    `created`       datetime DEFAULT CURRENT_TIMESTAMP,
-    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created`       datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
     `app_id`        varchar(32) NOT NULL,
 
     `name`          varchar(255) NOT NULL,
@@ -80,8 +80,8 @@ CREATE TABLE IF NOT EXISTS `role`
 
 CREATE TABLE IF NOT EXISTS `user_role`
 (
-    `created`       datetime DEFAULT CURRENT_TIMESTAMP,
-    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created`       datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
 
     `user_id`       varchar(32) NOT NULL,
     `role_id`        varchar(32) NOT NULL,
@@ -94,8 +94,8 @@ CREATE TABLE IF NOT EXISTS `user_role`
 
 CREATE TABLE IF NOT EXISTS `resource`
 (
-    `created`       datetime DEFAULT CURRENT_TIMESTAMP,
-    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created`       datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
 
     `app_id`        varchar(32) NOT NULL,
     `name`          varchar(32) NOT NULL,
@@ -110,8 +110,8 @@ CREATE TABLE IF NOT EXISTS `resource`
 CREATE TABLE IF NOT EXISTS `access`
 (
     `id`            int NOT NULL AUTO_INCREMENT,
-    `created`       datetime DEFAULT CURRENT_TIMESTAMP,
-    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created`       datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
 
     `app_id`        varchar(32) NOT NULL,
     `name`          varchar(32) NOT NULL,

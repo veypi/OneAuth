@@ -16,6 +16,7 @@ import Cherry from 'cherry-markdown';
 import options from './options'
 import { computed, onMounted, ref, watch } from 'vue';
 import { CherryOptions } from 'cherry-markdown/types/cherry';
+import oafs from 'src/libs/oafs';
 
 let editor = {} as Cherry;
 let emits = defineEmits<{
@@ -23,8 +24,9 @@ let emits = defineEmits<{
 }>()
 let props = withDefaults(defineProps<{
   eid?: string,
-  content?: string
-  preview?: boolean
+  content?: string,
+  preview?: boolean,
+  static_dir?: string,
 }>(),
   {
     eid: 'v-editor',
@@ -52,12 +54,31 @@ const set_mode = (preview: boolean) => {
   editor.switchModel(preview ? 'previewOnly' : 'edit&preview')
 }
 
+const fileUpload = (f: File, cb: (url: string, params: any) => void) => {
+  /**
+   * @param params.name 回填的alt信息
+   * @param params.poster 封面图片地址（视频的场景下生效）
+   * @param params.isBorder 是否有边框样式（图片场景下生效）
+   * @param params.isShadow 是否有阴影样式（图片场景下生效）
+   * @param params.isRadius 是否有圆角样式（图片场景下生效）
+   * @param params.width 设置宽度，可以是像素、也可以是百分比（图片、视频场景下生效）
+   * @param params.height 设置高度，可以是像素、也可以是百分比（图片、视频场景下生效）
+   */
+  console.log('uploading file' + f.name)
+  let url = '/abc/'
+  oafs.appdav().upload(url, oafs.rename(f.name), f).then((e: any) => {
+    cb(e, {
+      name: f.name, isBorder: false, isShadow: false, isRadius: false, width: '80%', height: '80%',
+    })
+  })
+}
 const init = () => {
   let config = {
     value: props.content,
     id: props.eid,
     // isPreviewOnly: props.preview,
     callback: {},
+    fileUpload: fileUpload,
   } as CherryOptions;
   config.callback.afterInit = () => {
   }

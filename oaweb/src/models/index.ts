@@ -85,6 +85,8 @@ export enum AUStatus {
 }
 
 export interface modelsAppUser {
+  app?: modelsApp,
+  user?: modelsUser,
   app_id: string
   user_id: string
   status: AUStatus

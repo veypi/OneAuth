@@ -26,7 +26,7 @@ const routes: RouteRecordRaw[] = [
 
   {
     path: '/',
-    component: () => import('layouts/MainLayout.vue'),
+    component: () => import('../layouts/MainLayout.vue'),
     meta: {
       requiresAuth: true,
     },
@@ -44,6 +44,7 @@ const routes: RouteRecordRaw[] = [
         redirect: { name: 'app.home' },
         children: [
           loadcomponents('home', 'app.home', 'AppHome'),
+          loadcomponents('user', 'app.user', 'AppUser'),
           loadcomponents('user', 'app.user', 'AppUser'),
           loadcomponents('settings', 'app.settings', 'IndexPage'),
         ]

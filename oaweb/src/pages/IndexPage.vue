@@ -74,9 +74,9 @@ function getApps() {
   api.app.list().then(
     (e: modelsApp[]) => {
       apps.value = e;
-      api.app.user('-').list(user.id).then((aus: modelsApp[]) => {
+      api.app.user('-').list(user.id).then((aus: modelsAppUser[]) => {
         for (let i in aus) {
-          let ai = apps.value.findIndex(a => a.id === aus[i].id)
+          let ai = apps.value.findIndex(a => a.id === aus[i].app_id)
           if (ai >= 0) {
             if (aus[i].status === AUStatus.OK) {
               ofApps.value.push(apps.value[ai])

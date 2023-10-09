@@ -7,22 +7,31 @@
 
 use actix_web::{get, post, web, Responder};
 use proc::access_read;
-use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, TransactionTrait};
+use sea_orm::{ColumnTrait, EntityTrait, LoaderTrait, QueryFilter, TransactionTrait};
+use serde::{Deserialize, Serialize};
 
 use crate::{
     libs,
-    models::{app, app_user},
+    models::{self, app, app_user},
     AppState, Error, Result,
 };
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct GetOptions {
+    app: Option<bool>,
+    user: Option<bool>,
+}
 
 #[get("/app/{aid}/user/{uid}")]
 #[access_read("app")]
 pub async fn get(
     params: web::Path<(String, String)>,
     stat: web::Data<AppState>,
+    query: web::Query<GetOptions>,
 ) -> Result<impl Responder> {
     let (mut aid, mut uid) = params.into_inner();
     let mut q = app_user::Entity::find();
+    let query = query.into_inner();
     if uid == "-" {
         uid = "".to_string();
     } else {
@@ -36,19 +45,37 @@ pub async fn get(
     if uid.is_empty() && aid.is_empty() {
         Err(Error::Missing("uid or aid".to_string()))
     } else {
-        let s: Vec<(app_user::Model, Option<app::Model>)> =
-            q.find_also_related(app::Entity).all(stat.db()).await?;
-        let res: Vec<app::Model> = s
-            .into_iter()
-            .filter_map(|(l, a)| match a {
-                Some(a) => Some(app::Model {
-                    status: l.status,
-                    ..a
-                }),
-                None => None,
+        let aus = q.all(stat.db()).await?;
+        let mut res: Vec<models::UnionAppUser> = aus
+            .iter()
+            .map(|f| models::UnionAppUser {
+                app: None,
+                user: None,
+                app_id: f.app_id.clone(),
+                user_id: f.user_id.clone(),
+                status: f.status,
+                created: f.created,
+                updated: f.updated,
             })
             .collect();
-        // let s: Vec<app_user::Model> = q.all(stat.db()).await?;
+        if Some(true) == query.app {
+            aus.load_one(app::Entity, stat.db())
+                .await?
+                .into_iter()
+                .zip(res.iter_mut())
+                .for_each(|(a, b)| {
+                    b.app = a;
+                });
+        }
+        if Some(true) == query.user {
+            aus.load_one(models::user::Entity, stat.db())
+                .await?
+                .into_iter()
+                .zip(res.iter_mut())
+                .for_each(|(a, b)| {
+                    b.user = a;
+                });
+        }
         Ok(web::Json(res))
     }
 }

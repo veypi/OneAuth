@@ -33,10 +33,14 @@ let app = inject('app') as Ref<modelsApp>
 let content = ref()
 
 watch(computed(() => app.value.id), () => {
+  sync()
+})
+
+const sync = () => {
   if (app.value.des) {
     oafs.get(app.value.des).then(e => content.value = e)
   }
-})
+}
 
 const save = (des: string) => {
   let a = new File([des], app.value.name + '.md');
@@ -60,7 +64,7 @@ const sync_editor = () => {
 
 
 onMounted(() => {
-
+  sync()
 })
 </script>
 

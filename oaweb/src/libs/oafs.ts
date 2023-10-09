@@ -23,11 +23,16 @@ export interface fileProps {
 let cfg = {
   token: '',
   host: '',
+  app_id: '',
   dav: {} as WebDAVClient,
+  app_dav: {} as WebDAVClient,
 }
 
-const setCfg = (token: string) => {
-  cfg.token = token
+const setCfg = (options: any) => {
+  cfg.token = options.token
+  cfg.app_id = options.app_id
+  cfg.app_dav = createClient('/file/',
+    { headers: { auth_token: cfg.token, app_id: options.app_id } })
   cfg.dav = createClient('/file/',
     { headers: { auth_token: cfg.token } })
 }
@@ -64,25 +69,46 @@ const upload = (f: FileList | File[], renames?: string[]) => {
   })
 }
 
-
-const dav = () => {
+const get_dav = (client: WebDAVClient) => {
   return {
-    stat: cfg.dav.stat,
-    dir: cfg.dav.getDirectoryContents,
+    client: client,
+    stat: client.stat,
+    dir: client.getDirectoryContents,
     upload: (dir: string, name: string, file: any) => {
       return new Promise((resolve, reject) => {
-        let reader = new FileReader()
-        reader.onload = function(event) {
-          var res = event.target?.result
-          // let data = new Blob([res])
-          cfg.dav.putFileContents(name, res).then(e => {
-            resolve(e)
-          }).catch(reject)
+        let temp = () => {
+          let reader = new FileReader()
+          reader.onload = function(event) {
+            var res = event.target?.result
+            // let data = new Blob([res])
+            client.putFileContents(dir + name, res).then(e => {
+              if (e) {
+                resolve('/file' + dir + name)
+              }
+            }).catch(reject)
+          }
+          reader.readAsArrayBuffer(file)
         }
-        reader.readAsArrayBuffer(file)
+        client.stat(dir).then(e => {
+          temp()
+        }).catch(e => {
+          client.createDirectory(dir, { recursive: true }).then(e => {
+            temp()
+          }).catch(e => {
+            console.log(e)
+          })
+        })
       });
     }
   }
+}
+
+
+const dav = () => {
+  return get_dav(cfg.dav)
+}
+const appdav = () => {
+  return get_dav(cfg.app_dav)
 }
 
 export default {
@@ -90,4 +116,6 @@ export default {
   get,
   upload,
   dav,
+  appdav,
+  rename,
 }

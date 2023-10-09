@@ -20,7 +20,7 @@ import util from 'src/libs/util.js'
 import evt from 'src/libs/evt.js'
 
 
-oafs.setCfg(util.getToken())
+oafs.setCfg({ token: util.getToken(), app_id: 'FR9P5t8debxc11aFF' })
 Cfg.token.value = util.getToken()
 
 conf.timeout = 5000
@@ -28,7 +28,7 @@ Cfg.host.value = 'http://' + window.location.host
 Cfg.uuid.value = 'FR9P5t8debxc11aFF'
 
 evt.on('token', (t) => {
-  oafs.setCfg(util.getToken())
+  oafs.setCfg({ token: util.getToken() })
   Cfg.token.value = util.getToken()
 })
 

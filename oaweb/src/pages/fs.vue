@@ -21,7 +21,6 @@ let root = ref({} as fileProps)
 
 onMounted(() => {
   oafs.dav().stat('/').then(e => {
-    console.log(e)
     root.value = e as fileProps
   })
 })
