@@ -64,11 +64,9 @@ const fileUpload = (f: File, cb: (url: string, params: any) => void) => {
    * @param params.width 设置宽度，可以是像素、也可以是百分比（图片、视频场景下生效）
    * @param params.height 设置高度，可以是像素、也可以是百分比（图片、视频场景下生效）
    */
-  console.log('uploading file' + f.name)
-  let url = '/abc/'
-  oafs.appdav().upload(url, oafs.rename(f.name), f).then((e: any) => {
-    cb(e, {
-      name: f.name, isBorder: false, isShadow: false, isRadius: false, width: '80%', height: '80%',
+  oafs.upload([f], props.static_dir).then((e: any) => {
+    cb(e[0], {
+      name: f.name, isBorder: false, isShadow: false, isRadius: false, width: '', height: '',
     })
   })
 }
@@ -77,7 +75,8 @@ const init = () => {
     value: props.content,
     id: props.eid,
     // isPreviewOnly: props.preview,
-    callback: {},
+    callback: {
+    },
     fileUpload: fileUpload,
   } as CherryOptions;
   config.callback.afterInit = () => {

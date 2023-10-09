@@ -44,7 +44,7 @@ const sync = () => {
 
 const save = (des: string) => {
   let a = new File([des], app.value.name + '.md');
-  oafs.upload([a]).then(url => {
+  oafs.upload([a], app.value.id).then(url => {
     api.app.update(app.value.id, { des: url[0] }).then(e => {
       edit_mode.value = false
       app.value.des = url[0]

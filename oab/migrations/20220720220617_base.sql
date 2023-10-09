@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `app`
     `_key`           varchar(32) NOT NULL,
     `name`          varchar(255) NOT NULL,
     `icon`          varchar(255),
-    `des`           MEDIUMTEXT,
+    `des`           TEXT,
     `user_count`    int NOT NULL DEFAULT 0,
     `hide`          tinyint(1) NOT NULL DEFAULT 0,
     `join_method`   int NOT NULL DEFAULT 0,

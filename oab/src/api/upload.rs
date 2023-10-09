@@ -6,6 +6,8 @@
 //
 //
 
+use std::{fs, path::Path};
+
 use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 
 use actix_web::{post, web, Responder};
@@ -19,29 +21,45 @@ struct UploadForm {
     files: Vec<TempFile>,
 }
 
-#[post("/upload/")]
+#[post("/upload/{dir:.*}")]
 #[access_read("app")]
 async fn save_files(
     MultipartForm(form): MultipartForm<UploadForm>,
     t: web::ReqData<Token>,
+    dir: web::Path<String>,
     stat: web::Data<AppState>,
 ) -> Result<impl Responder> {
-    let l = form.files.len();
     let t = t.into_inner();
+    let mut dir = dir.into_inner();
+    if dir.is_empty() {
+        dir = "tmp".to_string();
+    }
     let mut res: Vec<String> = Vec::new();
-    info!("!|||||||||||_{}_|", l);
     form.files.into_iter().for_each(|v| {
         let fname = v.file_name.unwrap_or("unknown".to_string());
-        let path = format!("{}tmp/{}.{}", stat.media_path, t.id, fname);
-        info!("saving to {path}");
-        match v.file.persist(path) {
+        let root = Path::new(&stat.media_path).join(dir.clone());
+        if !root.exists() {
+            match fs::create_dir_all(root.clone()) {
+                Ok(_) => {}
+                Err(e) => {
+                    warn!("{}", e);
+                }
+            }
+        }
+        let temp_file = format!(
+            "{}/{}.{}",
+            root.to_str().unwrap_or(&stat.media_path),
+            t.id,
+            fname
+        );
+        info!("saving to {temp_file}");
+        match v.file.persist(temp_file) {
             Ok(p) => {
                 info!("{:#?}", p);
-                res.push(format!("/media/tmp/{}.{}", t.id, fname))
+                res.push(format!("/media/{}/{}.{}", dir, t.id, fname))
             }
             Err(e) => {
                 warn!("{}", e);
-                // return Err(Error::InternalServerError);
             }
         };
     });

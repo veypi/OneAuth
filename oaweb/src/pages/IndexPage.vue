@@ -32,7 +32,7 @@
           <q-form @submit="create_new">
             <q-input label="应用名" v-model="temp_app.name" :rules="rules.name"></q-input>
             <div class="flex justify-center my-4 items-center" label='icon'>
-              <uploader @success="temp_app.icon = $event">
+              <uploader @success="temp_app.icon = $event" dir="app_icon">
                 <q-avatar>
                   <img :src="temp_app.icon">
                 </q-avatar>

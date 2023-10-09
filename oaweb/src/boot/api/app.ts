@@ -40,7 +40,7 @@ export default {
       add(uid: string) {
         return ajax.post(this.local + uid)
       },
-      update(uid: number, status: string) {
+      update(uid: string, status: number) {
         return ajax.patch(this.local + uid, { status })
       },
     }

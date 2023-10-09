@@ -85,8 +85,8 @@ export enum AUStatus {
 }
 
 export interface modelsAppUser {
-  app?: modelsApp,
-  user?: modelsUser,
+  app: modelsApp,
+  user: modelsUser,
   app_id: string
   user_id: string
   status: AUStatus
@@ -105,6 +105,7 @@ export interface modelsUser {
   status: number
   used: number
   space: number
+  au: AUStatus
 
   // Index 前端缓存
   // Index?: number

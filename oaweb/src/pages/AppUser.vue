@@ -10,17 +10,17 @@
       <template v-slot:body-cell-status="props">
         <q-td :props="props">
           <div>
-            <q-chip outline :color="statusOpts[props.row.status][1]" text-color="white" icon="event">
-              {{ statusOpts[props.row.status][0] }}
+            <q-chip outline :color="auOpts[props.row.au][1]" text-color="white" icon="event">
+              {{ auOpts[props.row.au][0] }}
             </q-chip>
           </div>
-          <q-popup-edit v-model="props.row.status" v-slot="scope" buttons
-            @save="update_status(props.row.id, $event, props.row.status)" label-set="确定" label-cancel="取消">
+          <q-popup-edit v-model="props.row.au" v-slot="scope" buttons
+            @save="update_status(props.row.id, $event, props.row.au)" label-set="确定" label-cancel="取消">
             <div class="mt-4 mb-2">切换状态至</div>
             <div class="q-gutter-sm">
 
-              <q-radio :key="i" v-for="i in [0, 1, 2, 3]" keep-color v-model="scope.value" :val="i"
-                :label="statusOpts[i][0]" :color="statusOpts[i][1]" />
+              <q-radio :key="i" v-for="i in [0, 1, 2, 3]" keep-color v-model="scope.value" :val="i" :label="auOpts[i][0]"
+                :color="auOpts[i][1]" />
 
             </div>
           </q-popup-edit>
@@ -31,18 +31,18 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
-import { AUStatus, modelsAppUser } from 'src/models';
-import { QTableProps } from 'quasar';
+import { computed, inject, onMounted, Ref, ref, watch } from 'vue';
+import { AUStatus, modelsAppUser, modelsUser, modelsApp } from 'src/models';
 import api from 'src/boot/api';
-import { useAppStore } from 'src/stores/app';
+import msg from '@veypi/msg';
 
-const statusOpts: { [index: number]: any } = {
+const auOpts: { [index: number]: any } = {
   [AUStatus.OK]: ['正常', 'positive'],
   [AUStatus.Deny]: ['拒绝', 'warning'],
   [AUStatus.Applying]: ['申请中', 'primary'],
   [AUStatus.Disabled]: ['禁用', 'warning'],
 }
+let app = inject('app') as Ref<modelsApp>
 const columns = [
   {
     name: 'id',
@@ -64,23 +64,35 @@ const columns = [
   { name: 'action', field: 'action', align: 'center', label: '操作' },
 ] as any
 
-const rows = ref([
-  {
-    id: '1', username: 'name', nickname: 'asd', created: 'asdsss',
-    status: 0
-  }
-])
+const rows = ref([] as modelsUser[])
 
-const update_status = (d, s) => {
+const update_status = (id: string, n: number, old: number) => {
+  api.app.user(app.value.id).update(id, n).then(e => {
+    msg.Info('修改成功')
+  }).catch(e => {
+    let a = rows.value.find(a => a.id = id) || {} as any
+    a.status = old
+  })
 
-  console.log([d, s])
+  console.log([id, n, old])
 }
 
-onMounted(() => {
-  api.app.user(useAppStore().id).list('-', { user: true }).then((e:
+const sync = () => {
+  if (!app.value.id) {
+    return
+  }
+  api.app.user(app.value.id).list('-', { user: true }).then((e:
     modelsAppUser[]) => {
-    rows.value = e.map(i => i.user)
+    rows.value = e.map(i => {
+      i.user.au = i.status
+      return i.user
+    })
   })
+}
+watch(computed(() => app.value.id), () => sync())
+
+onMounted(() => {
+  sync()
 })
 </script>
 

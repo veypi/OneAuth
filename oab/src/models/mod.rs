@@ -27,8 +27,8 @@ pub async fn init(data: AppState) {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct UnionAppUser {
-    pub created: Option<chrono::NaiveDateTime>,
-    pub updated: Option<chrono::NaiveDateTime>,
+    pub created: chrono::NaiveDateTime,
+    pub updated: chrono::NaiveDateTime,
     pub app: Option<app::Model>,
     pub user: Option<user::Model>,
     pub app_id: String,

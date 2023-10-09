@@ -129,8 +129,8 @@ impl AppState {
             log_dir: None,
             log_temp_size: None,
             log_pack_compress: None,
-            media_path: "/Users/veypi/test/media/".to_string(),
-            fs_root: "/Users/veypi/test/media/".to_string(),
+            media_path: "/Users/veypi/test/media".to_string(),
+            fs_root: "/Users/veypi/test/media".to_string(),
             log_level: None,
             jwt_secret: None,
             _sqlx: None,
@@ -197,7 +197,7 @@ pub fn init_log() {
     tracing_subscriber::fmt()
         .with_line_number(true)
         .with_timer(FormatTime {})
-        .with_max_level(Level::DEBUG)
+        .with_max_level(Level::TRACE)
         .with_target(false)
         .with_file(true)
         .init();

@@ -29,5 +29,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         .service(app::del);
     // cfg.route("/acc", web::get().to(access::UpdateOpt::update));
 
-    cfg.service(appuser::get).service(appuser::add);
+    cfg.service(appuser::get)
+        .service(appuser::add)
+        .service(appuser::update);
 }

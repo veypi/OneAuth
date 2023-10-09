@@ -7,7 +7,7 @@
 //
 use actix_web::{delete, get, patch, post, web, Responder};
 use proc::{access_create, access_delete, access_read, access_update, crud_update};
-use sea_orm::{ActiveModelTrait, EntityTrait, TransactionTrait};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, TransactionTrait};
 use serde::{Deserialize, Serialize};
 use tracing::info;
 
@@ -93,7 +93,17 @@ pub struct UpdateOpt {
 
 #[patch("/app/{id}")]
 #[access_update("app")]
-#[crud_update(app, name, icon, des, join_method, role_id, redirect, status)]
+#[crud_update(
+    app,
+    Id = "_id",
+    name,
+    icon,
+    des,
+    join_method,
+    role_id,
+    redirect,
+    status
+)]
 pub async fn update(
     id: web::Path<String>,
     stat: web::Data<AppState>,

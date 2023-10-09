@@ -5,9 +5,11 @@
 // Distributed under terms of the MIT license.
 //
 
-use actix_web::{get, post, web, Responder};
-use proc::access_read;
-use sea_orm::{ColumnTrait, EntityTrait, LoaderTrait, QueryFilter, TransactionTrait};
+use actix_web::{get, patch, post, web, Responder};
+use proc::{access_delete, access_read, crud_update};
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, EntityTrait, LoaderTrait, QueryFilter, TransactionTrait,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -91,4 +93,20 @@ pub async fn add(
     let res = libs::user::connect_to_app(uid, aid, &db, None).await?;
     db.commit().await?;
     Ok(web::Json(res))
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct UpdateOpt {
+    pub status: Option<i32>,
+}
+
+#[patch("/app/{aid}/user/{uid}")]
+#[access_delete("app")]
+#[crud_update(app_user, AppId = "_id", UserId = "_id", status)]
+pub async fn update(
+    id: web::Path<(String, String)>,
+    data: web::Json<UpdateOpt>,
+    stat: web::Data<AppState>,
+) -> Result<impl Responder> {
+    Ok("")
 }

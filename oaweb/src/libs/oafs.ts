@@ -51,14 +51,15 @@ const get = (url: string): Promise<string> => {
   return fetch(url, { headers: { auth_token: util.getToken() } }).then((response) => response.text())
 }
 
-const upload = (f: FileList | File[], renames?: string[]) => {
+// rename 可以保持url不变
+const upload = (f: FileList | File[], dir?: string, renames?: string[]) => {
   return new Promise<string[]>((resolve, reject) => {
     var data = new FormData();
     for (let i = 0; i < f.length; i++) {
-      let nf = renames ? new File([f[i]], rename(f[i].name, renames[i]), { type: f[i].type }) : f[i]
+      let nf = new File([f[i]], rename(f[i].name, renames && renames[i] ? renames[i] : undefined), { type: f[i].type })
       data.append('files', nf, nf.name)
     }
-    axios.post("/api/upload/", data, {
+    axios.post("/api/upload/" + (dir || ''), data, {
       headers: {
         "Content-Type": 'multipart/form-data',
         'auth_token': cfg.token,

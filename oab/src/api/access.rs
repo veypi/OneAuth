@@ -8,13 +8,12 @@
 //
 use actix_web::{web, Responder};
 use proc::crud_update;
-use sea_orm::{ActiveModelTrait, EntityTrait};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, TransactionTrait};
 use serde::{Deserialize, Serialize};
 
 use crate::{models::app, AppState, Error, Result};
 
-// #[derive(Debug, Deserialize, Serialize)]
-#[derive(Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct UpdateOpt {
     pub name: Option<String>,
     pub icon: Option<String>,
@@ -25,7 +24,17 @@ pub struct UpdateOpt {
     pub status: Option<i32>,
 }
 impl UpdateOpt {
-    #[crud_update(app, name, icon, des, join_method, role_id, redirect, status)]
+    // #[crud_update(
+    //     app,
+    //     id = "Id",
+    //     name,
+    //     icon,
+    //     des,
+    //     join_method,
+    //     role_id,
+    //     redirect,
+    //     status
+    // )]
     pub async fn update(
         id: web::Path<String>,
         stat: web::Data<AppState>,

@@ -10,11 +10,14 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
-    pub created: Option<DateTime>,
-    pub updated: Option<DateTime>,
+    pub created: DateTime,
+    pub updated: DateTime,
+    #[sea_orm(column_name = "_key")]
+    #[serde(skip)]
     pub key: String,
     pub name: String,
     pub icon: Option<String>,
+    #[sea_orm(column_type = "Text", nullable)]
     pub des: Option<String>,
     pub user_count: i32,
     pub hide: i8,

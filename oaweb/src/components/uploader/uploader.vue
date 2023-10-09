@@ -16,7 +16,8 @@ let emits = defineEmits<{
 }>()
 let props = withDefaults(defineProps<{
   multiple?: boolean,
-  renames?: string
+  renames?: string,
+  dir?: string,
 }>(), {
   multiple: false,
   renames: ''
@@ -29,7 +30,7 @@ function click() {
 const upload = (evt: Event) => {
   evt.preventDefault()
   let f = (evt.target as HTMLInputElement).files as FileList
-  oafs.upload(f, props.renames?.split(/[, ]+/)).then((e: any) => {
+  oafs.upload(f, props.dir, props.renames?.split(/[, ]+/)).then((e: any) => {
     console.log(e)
     emits('success', props.multiple ? e : e[0])
   })

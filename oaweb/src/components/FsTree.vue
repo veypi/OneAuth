@@ -12,7 +12,7 @@
         '']" style="font-size: 24px;" :name="root.type ===
     'directory' ? 'v-caret-right' : 'v-file'"> </q-icon>
       <div>
-        {{ root.filename }}
+        {{ root.basename || '/' }}
       </div>
       <div class="grow"></div>
       <div>{{ new Date(root.lastmod).toLocaleString() }}</div>

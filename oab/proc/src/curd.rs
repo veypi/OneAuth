@@ -6,8 +6,8 @@
 //
 
 use proc_macro2::{Ident, Span};
-use quote::{quote, ToTokens};
-use syn::{AttributeArgs, ItemFn, NestedMeta, ReturnType};
+use quote::{format_ident, quote, ToTokens};
+use syn::{AttributeArgs, ItemFn, NestedMeta, ReturnType, Token};
 
 pub struct CrudWrap {
     func: ItemFn,
@@ -49,24 +49,61 @@ impl ToTokens for CrudWrap {
                 };
             }
         });
-
+        let (args_fields, filter_fields) = match self.args.filters.len() {
+            1 => {
+                let pair = &self.args.filters[0];
+                let k = &pair[0];
+                let _k = format_ident!("_{}", &pair[0]);
+                let v = &pair[1];
+                (
+                    vec![quote! {let #_k = #v; }],
+                    vec![quote! {
+                    filter(crate::models::#model_name::Column::#k.eq(#_k))
+                        }],
+                )
+            }
+            _ => (
+                self.args
+                    .filters
+                    .iter()
+                    .enumerate()
+                    .map(|(idx, [k, v])| {
+                        let _k = format_ident!("_{}", k);
+                        quote! {
+                            let #_k = #v.#idx;
+                        }
+                    })
+                    .collect(),
+                self.args
+                    .filters
+                    .iter()
+                    .map(|[k, _]| {
+                        let _k = format_ident!("_{}", k);
+                        quote! {
+                        filter(crate::models::#model_name::Column::#k.eq(#_k))
+                            }
+                    })
+                    .collect(),
+            ),
+        };
         let stream = quote! {
             #(#fn_attrs)*
             #func_vis #fn_async fn #fn_name #fn_generics(
                 #fn_args
             ) -> #fn_output {
-                let _id = &id.clone();
+                let _id = id.clone();
                 let _data = data.clone();
                 let _db = &stat.db().clone();
+                #(#args_fields)*
                 let f = || async move #func_block;
                 let res = f().await;
                 match res {
                     Err(e) => Err(e),
                     Ok(res) => {
-                        let obj = crate::models::#model_name::Entity::find_by_id(_id).one(_db).await?;
+                        let obj = crate::models::#model_name::Entity::find().#(#filter_fields).*.one(_db).await?;
                         let mut obj: crate::models::#model_name::ActiveModel = match obj {
                             Some(o) => o.into(),
-                            None => return Err(Error::NotFound(_id.to_owned())),
+                            None => return Err(Error::NotFound("".into())),
                         };
                         #(#builder_fields)*
                         let obj = obj.update(_db).await?;
@@ -83,12 +120,14 @@ impl ToTokens for CrudWrap {
 struct Crud {
     model: syn::Ident,
     attrs: Vec<syn::Ident>,
+    filters: Vec<[syn::Ident; 2]>,
 }
 
 impl Crud {
     fn new(args: AttributeArgs) -> syn::Result<Self> {
         let mut model: Option<syn::Ident> = None;
         let mut attrs: Vec<syn::Ident> = Vec::new();
+        let mut filters: Vec<[syn::Ident; 2]> = Vec::new();
         for arg in args {
             match arg {
                 // NestedMeta::Lit(syn::Lit::Str(lit)) => {
@@ -103,14 +142,36 @@ impl Crud {
                     }
                     None => {}
                 },
+                NestedMeta::Meta(syn::Meta::NameValue(syn::MetaNameValue {
+                    path,
+                    lit: syn::Lit::Str(lit_str),
+                    ..
+                })) => {
+                    match path.get_ident() {
+                        Some(expr) => {
+                            filters.push([expr.to_owned(), format_ident!("{}", lit_str.value())])
+                        }
+                        None => {
+                            return Err(syn::Error::new_spanned(
+                                path,
+                                "Unknown identifier. Available: 'aid='AppId'",
+                            ));
+                        }
+                    };
+                }
 
                 _ => {
                     return Err(syn::Error::new_spanned(arg, "Unknown attribute."));
                 }
             }
         }
+        println!("|||||||||||____________________");
         match model {
-            Some(model) => Ok(Self { model, attrs }),
+            Some(model) => Ok(Self {
+                model,
+                attrs,
+                filters,
+            }),
             None => Err(syn::Error::new(
                 Span::call_site(),
                 "The #[crud(..)] macro requires one `model` name",

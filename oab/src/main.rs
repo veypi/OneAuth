@@ -90,15 +90,10 @@ async fn web(data: AppState) -> Result<()> {
                                             .unwrap(),
                                         HeaderValue::from_str(&origin).unwrap(),
                                     );
-                                    headers.insert(
-                                        HeaderName::try_from("123").unwrap(),
-                                        HeaderValue::from_str("asd").unwrap(),
-                                    );
                                     Ok(expr)
                                 }
                                 Err(e) => Err(e),
                             };
-                            println!("Hi from response");
                             res
                         })
                     })
