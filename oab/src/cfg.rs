@@ -197,8 +197,8 @@ pub fn init_log() {
     tracing_subscriber::fmt()
         .with_line_number(true)
         .with_timer(FormatTime {})
-        .with_max_level(Level::TRACE)
-        .with_target(false)
-        .with_file(true)
+        .with_max_level(Level::INFO)
+        // .with_target(false)
+        // .with_file(true)
         .init();
 }

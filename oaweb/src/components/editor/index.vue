@@ -20,27 +20,22 @@ import oafs from 'src/libs/oafs';
 
 let editor = {} as Cherry;
 let emits = defineEmits<{
-  (e: 'updated', v: string): void
+  (e: 'save', v: string): void
+  (e: 'update:modelValue', v: boolean): void
 }>()
 let props = withDefaults(defineProps<{
+  modelValue: boolean,
   eid?: string,
   content?: string,
-  preview?: boolean,
   static_dir?: string,
 }>(),
   {
     eid: 'v-editor',
     content: '',
-    preview: false,
   }
 )
 
-watch(computed(() => props.preview), (e) => {
-  if (e) {
-    let des = editor.getValue()
-    console.log(des)
-    emits('updated', des)
-  }
+watch(computed(() => props.modelValue), (e) => {
   set_mode(e)
 })
 watch(computed(() => props.content), (e) => {
@@ -70,19 +65,36 @@ const fileUpload = (f: File, cb: (url: string, params: any) => void) => {
     })
   })
 }
+
+const saveMenu = Cherry.createMenuHook('保存', {
+  onClick: function () {
+    let des = editor.getValue()
+    emits('save', des)
+    return
+  }
+});
+
+const backMenu = Cherry.createMenuHook('返回', {
+  onClick: function () {
+    emits('update:modelValue', true)
+    return
+  }
+})
+
 const init = () => {
   let config = {
     value: props.content,
     id: props.eid,
-    // isPreviewOnly: props.preview,
     callback: {
     },
     fileUpload: fileUpload,
-  } as CherryOptions;
-  config.callback.afterInit = () => {
-  }
+  };
+  // @ts-ignore
+  options.toolbars.customMenu.saveMenu = saveMenu
+  // @ts-ignore
+  options.toolbars.customMenu.backMenu = backMenu
   editor = new Cherry(Object.assign({}, options, config));
-  set_mode(props.preview)
+  set_mode(props.modelValue)
 }
 
 

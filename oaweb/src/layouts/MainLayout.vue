@@ -4,7 +4,7 @@
       <q-toolbar class="pl-0">
 
         <q-toolbar-title class="flex items-center cursor-pointer" @click="router.push({ name: 'home' })">
-          <q-icon size="3rem" class="mx-1" color="aqua" name='v-glassdoor' style="color: aqua;"></q-icon>
+          <q-icon size="3rem" class="mx-1" color="#0ff" name='v-glassdoor' style="color: aqua;"></q-icon>
           <q-separator dark vertical inset />
           <span class="ml-3">
             统一认证系统
@@ -42,9 +42,9 @@
         </router-view>
       </q-page>
     </q-page-container>
-    <q-footer bordered class="bg-grey-8 text-white flex justify-around">
-      <span class="hover:text-black cursor-pointer" @click="$router.push({ name: 'about' })">关于OA</span>
-      <span class="hover:text-black cursor-pointer">使用须知</span>
+    <q-footer style="z-index: 1;" bordered class="bg-grey-8 text-white flex justify-around">
+      <span class="hover:text-black cursor-pointer" @click="$router.push({ name: 'doc' })">关于OA</span>
+      <span class="hover:text-black cursor-pointer" @click="$router.push({ name: 'doc' })">使用须知</span>
       <span class="hover:text-black cursor-pointer" @click="util.goto('https://veypi.com')">
         ©2021 veypi
       </span>

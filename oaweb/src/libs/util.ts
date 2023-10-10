@@ -42,8 +42,8 @@ const util = {
     return localStorage.getItem('auth_token') || ''
   },
   setToken(t: string) {
-    evt.emit('token', t)
     localStorage.setItem('auth_token', t)
+    evt.emit('token', t)
   },
   addTokenOf(url: string) {
     return url + '?auth_token=' + encodeURIComponent(this.getToken())

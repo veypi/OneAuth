@@ -46,7 +46,7 @@ const routes: RouteRecordRaw[] = [
           loadcomponents('home', 'app.home', 'AppHome'),
           loadcomponents('user', 'app.user', 'AppUser'),
           loadcomponents('auth', 'app.auth', 'AppAuth'),
-          loadcomponents('settings', 'app.settings', 'IndexPage'),
+          loadcomponents('settings', 'app.settings', 'AppCfg'),
         ]
       }
     ],

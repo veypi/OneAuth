@@ -7,6 +7,7 @@
 
 
 import { CherryOptions } from 'cherry-markdown/types/cherry';
+
 const basicConfig: CherryOptions = {
   id: '',
   value: '',
@@ -57,10 +58,10 @@ const basicConfig: CherryOptions = {
     },
     onClickPreview: () => { },
     onCopyCode: (e: ClipboardEvent, code: string) => code,
-    changeString2Pinyin: (s) => s,
+    changeString2Pinyin: (s: any) => s,
   },
   isPreviewOnly: false,
-  fileUpload: (f) => { console.log('upload file: ' + f) },
+  fileUpload: (f: any) => { console.log('upload file: ' + f) },
   fileTypeLimitMap: {
     video: "",
     audio: "",
@@ -72,18 +73,49 @@ const basicConfig: CherryOptions = {
   openai: false,
   engine: {
     global: {
-      urlProcessor(url, srcType) {
+      urlProcessor(url: any, srcType: any) {
         // console.log(`url-processor`, url, srcType);
         return url;
       },
     },
     syntax: {
-      codeBlock: {
-        theme: 'twilight',
+      autoLink: {
+        /** default open short link display */
+        enableShortLink: true,
+        /** default display 20 characters */
+        shortLinkLength: 20,
+      },
+      list: {
+        listNested: false, // The sibling list type becomes a child after conversion
+        indentSpace: 2, // Default 2 space indents
       },
       table: {
         enableChart: false,
-        // chartEngine: Engine Class
+        // chartRenderEngine: EChartsTableEngine,
+        // externals: ['echarts'],
+      },
+      inlineCode: {
+        theme: 'red',
+      },
+      codeBlock: {
+        theme: 'twilight', // Default to dark theme
+        wrap: true, // If it exceeds the length, whether to wrap the line. If false, the scroll bar will be displayed
+        lineNumber: true, // Default display line number
+        customRenderer: {
+          // Custom syntax renderer
+        },
+        /**
+         * indentedCodeBlock Is the switch whether indent code block is enabled
+         *
+         *    this syntax is not supported by default in versions before 6.X.
+         *    Because cherry's development team thinks the syntax is too ugly (easy to touch by mistake)
+         *    The development team hopes to completely replace this syntax with ` ` code block syntax
+         *    However, in the subsequent communication, the development team found that the syntax had better display effect in some scenarios
+         *    Therefore, the development team in 6 This syntax was introduced in version X
+         *    if you want to upgrade the following versions of services without users' awareness, you can remove this syntax:
+         *        indentedCodeBlock：false
+         */
+        indentedCodeBlock: true,
       },
       fontEmphasis: {
         allowWhitespace: false, // 是否允许首尾空格
@@ -95,6 +127,7 @@ const basicConfig: CherryOptions = {
         engine: 'MathJax', // katex或MathJax
         // src: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js', // 如果使用MathJax plugins，则需要使用该url通过script标签引入
         src: '/deps/mathjax/tex-svg.js',
+        plugins: true,
       },
       inlineMath: {
         engine: 'MathJax', // katex或MathJax
@@ -103,6 +136,19 @@ const basicConfig: CherryOptions = {
         useUnicode: false,
         // customResourceURL: 'https://github.githubassets.com/images/icons/emoji/unicode/${code}.png?v8',
         upperCase: true,
+      },
+      toc: {
+        /** By default, only one directory is rendered */
+        allowMultiToc: false,
+      },
+      header: {
+        /**
+         * Style of title：
+         *  - default       Default style with anchor in front of title
+         *  - autonumber    There is a self incrementing sequence number anchor in front of the title
+         *  - none          Title has no anchor
+         */
+        anchorStyle: 'autonumber',
       },
       // toc: {
       //     tocStyle: 'nested'
@@ -142,11 +188,15 @@ const basicConfig: CherryOptions = {
       'graph',
       'togglePreview',
       'export',
+      'saveMenu',
+      'backMenu'
     ],
     // toolbarRight: [],
     bubble: ['bold', 'italic', 'underline', 'strikethrough', 'sub', 'sup', 'quote', 'ruby', '|', 'size', 'color'], // array or false
     // sidebar: false,
     // float: false
+    customMenu: {
+    } as any,
   },
   drawioIframeUrl: '/cherry/drawio.html',
   editor: {

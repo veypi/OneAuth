@@ -27,9 +27,9 @@ conf.timeout = 5000
 Cfg.host.value = 'http://' + window.location.host
 Cfg.uuid.value = 'FR9P5t8debxc11aFF'
 
-evt.on('token', (t) => {
-  oafs.setCfg({ token: util.getToken() })
-  Cfg.token.value = util.getToken()
+evt.on('token', (t: any) => {
+  oafs.setCfg({ token: t })
+  Cfg.token.value = t
 })
 
 // "async" is optional;

@@ -2,8 +2,9 @@
   <div class="flex items-center justify-center">
     <div class="px-10 pb-9 pt-28 rounded-xl w-96">
       <q-form autofocus @submit="onSubmit" @reset="onReset">
-        <q-input v-model="data.username" label="用户名" hint="username" lazy-rules :rules="data_rules.username" />
-        <q-input v-model="data.password" :type="isPwd ? 'password' :
+        <q-input v-model="data.username" autocomplete="username" label="用户名" hint="username" lazy-rules
+          :rules="data_rules.username" />
+        <q-input autocomplete="current-password" v-model="data.password" :type="isPwd ? 'password' :
           'text'" hint="password" :rules="data_rules.password">
           <template v-slot:append>
             <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
@@ -27,7 +28,7 @@ import msg from '@veypi/msg'
 import util from 'src/libs/util'
 import { useUserStore } from 'src/stores/user'
 import { useAppStore } from 'src/stores/app'
-import { modelsApp } from 'src/models'
+import { AUStatus, modelsApp } from 'src/models'
 
 
 const app = useAppStore()
@@ -60,6 +61,12 @@ const onSubmit = () => {
       let url = route.query.redirect || data.redirect || '/'
       redirect(url)
       console.log(data)
+    }).catch(e => {
+      console.log([e])
+      let m = e === '1' ? '被禁止登录' : e === '2' ? '正在申请中' : e
+        === '3' ?
+        '申请被拒绝' : '登录失败:' + e
+      msg.Warn(m)
     })
 }
 const onReset = () => {

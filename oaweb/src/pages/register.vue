@@ -2,9 +2,12 @@
   <div class="flex items-center justify-center">
     <div class="px-10 pb-9 pt-28 rounded-xl w-96">
       <q-form @submit="register" autofocus>
-        <q-input v-model="data.username" label="用户名" hint="username" lazy-rules :rules="rules.username"></q-input>
-        <q-input label="密码" v-model="data.password" type="password" lazy-rules :rules="rules.password"></q-input>
-        <q-input label="密码" v-model="data.pass" type="password" lazy-rules :rules="rules.pass"></q-input>
+        <q-input autocomplete="username" v-model="data.username" label="用户名" hint="username" lazy-rules
+          :rules="rules.username"></q-input>
+        <q-input autocomplete="new-password" label="密码" v-model="data.password" type="password" lazy-rules
+          :rules="rules.password"></q-input>
+        <q-input autocomplete="new-password" label="密码" v-model="data.pass" type="password" lazy-rules
+          :rules="rules.pass"></q-input>
         <div class="flex justify-around mt-4">
           <q-btn label="注册" type="submit" color="primary" />
         </div>

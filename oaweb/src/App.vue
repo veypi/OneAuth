@@ -35,7 +35,11 @@ onBeforeMount(() => {
 html,
 body,
 #q-app {
-  @apply font-mono h-full w-full select-none;
+  @apply font-mono h-full w-full;
+}
+
+:root {
+  --z-index: 1;
 }
 
 .page-h1 {

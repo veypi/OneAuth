@@ -6,13 +6,10 @@
  -->
 <template>
   <div>
-    <q-page-sticky position="top-right" :offset="[27, 27]">
-      <q-btn @click="sync_editor" :style="{
-        color: edit_mode ? 'red' :
-          ''
-      }" round icon="save_as" class="" />
+    <q-page-sticky position="top-right" style="z-index: 20" :offset="[27, 27]">
+      <q-btn v-if="preview_mode" @click="preview_mode = false" round icon="save_as" class="" />
     </q-page-sticky>
-    <Editor v-if="app.id" :eid="app.id + '.des'" :preview="!edit_mode" :content="content" @updated="save"></Editor>
+    <Editor v-if="app.id" :eid="app.id + '.des'" v-model="preview_mode" :content="content" @save="save"></Editor>
   </div>
 </template>
 
@@ -27,7 +24,7 @@ import oafs from 'src/libs/oafs';
 
 
 
-let edit_mode = ref(false)
+let preview_mode = ref(true)
 
 let app = inject('app') as Ref<modelsApp>
 let content = ref()
@@ -46,7 +43,7 @@ const save = (des: string) => {
   let a = new File([des], app.value.name + '.md');
   oafs.upload([a], app.value.id).then(url => {
     api.app.update(app.value.id, { des: url[0] }).then(e => {
-      edit_mode.value = false
+      preview_mode.value = true
       app.value.des = url[0]
     }).catch(e => {
       msg.Warn("更新失败: " + e)
@@ -55,12 +52,6 @@ const save = (des: string) => {
     msg.Warn("更新失败: " + e)
   })
 }
-
-
-const sync_editor = () => {
-  edit_mode.value = !edit_mode.value
-}
-
 
 
 onMounted(() => {
