@@ -8,6 +8,9 @@ function padLeftZero(str: string): string {
 
 
 const util = {
+  datetostr(d: string) {
+    return new Date(d + 'z').toLocaleString()
+  },
   randomNum(minNum: number, maxNum: number) {
     return Math.floor(Math.random() * maxNum) + minNum
   },

@@ -7,6 +7,11 @@
 <template>
   <div>
     <q-table title="Treats" :rows="rows" :columns="columns" row-key="name">
+      <template #body-cell-created="props">
+        <q-td :props="props">
+          {{ util.datetostr(props.value) }}
+        </q-td>
+      </template>
       <template v-slot:body-cell-status="props">
         <q-td :props="props">
           <div>
@@ -35,6 +40,7 @@ import { computed, inject, onMounted, Ref, ref, watch } from 'vue';
 import { AUStatus, modelsAppUser, modelsUser, modelsApp } from 'src/models';
 import api from 'src/boot/api';
 import msg from '@veypi/msg';
+import { util } from 'src/libs';
 
 const auOpts: { [index: number]: any } = {
   [AUStatus.OK]: ['正常', 'positive'],
@@ -59,7 +65,7 @@ const columns = [
       (row.nickname ? '(' + row.nickname + ')' : ''),
     sortable: true
   },
-  { name: 'created', field: 'created', align: 'center', label: '加入时间', sortable: true },
+  { name: 'created', field: 'updated', align: 'center', label: '加入时间', sortable: true },
   { name: 'status', field: 'status', align: 'center', label: '账号状态', sortable: true },
   { name: 'action', field: 'action', align: 'center', label: '操作' },
 ] as any

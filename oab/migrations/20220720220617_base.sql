@@ -41,7 +41,8 @@ CREATE TABLE IF NOT EXISTS `app`
     `join_method`   int NOT NULL DEFAULT 0,
 
     `role_id`       varchar(32),
-    `redirect`      varchar(255),
+    `host`          varchar(255) NOT NULL DEFAULT '',
+    `redirect`      varchar(255) NOT NULL DEFAULT '',
     `status`        int NOT NULL COMMENT '状态（0：ok，1：disabled）' DEFAULT 0,
 
     PRIMARY KEY (`id`) USING BTREE

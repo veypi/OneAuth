@@ -9,6 +9,40 @@ import { RouteLocationRaw } from 'vue-router';
 
 export { type Auths, type modelsSimpleAuth, NewAuths, R } from './auth'
 
+export type Dict = { [key: string]: any }
+
+export enum ArgType {
+  Text = 'text',
+  Password = 'password',
+  Bool = 'bool',
+  Select = 'select',
+  Radio = 'radio',
+  Number = 'number',
+  Region = 'region',
+  NumList = 'numList',
+  StrList = 'strList',
+  Table = 'table',
+  Grid = 'grid',
+  File = 'file',
+  Img = 'img'
+}
+
+export const ArgTypesTrans = {
+  [ArgType.Text]: '文本',
+  [ArgType.Password]: '密码',
+  [ArgType.Select]: '选择器',
+  [ArgType.Radio]: '单选框',
+  [ArgType.Number]: '数字',
+  [ArgType.Region]: '区间',
+  [ArgType.NumList]: '数组',
+  [ArgType.StrList]: '文本集合',
+  [ArgType.Table]: '表格',
+  [ArgType.Grid]: '矩阵',
+  [ArgType.File]: '文件',
+  [ArgType.Img]: '图片',
+  [ArgType.Bool]: '开关',
+}
+
 export interface DocItem {
   name: string
   url: string

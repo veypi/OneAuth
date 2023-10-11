@@ -14,12 +14,10 @@ use crate::{
 };
 use actix_web::{delete, get, head, http, post, web, HttpResponse, Responder};
 use base64;
+use chrono::{DateTime, Local, NaiveDateTime};
 use proc::access_read;
 use rand::Rng;
-use sea_orm::{
-    ActiveModelTrait, ColumnTrait,
-    EntityTrait, QueryFilter, TransactionTrait,
-};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, TransactionTrait};
 use serde::{Deserialize, Serialize};
 use tracing::info;
 
@@ -148,7 +146,6 @@ pub async fn register(
                 Ok(p) => p,
                 Err(_) => return Err(Error::ArgInvalid("password".to_string())),
             };
-            info!("{}", p);
             let mut u = models::user::Model::default();
             u.username = q.username.clone();
             u.id = uuid::Uuid::new_v4().to_string().replace("-", "");
@@ -158,6 +155,10 @@ pub async fn register(
             u.icon = Some(format!("/media/icon/usr/{:04}.jpg", idx));
             u.space = 300;
             u.used = 0;
+            info!("{}", u.created.to_string());
+            u.created = Local::now().naive_utc();
+            u.updated = Local::now().naive_utc();
+            info!("{}", u.created.to_string());
             u.into()
         }
     };

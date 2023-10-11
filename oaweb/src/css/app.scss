@@ -1,1 +1,61 @@
 // app global css in SCSS form
+
+:root {
+    transition: all 0.2s linear;
+    --base-color: #000;
+    --base-bg: #f5f5f5;
+    --base-bg-1: #e0e0e0;
+    --base-bg-2: #d0d0d0;
+    --base-bg-3: #c0c0c0;
+
+    --header-bg: #d0d0d0;
+
+    --color-primary: #2196f3;
+    --color-secondary: #03a9f4;
+    --color-accent: #ff9800;
+    --color-error: #f44336;
+    --color-warning: #ff5722;
+    --color-info: #ffc107;
+    --color-success: #4caf50;
+
+    --input-line-default: #002f55;
+    --input-line-shine: #1467ff;
+    --input-line-error: var(--color-error);
+}
+
+.page-h1 {
+  font-size: 2.5rem;
+  line-height: 2.5rem;
+  margin-left: 2.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.div-center {
+  @apply flex justify-center items-center;
+}
+
+.div-btn {
+    @apply cursor-pointer transition duration-500 ease-in-out transform hover:scale-110 hover:opacity-50;
+}
+
+.div-btn hr {
+    right: 50%;
+    position: absolute;
+    bottom: 1px;
+    width: 0;
+    border: var(--color-primary) solid 1px;
+    visibility: hidden;
+    transition: all 0.2s linear;
+}
+
+.div-btn:hover {
+    /*border-bottom: #03a9f4 1px solid;*/
+}
+
+.div-btn:hover hr {
+    visibility: visible;
+    width: 80%;
+    right: 10%;
+}
+

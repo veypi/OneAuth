@@ -5,7 +5,7 @@
  * Distributed under terms of the MIT license.
  -->
 <template>
-  <div class="p-4">
+  <div class="p-4 w-full h-full">
     <div class="flex items-center mb-8">
       <q-avatar class="mx-2" round size="4rem">
         <img :src="app.icon">

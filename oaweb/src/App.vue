@@ -41,12 +41,4 @@ body,
 :root {
   --z-index: 1;
 }
-
-.page-h1 {
-  font-size: 2.5rem;
-  line-height: 2.5rem;
-  margin-left: 2.5rem;
-  margin-top: 1.5rem;
-  margin-bottom: 2rem;
-}
 </style>
