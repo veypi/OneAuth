@@ -7,11 +7,10 @@
 <template>
   <div class="w-full h-full">
     <h1 class="page-h1">文档中心</h1>
-    <div>
-      {{ url }}
-    </div>
     <q-inner-loading :showing="!visible" label="Please wait..." label-class="text-teal" label-style="font-size: 1.1em" />
-    <Editor v-if='doc' eid='doc' preview :content="doc"></Editor>
+    <div class="w-full px-8">
+      <Editor v-if='doc' eid='doc' preview :content="doc"></Editor>
+    </div>
   </div>
 </template>
 

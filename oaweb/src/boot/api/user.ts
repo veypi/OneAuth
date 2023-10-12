@@ -31,10 +31,10 @@ export default {
   get(id: number) {
     return ajax.get(this.local + id)
   },
-  list() {
-    return ajax.get(this.local)
+  list(props?: { name?: string, role_id?: string, app_id?: string }) {
+    return ajax.get(this.local, props)
   },
-  update(id: number, props: any) {
+  update(id: string, props: any) {
     return ajax.patch(this.local + id, props)
   },
 }

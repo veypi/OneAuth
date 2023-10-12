@@ -6,8 +6,9 @@
 */
 
 import { RouteLocationRaw } from 'vue-router';
+import { AccessLevel } from './auth';
 
-export { type Auths, type modelsSimpleAuth, NewAuths, R } from './auth'
+export { type Auths, type modelsSimpleAuth, NewAuths, R, AccessLevel, LevelOptions } from './auth'
 
 export type Dict = { [key: string]: any }
 
@@ -88,27 +89,6 @@ export interface modelsApp {
   user_count: number
 
   au: modelsAppUser
-
-  // Creator: number
-  // Des: string
-  // EnableEmail: boolean
-  // EnablePhone: boolean
-  // EnableRegister: true
-  // EnableUser: boolean
-  // EnableUserKey: boolean
-  // EnableWx: boolean
-  // Hide: boolean
-  // Host: string
-  // Icon: string
-  // InitRole?: null
-  // InitRoleID: number
-  // Name: string
-  // UUID: string
-  // UserCount: number
-  // UserKeyUrl: string
-  // UserRefreshUrl: string
-  // UserStatus: string
-  // Users: null
 }
 
 export enum AUStatus {
@@ -130,7 +110,6 @@ export interface modelsUser {
   id: string
   created: string
   updated: string
-  delete_flag: boolean
   username: string
   nickname: string
   email: string
@@ -140,63 +119,34 @@ export interface modelsUser {
   used: number
   space: number
   au: AUStatus
-
-  // Index 前端缓存
-  // Index?: number
-  // Apps: modelsApp[]
-  // Auths: null
-  // CreatedAt: string
-  // DeletedAt: null
-  // ID: number
-  // Icon: string
-  // Position: string
-  // Roles: null
-  // Status: string
-  // UpdatedAt: string
-  // Username: string
-  // Email: string
-  // Nickname: string
-  // Phone: string
 }
 
-export interface modelsAuth {
-  App?: modelsApp
-  AppUUID: string
-  CreatedAt: string
-  DeletedAt: null
-  ID: number
-  Level: number
-  RID: string
-  RUID: string
-  Resource?: modelsResource
-  ResourceID: number
-  Role?: modelsRole
-  RoleID: number
-  UpdatedAt: string
-  User?: modelsUser
-  UserID?: number
+export interface modelsAccess {
+  id: number
+  created: string
+  updated: string
+  name: string
+  app_id: string,
+  role_id?: string,
+  user_id?: string,
+  level: AccessLevel,
+  rid?: string
 }
 
 export interface modelsRole {
-  App?: modelsApp
-  AppUUID: string
-  Auths: null
-  CreatedAt: string
-  DeletedAt: null
-  ID: number
-  Name: string
-  Tag: string
-  UpdatedAt: string
-  UserCount: number
+  created: string
+  updated: string
+  app_id: string
+  id: string
+  name: string
+  des: string
+  user_count: number
 }
 
 export interface modelsResource {
-  App?: modelsApp
-  AppUUID: string
-  CreatedAt: string
-  DeletedAt: null
-  Des: string
-  ID: number
-  Name: string
-  UpdatedAt: string
+  created: string
+  updated: string
+  app_id: string
+  name: string
+  des: string
 }

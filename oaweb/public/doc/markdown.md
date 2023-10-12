@@ -1,8 +1,6 @@
+[[toc]]
 # 例子
 # Markdown  { 简明手册 | jiǎn míng shǒu cè }
-
-[[toc]]
-
 # 基本语法
 
 ---

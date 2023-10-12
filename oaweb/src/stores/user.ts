@@ -35,6 +35,9 @@ export const useUserStore = defineStore('user', {
       }
       let data = JSON.parse(Base64.decode(token[1]))
       if (data.id) {
+        let l = 'access to'
+        data.access.map((e: any) => l = l + `\n${e.name}.${e.level}`)
+        console.log(l)
         this.auth = NewAuths(data.access)
         api.user.get(data.id).then((e: modelsUser) => {
           this.id = e.id

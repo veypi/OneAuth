@@ -12,10 +12,10 @@ use crate::{
     models::{self, app_user, user, AUStatus, UserPlugin},
     AppState, Error, Result,
 };
-use actix_web::{delete, get, head, http, post, web, HttpResponse, Responder};
+use actix_web::{delete, get, head, http, patch, post, web, HttpResponse, Responder};
 use base64;
 use chrono::{DateTime, Local, NaiveDateTime};
-use proc::access_read;
+use proc::{access_read, access_update, crud_update};
 use rand::Rng;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, TransactionTrait};
 use serde::{Deserialize, Serialize};
@@ -35,10 +35,46 @@ pub async fn get(id: web::Path<String>, stat: web::Data<AppState>) -> Result<imp
     }
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ListOptions {
+    name: Option<String>,
+    role_id: Option<String>,
+    app_id: Option<String>,
+}
+
 #[get("/user/")]
 #[access_read("user")]
-pub async fn list(stat: web::Data<AppState>) -> Result<impl Responder> {
-    let res: Vec<user::Model> = user::Entity::find().all(stat.db()).await?;
+pub async fn list(
+    stat: web::Data<AppState>,
+    query: web::Query<ListOptions>,
+) -> Result<impl Responder> {
+    let query = query.into_inner();
+    let res = if let Some(v) = query.name {
+        user::Entity::find()
+            .filter(user::Column::Username.contains(v))
+            .all(stat.db())
+            .await?
+    } else if let Some(v) = query.role_id {
+        models::user_role::Entity::find()
+            .filter(models::user_role::Column::RoleId.eq(v))
+            .find_also_related(user::Entity)
+            .all(stat.db())
+            .await?
+            .into_iter()
+            .filter_map(|(_, u)| return u)
+            .collect()
+    } else if let Some(v) = query.app_id {
+        models::app_user::Entity::find()
+            .filter(models::app_user::Column::AppId.eq(v))
+            .find_also_related(user::Entity)
+            .all(stat.db())
+            .await?
+            .into_iter()
+            .filter_map(|(_, u)| return u)
+            .collect()
+    } else {
+        user::Entity::find().all(stat.db()).await?
+    };
     Ok(web::Json(res))
 }
 
@@ -173,6 +209,26 @@ pub async fn register(
     db.commit().await?;
 
     Ok(web::Json(u))
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct UpdateOpt {
+    pub username: Option<String>,
+    pub icon: Option<String>,
+    pub nickname: Option<String>,
+    pub email: Option<String>,
+    pub phone: Option<String>,
+}
+
+#[patch("/user/{id}")]
+#[access_update("user")]
+#[crud_update(user, Id = "_id", username, icon, nickname, email, phone)]
+pub async fn update(
+    id: web::Path<String>,
+    stat: web::Data<AppState>,
+    data: web::Json<UpdateOpt>,
+) -> Result<impl Responder> {
+    Ok("")
 }
 
 #[delete("/user/")]

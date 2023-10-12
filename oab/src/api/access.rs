@@ -6,109 +6,108 @@
 //
 //
 //
-use actix_web::{web, Responder};
-use proc::crud_update;
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, TransactionTrait};
+use actix_web::{delete, get, patch, post, web, Responder};
+use proc::{access_create, access_delete, access_read, crud_update};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
+use tracing::info;
 
-use crate::{models::app, AppState, Error, Result};
+use crate::{
+    models::{self},
+    AppState, Error, Result,
+};
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct UpdateOpt {
-    pub name: Option<String>,
-    pub icon: Option<String>,
-    pub des: Option<String>,
-    pub join_method: Option<i32>,
-    pub role_id: Option<String>,
-    pub redirect: Option<String>,
-    pub status: Option<i32>,
-}
-impl UpdateOpt {
-    // #[crud_update(
-    //     app,
-    //     id = "Id",
-    //     name,
-    //     icon,
-    //     des,
-    //     join_method,
-    //     role_id,
-    //     redirect,
-    //     status
-    // )]
-    pub async fn update(
-        id: web::Path<String>,
-        stat: web::Data<AppState>,
-        data: web::Json<UpdateOpt>,
-    ) -> Result<impl Responder> {
-        let data = data.into_inner();
-        let id = id.into_inner();
-        let obj = app::Entity::find_by_id(&id).one(stat.db()).await?;
-        let mut obj: app::ActiveModel = match obj {
-            Some(o) => o.into(),
-            None => return Err(Error::NotFound(id)),
-        };
-        if let Some(name) = data.name {
-            obj.name = sea_orm::Set(name)
-        };
-        let obj = obj.update(stat.db()).await?;
-        Ok(web::Json(obj))
-    }
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Options {
+    name: Option<String>,
+    role_id: Option<String>,
+    user_id: Option<String>,
+    rid: Option<String>,
+    level: Option<bool>,
 }
 
-pub async fn update(
-    id: web::Path<String>,
+#[get("/app/{aid}/access/")]
+#[access_read("app")]
+pub async fn list(
+    aid: web::Path<String>,
     stat: web::Data<AppState>,
-    data: web::Json<UpdateOpt>,
+    query: web::Query<Options>,
 ) -> Result<impl Responder> {
-    let _id = &id.clone();
-    let _data = data.clone();
-    let _db = &stat.db().clone();
-    let f = || async move {
-        let data = data.into_inner();
-        let id = id.into_inner();
-        let obj = app::Entity::find_by_id(&id).one(stat.db()).await?;
-        let mut obj: app::ActiveModel = match obj {
-            Some(o) => o.into(),
-            None => return Err(Error::NotFound(id)),
-        };
-        if let Some(name) = data.name {
-            obj.name = sea_orm::Set(name)
-        };
-        let obj = obj.update(stat.db()).await?;
-        Ok(web::Json(obj))
+    let aid = aid.into_inner();
+    let mut q = models::access::Entity::find().filter(models::access::Column::AppId.eq(aid));
+    let query = query.into_inner();
+    if let Some(rid) = query.role_id {
+        q = q.filter(models::access::Column::RoleId.eq(rid));
     };
-    let res = f().await;
-    match res {
-        Err(e) => Err(e),
-        Ok(res) => {
-            let obj = crate::models::app::Entity::find_by_id(_id).one(_db).await?;
-            let mut obj: crate::models::app::ActiveModel = match obj {
-                Some(o) => o.into(),
-                None => return Err(Error::NotFound(_id.to_owned())),
-            };
-            if let Some(name) = _data.name {
-                obj.name = sea_orm::Set(name.into())
-            };
-            if let Some(icon) = _data.icon {
-                obj.icon = sea_orm::Set(icon.into())
-            };
-            if let Some(des) = _data.des {
-                obj.des = sea_orm::Set(des.into())
-            };
-            if let Some(join_method) = _data.join_method {
-                obj.join_method = sea_orm::Set(join_method.into())
-            };
-            if let Some(role_id) = _data.role_id {
-                obj.role_id = sea_orm::Set(role_id.into())
-            };
-            if let Some(redirect) = _data.redirect {
-                obj.redirect = sea_orm::Set(redirect.into())
-            };
-            if let Some(status) = _data.status {
-                obj.status = sea_orm::Set(status.into())
-            };
-            let obj = obj.update(_db).await?;
-            Ok(actix_web::web::Json(obj))
-        }
-    }
+    if let Some(v) = query.name {
+        q = q.filter(models::access::Column::Name.eq(v));
+    };
+    if let Some(v) = query.user_id {
+        q = q.filter(models::access::Column::UserId.eq(v));
+    };
+    let aus = q.all(stat.db()).await?;
+    Ok(web::Json(aus))
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct CreateOptions {
+    name: String,
+    level: i32,
+    role_id: Option<String>,
+    user_id: Option<String>,
+    rid: Option<String>,
+}
+#[post("/app/{aid}/access/")]
+#[access_create("app")]
+pub async fn creat(
+    aid: web::Path<String>,
+    stat: web::Data<AppState>,
+    query: web::Json<CreateOptions>,
+) -> Result<impl Responder> {
+    let aid = aid.into_inner();
+    let query = query.into_inner();
+    let obj = models::access::ActiveModel {
+        app_id: sea_orm::ActiveValue::Set(aid),
+        name: sea_orm::ActiveValue::Set(query.name),
+        level: sea_orm::ActiveValue::Set(query.level),
+        role_id: sea_orm::ActiveValue::Set(query.role_id),
+        user_id: sea_orm::ActiveValue::Set(query.user_id),
+        rid: sea_orm::ActiveValue::Set(query.rid),
+        ..Default::default()
+    };
+    let obj: models::access::Model = obj.insert(stat.db()).await?;
+    Ok(web::Json(obj))
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct UpdateOpt {
+    pub level: Option<i32>,
+    pub rid: Option<String>,
+}
+
+#[patch("/app/{aid}/access/{id}")]
+#[access_delete("app")]
+#[crud_update(access, AppId = "_id", Id = "_id", level, rid)]
+pub async fn update(
+    id: web::Path<(String, String)>,
+    data: web::Json<UpdateOpt>,
+    stat: web::Data<AppState>,
+) -> Result<impl Responder> {
+    Ok("")
+}
+
+#[delete("/app/{aid}/access/{id}")]
+#[access_delete("app")]
+pub async fn delete(
+    params: web::Path<(String, String)>,
+    stat: web::Data<AppState>,
+) -> Result<impl Responder> {
+    let (aid, rid) = params.into_inner();
+    let res = models::access::Entity::delete_many()
+        .filter(models::access::Column::AppId.eq(aid))
+        .filter(models::access::Column::Id.eq(rid))
+        .exec(stat.db())
+        .await?;
+    info!("{:#?}", res);
+    Ok("ok")
 }

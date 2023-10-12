@@ -51,7 +51,7 @@
 
       <template v-else-if="type === ArgType.Select">
         <div class="noborder cursor-pointer w-full overflow-x-auto whitespace-nowrap" @click="showSelect" :title="title">
-          <span v-if="!value">未选择</span>
+          <span v-if="value === undefined || value === null">未选择</span>
           <span v-else-if="!Array.isArray(value)">{{ transDic[value] || value }}</span>
           <template v-else>
             <span class="mx-2" v-for="  iv   in   value  " :key="iv">{{ transDic[iv] || iv }}</span>
@@ -61,10 +61,9 @@
           :style="{ left: selectPos[0] + 'px', top: selectPos[1] + 'px', height: showSelectOpt ? '20rem' : '0rem' }"
           class="select-opt text-base text-white rounded-md overflow-y-auto" style="min-width: 10rem;" :title="title">
           <div class="m-2 p-2" v-if="!options">暂无选项</div>
-          <div :class="[ok === value ? 'bg-gray-500' : 'bg-gray-800']"
-            class="cursor-pointer m-2 p-2 rounded-md hover:bg-gray-500" @click="setSelect(ok)"
-            v-for="(  ov, ok  ) in   transDic  " :key="ok">
-            {{ ov }}
+          <div :class="[ov.key === value ? 'bg-gray-500' : 'bg-gray-800']" class="cursor-pointer m-2 p-2 rounded-md
+            hover:bg-gray-500" @click="setSelect(ov.key)" v-for="ov of options" :key="ov.key">
+            {{ ov.name }}
           </div>
           <div class="w-full h-32"></div>
         </div>

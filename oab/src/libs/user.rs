@@ -60,13 +60,22 @@ pub async fn after_connected_to_app(
     obj: app::Model,
     db: &DatabaseTransaction,
 ) -> Result<()> {
-    if obj.role_id.is_some() {
+    if let Some(role_id) = obj.role_id {
         user_role::ActiveModel {
             user_id: sea_orm::ActiveValue::Set(uid.clone()),
-            role_id: sea_orm::ActiveValue::Set(obj.role_id.unwrap().clone()),
+            role_id: sea_orm::ActiveValue::Set(role_id.clone()),
             ..Default::default()
         }
         .insert(db)
+        .await?;
+        let sql = format!(
+            "update role set user_count = user_count + 1 where id = '{}'",
+            role_id,
+        );
+        db.execute(sea_orm::Statement::from_string(
+            sea_orm::DatabaseBackend::MySql,
+            sql,
+        ))
         .await?;
     };
     let sql = format!(

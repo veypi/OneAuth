@@ -7,7 +7,7 @@
 <template>
   <div>
     <div class="flex justify-center pt-10">
-      <CRUD ref="table" v-if="app.id" :keys="keys" :data="[app]" kalign="left" valign="left" editable
+      <CRUD ref="table" :keys="keys" :data="app.id ? [app] : []" kalign="left" valign="left" editable
         :vstyle="{ 'width': '50vw' }" @update="newApp = $event[0]" :kstyle="{ 'width': '10rem' }">
         <template #k_icon="{ value, set }">
           <div class="w-full flex justify-center">

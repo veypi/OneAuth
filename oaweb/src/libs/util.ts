@@ -9,7 +9,17 @@ function padLeftZero(str: string): string {
 
 const util = {
   datetostr(d: string) {
-    return new Date(d + 'z').toLocaleString()
+    let r = new Date(d + 'z')
+    let delta = (new Date().getTime() - r.getTime()) / 1000
+    if (delta < 0) {
+    } else if (delta < 60) {
+      return Math.floor(delta) + '秒前'
+    } else if (delta < 3600) {
+      return Math.floor(delta / 60) + '分钟前'
+    } else if (delta < 86400) {
+      return Math.floor(delta / 3600) + '小时前'
+    }
+    return r.toLocaleString()
   },
   randomNum(minNum: number, maxNum: number) {
     return Math.floor(Math.random() * maxNum) + minNum

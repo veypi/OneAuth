@@ -53,4 +53,6 @@ http = "0.2.9"
 http-auth-basic = "0.3.3"
 actix-multipart = "0.6.1"
 actix-cors = "0.6.4"
+rust-embed = "8.0.0"
+mime_guess = "2.0.4"
 

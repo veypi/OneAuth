@@ -9,9 +9,9 @@ use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
 use syn::{parse_macro_input, AttributeArgs, ItemFn};
 mod access;
-mod curd;
+mod crud;
 use access::AccessWrap;
-use curd::CrudWrap;
+use crud::CrudWrap;
 
 #[proc_macro_attribute]
 pub fn have_access(args: TokenStream, input: TokenStream) -> TokenStream {

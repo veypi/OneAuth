@@ -27,39 +27,48 @@ export const R = {
   Auth: 'auth',
 }
 
-const level = {
-  None: 0,
-  Do: 1,
-  Part: 1,
-  Read: 2,
-  Create: 3,
-  Update: 4,
-  Delete: 5,
-  All: 6
+
+export enum AccessLevel {
+  None = 0,
+  Do = 1,
+  Read = 1,
+  Create = 2,
+  Update = 3,
+  Delete = 4,
+  All = 5
 }
 
+export const LevelOptions = [
+  { key: 0, name: '无权限' },
+  { key: 1, name: '读取数据权限' },
+  { key: 2, name: '创建数据权限' },
+  { key: 3, name: '更新数据权限' },
+  { key: 4, name: '删除数据权限' },
+  { key: 5, name: '管理员权限' },
+]
+
 class authLevel {
-  level = level.None
+  level = AccessLevel.None
   constructor(level: number) {
     this.level = level
   }
   CanDo(): boolean {
-    return this.level >= level.Do
+    return this.level >= AccessLevel.Do
   }
   CanRead(): boolean {
-    return this.level >= level.Read
+    return this.level >= AccessLevel.Read
   }
   CanCreate(): boolean {
-    return this.level >= level.Create
+    return this.level >= AccessLevel.Create
   }
   CanUpdate(): boolean {
-    return this.level >= level.Update
+    return this.level >= AccessLevel.Update
   }
   CanDelete(): boolean {
-    return this.level >= level.Delete
+    return this.level >= AccessLevel.Delete
   }
   CanDoAny(): boolean {
-    return this.level >= level.All
+    return this.level >= AccessLevel.All
   }
 }
 
@@ -71,7 +80,7 @@ export class auths {
   }
 
   Get(name: string, rid: string): authLevel {
-    let l = level.None
+    let l = AccessLevel.None
     for (let i of this.list) {
       if (i.name == name && (!i.rid || i.rid === rid) && i.level > l) {
         l = i.level

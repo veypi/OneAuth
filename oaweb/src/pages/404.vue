@@ -21,8 +21,7 @@ onMounted(() => {
   timer.value = setInterval(() => {
     count.value--
     if (count.value === 0) {
-      router.back()
-      // router.push('/')
+      router.push({ name: 'home' })
       clearInterval(timer.value)
     }
   }, 1000)

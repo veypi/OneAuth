@@ -88,6 +88,7 @@ pub struct UpdateOpt {
     pub join_method: Option<i32>,
     pub role_id: Option<String>,
     pub redirect: Option<String>,
+    pub host: Option<String>,
     pub status: Option<i32>,
 }
 
@@ -102,6 +103,7 @@ pub struct UpdateOpt {
     join_method,
     role_id,
     redirect,
+    host,
     status
 )]
 pub async fn update(

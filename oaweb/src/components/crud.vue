@@ -9,7 +9,8 @@
     <div class="v-crud" :vertical='modeV'>
       <div class="v-crud-keys">
         <template v-for="k of keys" :key="k.name">
-          <div class="v-crud-cell" :style="Object.assign({}, cstyle[k.name], cstyle.k)">
+          <div class="v-crud-cell" :style="Object.assign({},
+            cstyle.width[k.name], cstyle.k, cstyle.kv[k.name])">
             {{ k.label || k.name }}
           </div>
         </template>
@@ -20,17 +21,19 @@
             <div class="v-crud-cell" :changed="item.__changed[k.name]" :selected="selected
               === `${item.__idx}.${k.name}`" @click="ifselect ?
     selected = `${item.__idx}.${k.name}` : ''" :style="Object.assign({},
-    cstyle[k.name], cstyle.v)">
+    cstyle.width[k.name], cstyle.v, cstyle.kv[k.name])">
               <slot :name="`k_${k.name}`" :row="item" :value="item[k.name]" :set="setv(item, k.name)">
                 <template v-if="k.editable === undefined ? editable :
                   k.editable">
-                  <vinput :model-value="item[k.name] === undefined ?
+                  <vinput :align="valign" :model-value="item[k.name] === undefined ?
                     k.default : item[k.name]" :type="k.typ" :options="k.options" @update:model-value="setv(item,
     k.name)($event)"></vinput>
                 </template>
                 <template v-else>
-                  {{ item[k.name] === undefined ? k.default :
-                    item[k.name] }}
+                  <span class="truncate">
+                    {{ item[k.name] === undefined ? k.default :
+                      item[k.name] }}
+                  </span>
                 </template>
               </slot>
             </div>
@@ -42,7 +45,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, getCurrentInstance, onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import vinput from 'src/components/vinput'
 import { ArgType, Dict } from 'src/models';
 
@@ -54,6 +57,7 @@ interface keyProp {
   typ?: ArgType,
   editable?: boolean,
   options?: any,
+  style?: { [k: string]: string },
 }
 let emits = defineEmits<{
   (e: 'update', v: any): void
@@ -77,6 +81,7 @@ let props = withDefaults(defineProps<{
     vertical: false,
     data: [] as any,
     hover: false,
+    kvstyle: {} as any,
     kstyle: {} as any,
     vstyle: {} as any,
     cstyle: {} as any,
@@ -88,9 +93,13 @@ const modeV = ref(props.vertical)
 watch(computed(() => props.vertical), (v) => modeV.value = v)
 
 let items = ref<any[]>([])
-// watch(computed(() => props.data), (v) => {
-//   syncItems()
-// })
+watch(computed(() => JSON.stringify(props.data)), (_) => {
+  syncItems()
+  // if (JSON.stringify(v) !== JSON.stringify(o)) {
+  //   console.log(JSON.stringify(v))
+  //   syncItems()
+  // }
+}, {})
 const syncItems = () => {
   let res = props.data?.map((v: any, i: any) => {
     return Object.assign({ __idx: i, __changed: {} }, v)
@@ -105,21 +114,24 @@ const selected = ref()
 
 let alignDic = { 'center': 'center', 'left': 'start', 'right': 'end' }
 const cstyle = computed(() => {
-  let res = { line: [] } as any
+  let res = { line: [], width: {}, kv: {} } as any
   let l = props.keys?.length || 0
   let w = 100
   let style = modeV.value ? 'flex-basis' : 'height'
   props.keys?.forEach((k, i) => {
     if (k.width && k.width > 0 && k.width < 100) {
-      res[k.name] = { [style]: (k.width || 1) + '%' }
+      res.width[k.name] = { [style]: (k.width || 1) + '%' }
       w = w - k.width
       l = l - 1
+    }
+    if (k.style) {
+      res.kv[k.name] = k.style
     }
   })
   props.keys?.forEach((k, i) => {
     if (k.width && k.width > 0 && k.width < 100) {
     } else {
-      res[k.name] = { [style]: w / l + '%' }
+      res.width[k.name] = { [style]: w / l + '%' }
     }
   })
   res.k = Object.assign({ 'justify-content': alignDic[props.kalign] }, props.cstyle, props.kstyle)
@@ -185,6 +197,7 @@ defineExpose({
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 1rem;
   overflow: auto;
   overflow-y: auto;
 

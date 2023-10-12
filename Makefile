@@ -29,3 +29,8 @@ build:
 
 syncDB:
 	@scp -P 19529 oa.db root@alco.host:/root/
+
+buildweb:
+	@cd oaweb && yarn build
+	@rm -rf ./oab/dist/*
+	@mv ./oaweb/dist/spa/* ./oab/dist/

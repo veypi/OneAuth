@@ -11,9 +11,11 @@ use actix_web::{
     http::StatusCode,
     middleware::{self, ErrorHandlerResponse, ErrorHandlers},
     web::{self},
-    App, HttpServer,
+    App, HttpResponse, HttpServer, Responder,
 };
 use futures_util::future::FutureExt;
+use mime_guess::from_path;
+use rust_embed::RustEmbed;
 
 use http::{HeaderName, HeaderValue};
 use oab::{api, init_log, libs, models, AppState, Clis, Result, CLI};
@@ -100,6 +102,7 @@ async fn web(data: AppState) -> Result<()> {
                     .app_data(web::Data::new(dav.clone()))
                     .service(web::resource("/{tail:.*}").to(libs::fs::dav_handler)),
             )
+            .service(index)
     });
     info!("listen to {}", url);
     serv.bind(url)?.run().await?;
@@ -112,4 +115,22 @@ fn add_error_header<B>(
     error!("{}", res.response().error().unwrap());
 
     Ok(ErrorHandlerResponse::Response(res.map_into_left_body()))
+}
+
+#[derive(RustEmbed)]
+#[folder = "dist/"]
+struct Asset;
+
+#[actix_web::get("/{_:.*}")]
+async fn index(p: web::Path<String>) -> impl Responder {
+    info!("{}", p);
+    let p = &p.into_inner();
+    match Asset::get(p) {
+        Some(content) => HttpResponse::Ok()
+            .content_type(from_path(p).first_or_octet_stream().as_ref())
+            .body(content.data.into_owned()),
+        None => HttpResponse::Ok()
+            .content_type(from_path("index.html").first_or_octet_stream().as_ref())
+            .body(Asset::get("index.html").unwrap().data.into_owned()),
+    }
 }

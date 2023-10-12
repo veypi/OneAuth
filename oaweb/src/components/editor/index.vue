@@ -15,7 +15,6 @@
 import Cherry from 'cherry-markdown';
 import options from './options'
 import { computed, onMounted, ref, watch } from 'vue';
-import { CherryOptions } from 'cherry-markdown/types/cherry';
 import oafs from 'src/libs/oafs';
 
 let editor = {} as Cherry;
@@ -24,7 +23,7 @@ let emits = defineEmits<{
   (e: 'update:modelValue', v: boolean): void
 }>()
 let props = withDefaults(defineProps<{
-  modelValue: boolean,
+  modelValue?: boolean,
   eid?: string,
   content?: string,
   static_dir?: string,
@@ -32,6 +31,7 @@ let props = withDefaults(defineProps<{
   {
     eid: 'v-editor',
     content: '',
+    modelValue: true,
   }
 )
 

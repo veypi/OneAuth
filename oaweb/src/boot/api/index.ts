@@ -6,16 +6,21 @@
  */
 
 import app from "./app";
+import role from "./role";
 import token from "./token";
 import user from "./user";
-
+import resource from "./resource";
+import access from './access';
 
 
 
 const api = {
-  user: user,
-  app: app,
-  token: token
+  user,
+  app,
+  token,
+  role,
+  resource,
+  access,
 }
 
 

@@ -5,8 +5,8 @@
  * Distributed under terms of the MIT license.
  -->
 <template>
-  <div>
-    <q-table title="Treats" :rows="rows" :columns="columns" row-key="name">
+  <div class="px-10">
+    <q-table title="用户管理" :rows="rows" :columns="columns" row-key="name">
       <template #body-cell-created="props">
         <q-td :props="props">
           {{ util.datetostr(props.value) }}

@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 use tracing::info;
 
 pub use app_plugin::{AUStatus, AppJoin};
-pub use entity::{access, app, app_user, role, user, user_role};
+pub use entity::{access, app, app_user, resource, role, user, user_role};
 pub use user_plugin::{rand_str, AccessCore, AccessLevel, Token, UserPlugin};
 
 use crate::AppState;
