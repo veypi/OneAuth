@@ -61,7 +61,7 @@ impl UserPlugin for super::entity::user::Model {
     fn token(&self, ac: Vec<AccessCore>) -> Token {
         let default_ico = "/media/".to_string();
         let t = Token {
-            iss: "onedt".to_string(),
+            iss: "oa".to_string(),
             aud: "".to_string(),
             exp: (Utc::now() + Duration::days(4)).timestamp(),
             iat: Utc::now().timestamp(),

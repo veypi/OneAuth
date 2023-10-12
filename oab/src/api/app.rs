@@ -96,15 +96,8 @@ pub struct UpdateOpt {
 #[access_update("app")]
 #[crud_update(
     app,
-    Id = "_id",
-    name,
-    icon,
-    des,
-    join_method,
-    role_id,
-    redirect,
-    host,
-    status
+    filter = "Id",
+    props = "name,icon,des,join_method,role_id,redirect,host,status"
 )]
 pub async fn update(
     id: web::Path<String>,

@@ -102,9 +102,9 @@ pub struct UpdateOpt {
 
 #[patch("/app/{aid}/user/{uid}")]
 #[access_delete("app")]
-#[crud_update(app_user, AppId = "_id", UserId = "_id", status)]
+#[crud_update(app_user, filter = "AppId, UserId", props = "status")]
 pub async fn update(
-    id: web::Path<(String, String)>,
+    id: web::Path<[String; 2]>,
     data: web::Json<UpdateOpt>,
     stat: web::Data<AppState>,
 ) -> Result<impl Responder> {

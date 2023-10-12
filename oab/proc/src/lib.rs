@@ -53,6 +53,11 @@ pub fn crud_update(args: TokenStream, input: TokenStream) -> TokenStream {
     derive_crud(3, args, input)
 }
 
+#[proc_macro_attribute]
+pub fn crud_test(args: TokenStream, input: TokenStream) -> TokenStream {
+    derive_crud(0, args, input)
+}
+
 fn derive_crud(method: i32, args: TokenStream, input: TokenStream) -> TokenStream {
     let args = parse_macro_input!(args as AttributeArgs);
     let func = parse_macro_input!(input as ItemFn);

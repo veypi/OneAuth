@@ -23,6 +23,9 @@
             <q-btn color='primary'>获取秘钥</q-btn>
           </div>
         </template>
+        <template #k_redirect_append>
+          <q-btn class="mx-8" @click="$router.push('/login?uuid=' + app.id)">Go</q-btn>
+        </template>
       </CRUD>
     </div>
     <div v-if="newApp" class="flex justify-center gap-8 mt-6">

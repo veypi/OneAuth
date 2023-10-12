@@ -7,15 +7,11 @@
 //
 use actix_web::{delete, get, patch, post, web, Responder};
 use proc::{access_create, access_delete, access_read, access_update, crud_update};
-use sea_orm::{
-    ActiveModelTrait, ColumnTrait, ConnectionTrait, EntityTrait, LoaderTrait, QueryFilter,
-    TransactionTrait,
-};
+use sea_orm::{ActiveModelTrait, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
 use tracing::info;
 
 use crate::{
-    libs,
     models::{self},
     AppState, Error, Result,
 };
@@ -82,10 +78,10 @@ pub struct UpdateOpt {
 }
 
 #[patch("/app/{aid}/role/{rid}")]
-#[access_update("app", id = "&id.clone().0")]
-#[crud_update(role, AppId = "_id", Id = "_id", des)]
+#[access_update("app", id = "&id.clone()[0]")]
+#[crud_update(role, filter = "AppId, Id", props = "des")]
 pub async fn update(
-    id: web::Path<(String, String)>,
+    id: web::Path<[String; 2]>,
     data: web::Json<UpdateOpt>,
     stat: web::Data<AppState>,
 ) -> Result<impl Responder> {

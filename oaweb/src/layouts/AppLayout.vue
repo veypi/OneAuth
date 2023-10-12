@@ -14,7 +14,8 @@
     </div>
     <router-view v-slot="{ Component }">
       <transition mode="out-in" enter-active-class="animate__fadeIn" leave-active-class="animate__fadeOut">
-        <component class="animate__animated animate__400ms" :is="Component"></component>
+        <component class="animate__animated animate__400ms p-10" style="min-height:calc(100% - 96px)" :is="Component">
+        </component>
       </transition>
     </router-view>
   </div>

@@ -7,7 +7,7 @@
         </q-avatar>
       </div>
       <div class="col-span-3 grid grid-cols-1 items-center text-left">
-        <div class="h-10 flex items-center text-2xl italic font-bold">
+        <div class="truncate h-10 flex items-center text-xl italic font-bold">
           {{ core.name }}
         </div>
         <span class="truncate">{{ }}</span>

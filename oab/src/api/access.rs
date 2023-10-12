@@ -87,9 +87,9 @@ pub struct UpdateOpt {
 
 #[patch("/app/{aid}/access/{id}")]
 #[access_delete("app")]
-#[crud_update(access, AppId = "_id", Id = "_id", level, rid)]
+#[crud_update(access, filter = "AppId, Id", props = "level, rid")]
 pub async fn update(
-    id: web::Path<(String, String)>,
+    id: web::Path<[String; 2]>,
     data: web::Json<UpdateOpt>,
     stat: web::Data<AppState>,
 ) -> Result<impl Responder> {
@@ -111,3 +111,34 @@ pub async fn delete(
     info!("{:#?}", res);
     Ok("ok")
 }
+
+// mod test {
+//     use crate::{
+//         models::{self},
+//         AppState, Error, Result,
+//     };
+//     use actix_web::{delete, get, patch, post, web, Responder};
+//     use proc::crud_test;
+//     use proc::{access_create, access_delete, access_read, crud_update};
+//     use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter};
+//     use serde::{Deserialize, Serialize};
+//     use tracing::info;
+//     #[derive(Debug, Clone, Deserialize, Serialize)]
+//     pub struct UpdateOpt {
+//         pub level: Option<i32>,
+//         pub rid: Option<String>,
+//     }
+//     #[derive(Debug, Clone, Deserialize, Serialize)]
+//     pub struct IDOpt {
+//         pub app_id: Option<String>,
+//         pub id: Option<String>,
+//     }
+//     #[crud_test(access, filter = "AppId, Id", props = "level, rid")]
+//     pub async fn update(
+//         id: web::Path<[String; 2]>,
+//         data: web::Json<UpdateOpt>,
+//         stat: web::Data<AppState>,
+//     ) -> Result<impl Responder> {
+//         Ok("")
+//     }
+// }

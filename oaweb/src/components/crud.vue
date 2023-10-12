@@ -35,6 +35,8 @@
                       item[k.name] }}
                   </span>
                 </template>
+                <slot :name="`k_${k.name}_append`" :row="item" :value="item[k.name]" :set="setv(item, k.name)">
+                </slot>
               </slot>
             </div>
           </template>

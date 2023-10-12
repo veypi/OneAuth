@@ -11,6 +11,7 @@ mod app;
 mod appuser;
 mod resource;
 mod role;
+mod token;
 mod upload;
 mod user;
 use actix_web::web;
@@ -29,6 +30,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         .service(app::update)
         .service(app::del);
     // cfg.route("/acc", web::get().to(access::UpdateOpt::update));
+    cfg.service(token::get);
 
     cfg.service(appuser::get)
         .service(appuser::add)

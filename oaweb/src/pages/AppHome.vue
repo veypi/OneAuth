@@ -5,11 +5,11 @@
  * Distributed under terms of the MIT license.
  -->
 <template>
-  <div>
+  <div class="-mt-16">
     <q-page-sticky position="top-right" style="z-index: 20" :offset="[27, 27]">
       <q-btn v-if="preview_mode" @click="preview_mode = false" round icon="save_as" class="" />
     </q-page-sticky>
-    <Editor v-if="app.id" :eid="app.id + '.des'" v-model="preview_mode" :content="content" @save="save"></Editor>
+    <Editor style="" v-if="app.id" :eid="app.id + '.des'" v-model="preview_mode" :content="content" @save="save"></Editor>
   </div>
 </template>
 

@@ -5,7 +5,7 @@
  * Distributed under terms of the MIT license.
  -->
 <template>
-  <div class="px-10">
+  <div class="">
     <q-table title="用户管理" :rows="rows" :columns="columns" row-key="name">
       <template #body-cell-created="props">
         <q-td :props="props">

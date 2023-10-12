@@ -14,7 +14,7 @@ use crate::{
 };
 use actix_web::{delete, get, head, http, patch, post, web, HttpResponse, Responder};
 use base64;
-use chrono::{DateTime, Local, NaiveDateTime};
+use chrono::Local;
 use proc::{access_read, access_update, crud_update};
 use rand::Rng;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, TransactionTrait};
@@ -222,7 +222,7 @@ pub struct UpdateOpt {
 
 #[patch("/user/{id}")]
 #[access_update("user")]
-#[crud_update(user, Id = "_id", username, icon, nickname, email, phone)]
+#[crud_update(user, filter = "Id", props = "username, icon, nickname, email, phone")]
 pub async fn update(
     id: web::Path<String>,
     stat: web::Data<AppState>,

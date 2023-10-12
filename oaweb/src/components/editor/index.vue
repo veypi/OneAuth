@@ -5,7 +5,7 @@
  * Distributed under terms of the MIT license.
  -->
 <template>
-  <div class="w-full h-full relative">
+  <div class="w-full h-full">
     <!-- <div class="absolute bg-red-400 left-0 top-0 w-full h-full"></div> -->
     <div class="w-full h-full" :id="eid"></div>
   </div>
@@ -85,6 +85,7 @@ const init = () => {
   let config = {
     value: props.content,
     id: props.eid,
+    // isPreviewOnly: true,
     callback: {
     },
     fileUpload: fileUpload,
@@ -112,6 +113,7 @@ iframe.cherry-dialog-iframe {
 .cherry {
   background: none;
   box-shadow: none;
+  height: 100%;
 }
 
 .cherry-previewer {

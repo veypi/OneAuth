@@ -29,6 +29,7 @@ import util from 'src/libs/util'
 import { useUserStore } from 'src/stores/user'
 import { useAppStore } from 'src/stores/app'
 import { AUStatus, modelsApp } from 'src/models'
+import { Base64 } from 'js-base64'
 
 
 const app = useAppStore()
@@ -88,24 +89,25 @@ function redirect(url: string) {
     api.app.get(uuid.value as string).then((app: modelsApp) => {
       api.token(uuid.value as string).get().then(e => {
         url = url || app.redirect
+        // let data = JSON.parse(Base64.decode(e.split('.')[1]))
+        // console.log(data)
+        e = encodeURIComponent(e)
         console.log(e)
-        // e = encodeURIComponent(e)
-        // url = url.replaceAll('$token', e)
+        url = url.replaceAll('$token', e)
+        console.log(url)
         window.location.href = url
 
       })
     })
-  } else if (util.checkLogin()) {
-    if (url) {
-      router.push(url)
-    } else {
-      router.push({ name: 'home' })
-    }
+  } else if (url) {
+    router.push(url)
+  } else {
+    router.push({ name: 'home' })
   }
 }
 
 onMounted(() => {
-  if (!ifLogOut.value) {
+  if (!ifLogOut.value && util.checkLogin()) {
     redirect('')
   }
 })

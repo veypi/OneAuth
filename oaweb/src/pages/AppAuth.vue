@@ -5,7 +5,7 @@
  * Distributed under terms of the MIT license.
  -->
 <template>
-  <div class="px-10">
+  <div class="">
     <div class="flex justify-between">
       <div class="text-3xl">角色管理</div>
       <q-btn @click="created(0)">创建角色</q-btn>

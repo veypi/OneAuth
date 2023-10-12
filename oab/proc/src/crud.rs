@@ -5,9 +5,9 @@
 // Distributed under terms of the MIT license.
 //
 
-use proc_macro2::{Ident, Span};
+use proc_macro2::Span;
 use quote::{format_ident, quote, ToTokens};
-use syn::{AttributeArgs, ItemFn, NestedMeta, ReturnType, Token};
+use syn::{AttributeArgs, ItemFn, NestedMeta, ReturnType};
 
 pub struct CrudWrap {
     func: ItemFn,
@@ -17,14 +17,11 @@ pub struct CrudWrap {
 
 impl CrudWrap {
     pub fn new(args: AttributeArgs, func: ItemFn, method: i32) -> syn::Result<Self> {
-        let args = Crud::new(args)?;
+        let args = Crud::new(args, method)?;
 
         Ok(Self { func, args, method })
     }
-}
-
-impl ToTokens for CrudWrap {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+    fn update(&self, tokens: &mut proc_macro2::TokenStream) {
         let func_vis = &self.func.vis;
         let func_block = &self.func.block;
 
@@ -42,7 +39,7 @@ impl ToTokens for CrudWrap {
         };
         let model_name = &self.args.model;
 
-        let builder_fields = self.args.attrs.iter().map(|field| {
+        let builder_fields = self.args.props.iter().map(|field| {
             quote! {
                 if let Some(#field) = _data.#field {
                     obj.#field = sea_orm::Set(#field.into())
@@ -51,12 +48,10 @@ impl ToTokens for CrudWrap {
         });
         let (args_fields, filter_fields) = match self.args.filters.len() {
             1 => {
-                let pair = &self.args.filters[0];
-                let k = &pair[0];
-                let _k = format_ident!("_{}", &pair[0]);
-                let v = &pair[1];
+                let k = &self.args.filters[0];
+                let _k = format_ident!("_{}", k);
                 (
-                    vec![quote! {let #_k = #v; }],
+                    vec![quote! {let #_k = _id; }],
                     vec![quote! {
                     filter(crate::models::#model_name::Column::#k.eq(#_k))
                         }],
@@ -67,17 +62,17 @@ impl ToTokens for CrudWrap {
                     .filters
                     .iter()
                     .enumerate()
-                    .map(|(idx, [k, v])| {
+                    .map(|(idx, k)| {
                         let _k = format_ident!("_{}", k);
                         quote! {
-                            let #_k = #v.#idx;
+                            let #_k = &_id[#idx];
                         }
                     })
                     .collect(),
                 self.args
                     .filters
                     .iter()
-                    .map(|[k, _]| {
+                    .map(|k| {
                         let _k = format_ident!("_{}", k);
                         quote! {
                         filter(crate::models::#model_name::Column::#k.eq(#_k))
@@ -115,19 +110,43 @@ impl ToTokens for CrudWrap {
 
         let _stream = tokens.extend(stream);
     }
+
+    fn copy(&self, _: &mut proc_macro2::TokenStream) {
+        let _ = self.args.attrs.len();
+    }
+}
+
+impl ToTokens for CrudWrap {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        match self.method {
+            3 => self.update(tokens),
+            // 3 => self.update(tokens),
+            _ => self.copy(tokens),
+        }
+    }
 }
 
 struct Crud {
     model: syn::Ident,
     attrs: Vec<syn::Ident>,
-    filters: Vec<[syn::Ident; 2]>,
+    filters: Vec<syn::Ident>,
+    props: Vec<syn::Ident>,
 }
 
 impl Crud {
-    fn new(args: AttributeArgs) -> syn::Result<Self> {
+    fn new(args: AttributeArgs, method: i32) -> syn::Result<Self> {
         let mut model: Option<syn::Ident> = None;
         let mut attrs: Vec<syn::Ident> = Vec::new();
-        let mut filters: Vec<[syn::Ident; 2]> = Vec::new();
+        let mut filters: Vec<syn::Ident> = Vec::new();
+        let mut props: Vec<syn::Ident> = Vec::new();
+        if method == 0 {
+            return Ok(Self {
+                model: format_ident!("a"),
+                attrs,
+                filters,
+                props,
+            });
+        }
         for arg in args {
             match arg {
                 // NestedMeta::Lit(syn::Lit::Str(lit)) => {
@@ -147,17 +166,32 @@ impl Crud {
                     lit: syn::Lit::Str(lit_str),
                     ..
                 })) => {
-                    match path.get_ident() {
-                        Some(expr) => {
-                            filters.push([expr.to_owned(), format_ident!("{}", lit_str.value())])
-                        }
-                        None => {
-                            return Err(syn::Error::new_spanned(
-                                path,
-                                "Unknown identifier. Available: 'aid='AppId'",
-                            ));
-                        }
-                    };
+                    if path.is_ident("filter") {
+                        filters = lit_str
+                            .value()
+                            .replace(" ", "")
+                            .split(",")
+                            .into_iter()
+                            .map(|l| {
+                                return format_ident!("{}", l);
+                            })
+                            .collect();
+                    } else if path.is_ident("props") {
+                        props = lit_str
+                            .value()
+                            .replace(" ", "")
+                            .split(",")
+                            .into_iter()
+                            .map(|l| {
+                                return format_ident!("{}", l);
+                            })
+                            .collect();
+                    } else {
+                        return Err(syn::Error::new_spanned(
+                            path,
+                            "Unknown identifier. Available: filter, props ",
+                        ));
+                    }
                 }
 
                 _ => {
@@ -165,12 +199,12 @@ impl Crud {
                 }
             }
         }
-        println!("|||||||||||____________________");
         match model {
             Some(model) => Ok(Self {
                 model,
                 attrs,
                 filters,
+                props,
             }),
             None => Err(syn::Error::new(
                 Span::call_site(),
