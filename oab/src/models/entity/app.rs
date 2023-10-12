@@ -23,7 +23,8 @@ pub struct Model {
     pub hide: i8,
     pub join_method: i32,
     pub role_id: Option<String>,
-    pub redirect: Option<String>,
+    pub host: String,
+    pub redirect: String,
     pub status: i32,
 }
 
