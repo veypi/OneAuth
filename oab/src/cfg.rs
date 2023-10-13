@@ -26,6 +26,7 @@ lazy_static! {
     pub static ref CLI: AppCli = AppCli::new();
 }
 
+pub static mut KEY: String = String::new();
 // lazy_static! {
 //     pub static ref CONFIG: ApplicationConfig = ApplicationConfig::new();
 // }
@@ -135,6 +136,9 @@ impl AppState {
             Ok(f) => f,
             Err(ref e) if e.kind() == io::ErrorKind::NotFound => {
                 // res.connect_sqlx().unwrap();
+                unsafe {
+                    KEY = res.key.clone();
+                }
                 return res;
             }
             Err(e) => panic!("{}", e),
@@ -150,7 +154,9 @@ impl AppState {
         } else {
             println!("release_mode is enable!")
         }
-        info!("asd");
+        unsafe {
+            KEY = res.key.clone();
+        }
         res
     }
     pub fn defaut() -> Self {

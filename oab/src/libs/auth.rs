@@ -21,7 +21,9 @@ use tracing::warn;
 use crate::models;
 
 // custom request auth middleware
-pub struct Auth;
+pub struct Auth {
+    pub key: String,
+}
 
 impl<S, B> Transform<S, ServiceRequest> for Auth
 where
@@ -37,6 +39,7 @@ where
 
     fn new_transform(&self, service: S) -> Self::Future {
         ok(AuthMiddleware {
+            key: self.key.clone(),
             service: Rc::new(RefCell::new(service)),
         })
     }
@@ -44,6 +47,7 @@ where
 
 pub struct AuthMiddleware<S> {
     service: Rc<RefCell<S>>,
+    key: String,
 }
 
 impl<S, B> Service<ServiceRequest> for AuthMiddleware<S>
@@ -62,18 +66,17 @@ where
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let svc = self.service.clone();
+        let key = self.key.clone();
 
         Box::pin(async move {
             match req.headers().get("auth_token") {
-                Some(h) => {
-                    match models::Token::from(h.to_str().unwrap_or("")){
-                        Ok(t) => {
-                            req.extensions_mut().insert(t.id.clone());
-                            req.extensions_mut().insert(t);
-                        }
-                        Err(e) => warn!("{}", e),
-                    } 
-                }
+                Some(h) => match models::Token::from(h.to_str().unwrap_or(""), &key) {
+                    Ok(t) => {
+                        req.extensions_mut().insert(t.id.clone());
+                        req.extensions_mut().insert(t);
+                    }
+                    Err(e) => warn!("{}", e),
+                },
                 None => {}
             }
             // let value = HeaderValue::from_str("").unwrap();

@@ -131,7 +131,7 @@ async fn handle_file(req: &DavRequest, stat: web::Data<AppState>) -> Result<Stri
         None => "",
     };
     match auth_token {
-        Some(t) => match models::Token::from(t.to_str().unwrap_or("")) {
+        Some(t) => match models::Token::from(t.to_str().unwrap_or(""), &stat.key) {
             Ok(t) => {
                 if t.is_valid() {
                     if app_id != "" {

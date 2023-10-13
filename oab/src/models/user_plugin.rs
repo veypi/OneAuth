@@ -178,10 +178,10 @@ pub struct Token {
 }
 
 impl Token {
-    pub fn from(t: &str) -> Result<Self> {
+    pub fn from(t: &str, key: &str) -> Result<Self> {
         let token = decode::<Self>(
             t,
-            &DecodingKey::from_secret("secret".as_ref()),
+            &DecodingKey::from_secret(key.as_ref()),
             &Validation::default(),
         )?;
         if token.claims.is_valid() {
@@ -197,14 +197,22 @@ impl Token {
             false
         }
     }
-    pub fn to_string(&self) -> Result<String> {
+    pub fn to_string(&self, key: &str) -> Result<String> {
         let token = encode(
             &Header::default(),
             self,
-            &EncodingKey::from_secret("secret".as_ref()),
+            &EncodingKey::from_secret(key.as_ref()),
         )?;
         Ok(token)
     }
+    // pub fn to_string(&self) -> Result<String> {
+    //     let token = encode(
+    //         &Header::default(),
+    //         self,
+    //         &EncodingKey::from_secret(self._key.as_ref()),
+    //     )?;
+    //     Ok(token)
+    // }
 
     fn check(&self, domain: &str, did: &str, l: AccessLevel) -> bool {
         match &self.access {

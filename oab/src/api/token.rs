@@ -37,14 +37,18 @@ pub async fn get(
             "select access.name, access.rid, access.level from access, user_role, role WHERE user_role.user_id = ? && access.role_id=user_role.role_id && role.id=user_role.role_id && role.app_id = ?",
             )
             .bind(&t.id)
-            .bind(n)
+            .bind(&n)
             .fetch_all(stat.sqlx())
             .await?;
+            let appobj = models::app::Entity::find_by_id(&n)
+                .one(stat.db())
+                .await?
+                .unwrap();
             let u = models::user::Entity::find_by_id(&t.id)
                 .one(stat.db())
                 .await?
                 .unwrap();
-            let str = u.token(result).to_string()?;
+            let str = u.token(result).to_string(&appobj.key)?;
             // tokio::spawn(async move {
             //     let mut interval = tokio::time::interval(Duration::from_secs(5));
             //     interval.tick().await;

@@ -74,7 +74,9 @@ async fn web(data: AppState) -> Result<()> {
                         ErrorHandlers::new()
                             .handler(StatusCode::INTERNAL_SERVER_ERROR, add_error_header),
                     )
-                    .wrap(libs::auth::Auth)
+                    .wrap(libs::auth::Auth {
+                        key: data.key.clone(),
+                    })
                     .app_data(json_config)
                     .configure(api::routes),
             )
