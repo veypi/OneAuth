@@ -18,7 +18,7 @@ use clap::{Args, Parser, Subcommand};
 use lazy_static::lazy_static;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use sqlx::{mysql::MySqlPoolOptions, Pool};
-use tracing::Level;
+use tracing::{info, Level};
 
 use crate::Result;
 
@@ -43,6 +43,10 @@ pub struct AppCli {
 #[derive(Debug, Subcommand)]
 pub enum Clis {
     Init,
+    Install,
+    Uninstall,
+    Start,
+    Stop,
     Web,
     Stash(StashData),
 }
@@ -54,8 +58,41 @@ pub struct StashData {
 }
 
 impl AppCli {
-    fn new() -> Self {
+    pub fn new() -> Self {
         AppCli::parse()
+    }
+    pub fn handle_service(&self) -> Result<()> {
+        let label: service_manager::ServiceLabel = "v.oa".parse().unwrap();
+
+        // Get generic service by detecting what is available on the platform
+        let manager = <dyn service_manager::ServiceManager>::native()
+            .expect("Failed to detect management platform");
+
+        if let Some(c) = &CLI.command {
+            match c {
+                Clis::Install => {
+                    let p = std::env::current_exe()?;
+                    info!("deploy {}", p.to_str().unwrap());
+                    manager.install(service_manager::ServiceInstallCtx {
+                        label: label.clone(),
+                        program: p,
+                        args: vec![],
+                        contents: None, // Optional String for system-specific service content.
+                    })?
+                }
+                Clis::Uninstall => manager.uninstall(service_manager::ServiceUninstallCtx {
+                    label: label.clone(),
+                })?,
+                Clis::Start => manager.start(service_manager::ServiceStartCtx {
+                    label: label.clone(),
+                })?,
+                Clis::Stop => manager.stop(service_manager::ServiceStopCtx {
+                    label: label.clone(),
+                })?,
+                _ => {}
+            }
+        };
+        Ok(())
     }
 }
 
@@ -97,7 +134,7 @@ impl AppState {
         let mut f = match File::open(CLI.cfg.clone()) {
             Ok(f) => f,
             Err(ref e) if e.kind() == io::ErrorKind::NotFound => {
-                res.connect_sqlx().unwrap();
+                // res.connect_sqlx().unwrap();
                 return res;
             }
             Err(e) => panic!("{}", e),
@@ -113,7 +150,7 @@ impl AppState {
         } else {
             println!("release_mode is enable!")
         }
-        res.connect_sqlx().unwrap();
+        info!("asd");
         res
     }
     pub fn defaut() -> Self {

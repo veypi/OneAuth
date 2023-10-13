@@ -35,6 +35,9 @@ async fn main() -> Result<()> {
                 models::init(data).await;
                 return Ok(());
             }
+            Clis::Install | Clis::Uninstall | Clis::Start | Clis::Stop => {
+                return CLI.handle_service();
+            }
             _ => {}
         };
     };

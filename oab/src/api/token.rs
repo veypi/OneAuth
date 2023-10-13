@@ -8,8 +8,6 @@
 use actix_web::{get, web, Responder};
 use proc::access_read;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
-use std::time::{Duration, Instant};
-use tokio::{self};
 
 use crate::{
     models::{self, AUStatus, Token, UserPlugin},
