@@ -84,7 +84,10 @@ function redirect(url: string) {
   if (uuid.value && uuid.value !== app.id) {
 
     api.app.get(uuid.value as string).then((app: modelsApp) => {
-      api.token(uuid.value as string).get().then(e => {
+      api.token(uuid.value as string).get({
+        token:
+          util.getToken()
+      }).then(e => {
         url = url || app.redirect
         // let data = JSON.parse(Base64.decode(e.split('.')[1]))
         // console.log(data)

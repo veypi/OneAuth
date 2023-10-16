@@ -11,8 +11,8 @@ import ajax from './axios'
 export default (uuid: string) => {
   return {
     local: './app/' + uuid + '/token/',
-    get() {
-      return ajax.get(this.local)
+    get(data: { app_id?: string, token: string }) {
+      return ajax.post(this.local, data)
     },
   }
 }

@@ -530,10 +530,10 @@
   resolved "https://registry.yarnpkg.com/@veypi/msg/-/msg-0.1.1.tgz#94864ae2c0a81991b8a30d87f12d2245fdebbead"
   integrity sha512-UiAF/Y0EGT/37tGApptzHBNUpo78LbnrEkCqGAGMkJp86wrUyOgTAvuvQ197Ifqw9PIbjZM9dAgMv4DfMJQEYA==
 
-"@veypi/oaer@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@veypi/oaer/-/oaer-0.0.3.tgz#b72623ae3b124ac03ca65a6715cc1a2aaa1590ee"
-  integrity sha512-KfbbXJFUiGoCWoYpMAKOEX32Hc2qxk0NnApCWgXAVwU5iyFC4onJpvwPn0ekbWXULWSov5T3Yde61kOirGToIw==
+"@veypi/oaer@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@veypi/oaer/-/oaer-0.0.5.tgz#e29626baad7fb32c8764c13b5b1c11c41ff04404"
+  integrity sha512-QkYfpvu09b09YUByiS/ybmSeY6wKfjQZeEVTjWpqA1N4pU9/lQV9mXGPJmF2DduXD9EipctK4qzlsq1lsttoPA==
   dependencies:
     "@veypi/msg" "^0.1.0"
     "@veypi/one-icon" "2"
@@ -3131,13 +3131,6 @@ nats.ws@^1.18.0:
   resolved "https://registry.yarnpkg.com/nats.ws/-/nats.ws-1.18.0.tgz#eeef911608cc3c0f0f8ff2509c8a231f40213cb5"
   integrity sha512-5ITvGO2gd4vAVK733u494ysEOuorfygpig9pqqLapV3FuiFWp4APsZdtZ893zXCC5UclF9MYUzdiTj2cKPDxAA==
   optionalDependencies:
-    nkeys.js "1.0.5"
-
-nats@^2.17.0:
-  version "2.17.0"
-  resolved "https://registry.yarnpkg.com/nats/-/nats-2.17.0.tgz#1f6ffa5d89bb8ea4549e205f42601dbf66c4561e"
-  integrity sha512-749TtweWL6bc9R9yNra4a+tuk8J0bqurxcPV/9R2D+WPTplY4PPde/LPSXspqR/eCCTxiM80/AjVlfboEafRxA==
-  dependencies:
     nkeys.js "1.0.5"
 
 natural-compare-lite@^1.4.0:

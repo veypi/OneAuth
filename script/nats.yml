@@ -4,7 +4,7 @@ host: 127.0.0.1
 port: 4222
 
 # 监控端口
-http_port: 8222
+http: 127.0.0.1:8222
 
 jetstream: {
 }

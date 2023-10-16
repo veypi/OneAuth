@@ -32,6 +32,7 @@ pub async fn get(
 ) -> Result<impl Responder> {
     let aid = aid.into_inner();
     let mut key = stat.key.clone();
+    info!("{}", key);
     let sid = match &query.app_id {
         Some(i) => {
             if !i.is_empty() {
@@ -45,7 +46,6 @@ pub async fn get(
         }
         _ => "",
     };
-    info!("{}", key);
     let token = models::Token::from(&query.token, &key)?;
     if aid.starts_with("nats") {
         let nonce = &query.nonce.clone().unwrap();

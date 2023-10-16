@@ -17,7 +17,7 @@
     "@toast-ui/editor": "^3.2.2",
     "@types/validator": "^13.11.2",
     "@veypi/msg": "^0.1.1",
-    "@veypi/oaer": "^0.0.3",
+    "@veypi/oaer": "^0.0.6",
     "@veypi/one-icon": "2",
     "animate.css": "^4.1.1",
     "axios": "^1.2.1",

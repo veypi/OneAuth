@@ -23,7 +23,8 @@ export const useUserStore = defineStore('user', {
   getters: {
   },
   actions: {
-    logout() {
+    logout(msg?: string) {
+      console.log('logout: ' + msg)
       this.ready = false
       util.setToken('')
       router.push({ name: 'login' })
