@@ -5,6 +5,11 @@
 * @description：index
 * @update: 2021-11-17 22:22
 */
-import u from './util'
+import util from './util'
+import bus from './bus'
 
-export const util = u
+
+export {
+  util,
+  bus
+}

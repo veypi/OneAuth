@@ -51,7 +51,7 @@ pub async fn get(
         let nonce = &query.nonce.clone().unwrap();
         let u = nkeys::KeyPair::from_seed(&stat.nats_secret).unwrap();
         let res = base64::encode(u.sign(nonce.as_bytes()).unwrap());
-        return Ok(res);
+        return Ok(format!("{}@{}", res, &stat.nats_key));
     };
     if !aid.is_empty() {
         // 从OA token 转向其他app token

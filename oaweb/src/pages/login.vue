@@ -53,7 +53,6 @@ const data_rules = {
 let isPwd = ref(true)
 
 const onSubmit = () => {
-  console.log(data.value)
   api.user.login(data.value.username,
     data.value.password).then((data: any) => {
       util.setToken(data.auth_token)
@@ -61,9 +60,7 @@ const onSubmit = () => {
       user.fetchUserData()
       let url = route.query.redirect || data.redirect || '/'
       redirect(url)
-      console.log(data)
     }).catch(e => {
-      console.log([e])
       let m = e === '1' ? '被禁止登录' : e === '2' ? '正在申请中' : e
         === '3' ?
         '申请被拒绝' : '登录失败:' + e
@@ -84,7 +81,6 @@ let ifLogOut = computed(() => {
 
 
 function redirect(url: string) {
-  console.log(url)
   if (uuid.value && uuid.value !== app.id) {
 
     api.app.get(uuid.value as string).then((app: modelsApp) => {

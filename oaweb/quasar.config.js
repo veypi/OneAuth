@@ -40,7 +40,6 @@ module.exports = configure(function(/* ctx */) {
       'i18n',
       'api',
       'pack',
-      'nats',
       'oaer',
     ],
 

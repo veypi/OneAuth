@@ -3,6 +3,7 @@
 </template>
 
 <script setup lang="ts">
+import oaer from '@veypi/oaer';
 import { useQuasar } from 'quasar';
 import { onBeforeMount } from 'vue';
 import { useUserStore } from './stores/user';

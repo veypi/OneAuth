@@ -1,4 +1,3 @@
-import axios from 'axios'
 import bus from './bus'
 
 function padLeftZero(str: string): string {

@@ -11,11 +11,12 @@ jetstream: {
 
 authorization: {
   users: [
-    { nkey: UCXFAAVMCPTATZUZX6H24YF6FI3NKPQBPLM6BNN2EDFPNSUUEZPNFKEL}
+    { nkey: UCXFAAVMCPTATZUZX6H24YF6FI3NKPQBPLM6BNN2EDFPNSUUEZPNFKEL},
+    { user: cli, password: cli},
   ]
 }
 
 websocket: {
-  listen: '0.0.0.0:4221'
+  listen: '0.0.0.0:4221',
   no_tls: true
 }
