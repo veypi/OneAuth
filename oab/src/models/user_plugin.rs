@@ -66,7 +66,7 @@ impl UserPlugin for super::entity::user::Model {
             exp: (Utc::now() + Duration::days(4)).timestamp(),
             iat: Utc::now().timestamp(),
             id: self.id.clone(),
-            ico: self.icon.as_ref().unwrap_or(&default_ico).to_string(),
+            icon: self.icon.as_ref().unwrap_or(&default_ico).to_string(),
             access: Some(ac),
             nickname: self
                 .nickname
@@ -173,7 +173,7 @@ pub struct Token {
     pub iat: i64,    // Optional. 发布时间
     pub id: String,  // 用户id
     pub nickname: String,
-    pub ico: String,
+    pub icon: String,
     pub access: Option<Vec<AccessCore>>,
 }
 

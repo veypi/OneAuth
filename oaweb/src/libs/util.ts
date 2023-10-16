@@ -1,5 +1,5 @@
 import axios from 'axios'
-import evt from './evt'
+import bus from './bus'
 
 function padLeftZero(str: string): string {
   return ('00' + str).substr(str.length)
@@ -56,7 +56,7 @@ const util = {
   },
   setToken(t: string) {
     localStorage.setItem('auth_token', t)
-    evt.emit('token', t)
+    bus.emit('token', t)
   },
   addTokenOf(url: string) {
     return url + '?auth_token=' + encodeURIComponent(this.getToken())

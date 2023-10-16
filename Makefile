@@ -23,9 +23,6 @@ dropTag:
 run:
 	go run *.go -d
 
-.PHONY:build
-build:
-	@GOOS=linux GOARCH=amd64 go build -o ./build/OneAuth
 
 syncDB:
 	@scp -P 19529 oa.db root@alco.host:/root/

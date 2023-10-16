@@ -1,0 +1,21 @@
+# nats cfg
+#
+host: 127.0.0.1
+port: 4222
+
+# 监控端口
+http_port: 8222
+
+jetstream: {
+}
+
+authorization: {
+  users: [
+    { nkey: UCXFAAVMCPTATZUZX6H24YF6FI3NKPQBPLM6BNN2EDFPNSUUEZPNFKEL}
+  ]
+}
+
+websocket: {
+  listen: '0.0.0.0:4221'
+  no_tls: true
+}

@@ -26,7 +26,6 @@ lazy_static! {
     pub static ref CLI: AppCli = AppCli::new();
 }
 
-pub static mut KEY: String = String::new();
 // lazy_static! {
 //     pub static ref CONFIG: ApplicationConfig = ApplicationConfig::new();
 // }
@@ -116,11 +115,13 @@ pub struct AppState {
     pub db_name: String,
     pub log_dir: Option<String>,
     pub fs_root: String,
+    pub nats_key: String,
+    pub nats_secret: String,
+
     /// "100MB" 日志分割尺寸-单位KB,MB,GB
     pub log_temp_size: Option<String>,
     pub log_pack_compress: Option<String>,
     pub log_level: Option<String>,
-    pub jwt_secret: Option<String>,
     pub user_init_space: i64,
 
     #[serde(skip)]
@@ -136,9 +137,6 @@ impl AppState {
             Ok(f) => f,
             Err(ref e) if e.kind() == io::ErrorKind::NotFound => {
                 // res.connect_sqlx().unwrap();
-                unsafe {
-                    KEY = res.key.clone();
-                }
                 return res;
             }
             Err(e) => panic!("{}", e),
@@ -153,9 +151,6 @@ impl AppState {
             println!("///////////////////// Start On Debug Mode ////////////////////////////");
         } else {
             println!("release_mode is enable!")
-        }
-        unsafe {
-            KEY = res.key.clone();
         }
         res
     }
@@ -175,9 +170,10 @@ impl AppState {
             media_path: "/Users/veypi/test/media".to_string(),
             fs_root: "/Users/veypi/test/media".to_string(),
             log_level: None,
-            jwt_secret: None,
             _sqlx: None,
             _db: None,
+            nats_key: "UCXFAAVMCPTATZUZX6H24YF6FI3NKPQBPLM6BNN2EDFPNSUUEZPNFKEL".to_string(),
+            nats_secret: "SUACQNAAFKDKRBXS62J4JYZ7DWZS7UNUQI52BOFGGBUACHTDHRQP7I66GI".to_string(),
             user_init_space: 300,
         }
     }

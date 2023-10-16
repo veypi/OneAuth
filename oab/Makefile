@@ -15,3 +15,9 @@ sqlx:
 
 entity:
 	@sea-orm-cli generate entity --database-url mysql://root:123456@localhost:3306/oneauth -o ./src/models/entity/ --with-serde both --model-extra-derives Default,sqlx::FromRow --serde-skip-hidden-column --date-time-crate chrono
+
+# install_target:
+# 	@rustup target add x86_64-unknown-linux-gnu
+
+build_linux:
+	@cargo build --release --target-dir ./target/linux/

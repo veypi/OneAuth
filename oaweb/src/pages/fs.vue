@@ -15,7 +15,7 @@
 
 <script lang="ts" setup>
 import FsTree from 'src/components/FsTree.vue';
-import oafs, { fileProps } from 'src/libs/oafs';
+import { oafs, fileProps } from '@veypi/oaer';
 import { onMounted, ref } from 'vue';
 let root = ref({} as fileProps)
 

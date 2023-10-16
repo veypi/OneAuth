@@ -7,7 +7,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import oafs from 'src/libs/oafs';
+import {oafs} from '@veypi/oaer'
 
 let file = ref<HTMLInputElement>()
 let emits = defineEmits<{

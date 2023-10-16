@@ -15,7 +15,7 @@
 import Cherry from 'cherry-markdown';
 import options from './options'
 import { computed, onMounted, ref, watch } from 'vue';
-import oafs from 'src/libs/oafs';
+import { oafs } from '@veypi/oaer'
 
 let editor = {} as Cherry;
 let emits = defineEmits<{

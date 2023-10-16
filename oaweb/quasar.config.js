@@ -40,6 +40,8 @@ module.exports = configure(function(/* ctx */) {
       'i18n',
       'api',
       'pack',
+      'nats',
+      'oaer',
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css

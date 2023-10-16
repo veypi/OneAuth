@@ -530,20 +530,18 @@
   resolved "https://registry.yarnpkg.com/@veypi/msg/-/msg-0.1.1.tgz#94864ae2c0a81991b8a30d87f12d2245fdebbead"
   integrity sha512-UiAF/Y0EGT/37tGApptzHBNUpo78LbnrEkCqGAGMkJp86wrUyOgTAvuvQ197Ifqw9PIbjZM9dAgMv4DfMJQEYA==
 
-"@veypi/oaer@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@veypi/oaer/-/oaer-0.0.1.tgz#b22ebaf72a7bfd5abf62f099b72b533a8cf27abd"
-  integrity sha512-ILY8SXK7yihH2/qhUFfPbD2FNE7O4IHh7Q9Z1A+Ild6zonCb3RM7LcOBM4/9WriEi3mPdBNmFfuoP8YFCIxHuA==
+"@veypi/oaer@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@veypi/oaer/-/oaer-0.0.3.tgz#b72623ae3b124ac03ca65a6715cc1a2aaa1590ee"
+  integrity sha512-KfbbXJFUiGoCWoYpMAKOEX32Hc2qxk0NnApCWgXAVwU5iyFC4onJpvwPn0ekbWXULWSov5T3Yde61kOirGToIw==
   dependencies:
     "@veypi/msg" "^0.1.0"
     "@veypi/one-icon" "2"
     animate.css "^4.1.1"
     autoprefixer "^10.4.16"
-    axios "^1.5.1"
     js-base64 "^3.7.5"
+    mitt "^3.0.1"
     postcss "^8.4.31"
-    tailwindcss "^3.3.3"
-    vue "^3.3.4"
     webdav "^5.3.0"
 
 "@veypi/one-icon@2":
@@ -866,15 +864,6 @@ axios@^1.2.1:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.5.0.tgz#f02e4af823e2e46a9768cfc74691fdd0517ea267"
   integrity sha512-D4DdjDo5CY50Qms0qGQTTw6Q44jl7zRwY7bthds06pUGfChBCTcQs+N743eFWGEd6pRTMd6A+I87aWyFV5wiZQ==
-  dependencies:
-    follow-redirects "^1.15.0"
-    form-data "^4.0.0"
-    proxy-from-env "^1.1.0"
-
-axios@^1.5.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.5.1.tgz#11fbaa11fc35f431193a9564109c88c1f27b585f"
-  integrity sha512-Q28iYCWzNHjAm+yEAot5QaAMxhMghWLFVf7rRdwhUI+c2jix2DUXjAHXVi+s1ibs3mjPO/cCgbA++3BjD0vP/A==
   dependencies:
     follow-redirects "^1.15.0"
     form-data "^4.0.0"
@@ -3137,6 +3126,20 @@ nanoid@^3.3.6:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.6.tgz#443380c856d6e9f9824267d960b4236ad583ea4c"
   integrity sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==
 
+nats.ws@^1.18.0:
+  version "1.18.0"
+  resolved "https://registry.yarnpkg.com/nats.ws/-/nats.ws-1.18.0.tgz#eeef911608cc3c0f0f8ff2509c8a231f40213cb5"
+  integrity sha512-5ITvGO2gd4vAVK733u494ysEOuorfygpig9pqqLapV3FuiFWp4APsZdtZ893zXCC5UclF9MYUzdiTj2cKPDxAA==
+  optionalDependencies:
+    nkeys.js "1.0.5"
+
+nats@^2.17.0:
+  version "2.17.0"
+  resolved "https://registry.yarnpkg.com/nats/-/nats-2.17.0.tgz#1f6ffa5d89bb8ea4549e205f42601dbf66c4561e"
+  integrity sha512-749TtweWL6bc9R9yNra4a+tuk8J0bqurxcPV/9R2D+WPTplY4PPde/LPSXspqR/eCCTxiM80/AjVlfboEafRxA==
+  dependencies:
+    nkeys.js "1.0.5"
+
 natural-compare-lite@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/natural-compare-lite/-/natural-compare-lite-1.4.0.tgz#17b09581988979fddafe0201e931ba933c96cbb4"
@@ -3156,6 +3159,13 @@ nested-property@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/nested-property/-/nested-property-4.0.0.tgz#a67b5a31991e701e03cdbaa6453bc5b1011bb88d"
   integrity sha512-yFehXNWRs4cM0+dz7QxCd06hTbWbSkV0ISsqBfkntU6TOY4Qm3Q88fRRLOddkGh2Qq6dZvnKVAahfhjcUvLnyA==
+
+nkeys.js@1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/nkeys.js/-/nkeys.js-1.0.5.tgz#3024bde671eb33be0316ff2d5abe8b8cec960158"
+  integrity sha512-u25YnRPHiGVsNzwyHnn+PT90sgAhnS8jUJ1nxmkHMFYCJ6+Ic0lv291w7uhRBpJVJ3PH2GWbYqA151lGCRrB5g==
+  dependencies:
+    tweetnacl "1.0.3"
 
 no-case@^2.2.0:
   version "2.3.2"
@@ -4116,6 +4126,13 @@ ts-interface-checker@^0.1.9:
   resolved "https://registry.yarnpkg.com/ts-interface-checker/-/ts-interface-checker-0.1.13.tgz#784fd3d679722bc103b1b4b8030bcddb5db2a699"
   integrity sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==
 
+ts-nkeys@^1.0.16:
+  version "1.0.16"
+  resolved "https://registry.yarnpkg.com/ts-nkeys/-/ts-nkeys-1.0.16.tgz#b0c6e7c4f16f976c7e7ddb6982fc789a2f971248"
+  integrity sha512-1qrhAlavbm36wtW+7NtKOgxpzl+70NTF8xlz9mEhiA5zHMlMxjj3sEVKWm3pGZhHXE0Q3ykjrj+OSRVaYw+Dqg==
+  dependencies:
+    tweetnacl "^1.0.3"
+
 tslib@^1.8.1:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
@@ -4132,6 +4149,11 @@ tsutils@^3.21.0:
   integrity sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==
   dependencies:
     tslib "^1.8.1"
+
+tweetnacl@1.0.3, tweetnacl@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-1.0.3.tgz#ac0af71680458d8a6378d0d0d050ab1407d35596"
+  integrity sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==
 
 type-check@^0.4.0, type-check@~0.4.0:
   version "0.4.0"
@@ -4294,7 +4316,7 @@ vue-router@^4.0.0:
   dependencies:
     "@vue/devtools-api" "^6.5.0"
 
-vue@^3.0.0, vue@^3.2.20, vue@^3.3.4:
+vue@^3.0.0, vue@^3.2.20:
   version "3.3.4"
   resolved "https://registry.yarnpkg.com/vue/-/vue-3.3.4.tgz#8ed945d3873667df1d0fcf3b2463ada028f88bd6"
   integrity sha512-VTyEYn3yvIeY1Py0WaYGZsXnz3y5UnGi62GjVEqvEGPl6nxbOrCXbVOTQWBEJUqAyTUk2uJ5JLVnYJ6ZzGbrSw==

@@ -84,6 +84,7 @@ let ifLogOut = computed(() => {
 
 
 function redirect(url: string) {
+  console.log(url)
   if (uuid.value && uuid.value !== app.id) {
 
     api.app.get(uuid.value as string).then((app: modelsApp) => {
@@ -92,9 +93,11 @@ function redirect(url: string) {
         // let data = JSON.parse(Base64.decode(e.split('.')[1]))
         // console.log(data)
         e = encodeURIComponent(e)
-        console.log(e)
-        url = url.replaceAll('$token', e)
-        console.log(url)
+        if (url.indexOf('$token') >= 0) {
+          url = url.replaceAll('$token', e)
+        } else {
+          url = buildURL(url, 'token=' + e)
+        }
         window.location.href = url
 
       })
@@ -105,10 +108,27 @@ function redirect(url: string) {
     router.push({ name: 'home' })
   }
 }
+function buildURL(url: string, params?: string) {
+  if (!params) {
+    return url;
+  }
+
+  // params序列化过程略
+  var hashmarkIndex = url.indexOf('#');
+  if (hashmarkIndex !== -1) {
+    url = url.slice(0, hashmarkIndex);
+  }
+
+  url += (url.indexOf('?') === -1 ? '?' : '&') + params;
+
+  return url;
+}
 
 onMounted(() => {
-  if (!ifLogOut.value && util.checkLogin()) {
-    redirect('')
+  if (ifLogOut.value) {
+    util.setToken('')
+  } else if (util.checkLogin()) {
+    redirect(route.query.redirect as string || '')
   }
 })
 </script>

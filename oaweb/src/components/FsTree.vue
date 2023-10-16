@@ -28,7 +28,7 @@
 <script lang="ts" setup>
 import FsTree from './FsTree.vue'
 import { ref } from 'vue';
-import oafs, { fileProps } from 'src/libs/oafs';
+import { oafs, fileProps } from '@veypi/oaer';
 import { util } from 'src/libs';
 
 

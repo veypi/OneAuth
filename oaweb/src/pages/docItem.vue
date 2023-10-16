@@ -17,7 +17,7 @@
 <script lang="ts" setup>
 import msg from '@veypi/msg';
 import Editor from 'src/components/editor'
-import oafs from 'src/libs/oafs';
+import { oafs } from '@veypi/oaer';
 import { computed, watch, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 let doc = ref('')

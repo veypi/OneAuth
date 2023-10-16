@@ -8,5 +8,5 @@
 
 import mitt from "mitt";
 
-const evt = mitt()
-export default evt
+const bus = mitt()
+export default bus

@@ -5,6 +5,8 @@
 // Distributed under terms of the Apache license.
 //
 
+use bytes::Bytes;
+
 use actix_files as fs;
 use actix_web::{
     dev::{self, Service},
@@ -25,13 +27,13 @@ use tracing::{error, info, warn};
 async fn main() -> Result<()> {
     std::env::set_var("RUST_LOG", "debug");
     std::env::set_var("RUST_BACKTRACE", "1");
+    std::env::set_var("asd", "asd");
     init_log();
     let mut data = AppState::new();
-    data.connect().await?;
-    data.connect_sqlx()?;
     if let Some(c) = &CLI.command {
         match c {
             Clis::Init => {
+                data.connect_sqlx()?;
                 models::init(data).await;
                 return Ok(());
             }
@@ -41,10 +43,24 @@ async fn main() -> Result<()> {
             _ => {}
         };
     };
+    data.connect().await?;
+    data.connect_sqlx()?;
     web(data).await?;
     Ok(())
 }
 async fn web(data: AppState) -> Result<()> {
+    let client = match async_nats::ConnectOptions::new()
+        .nkey(data.nats_secret.clone())
+        .connect("127.0.0.1:4222")
+        .await
+    {
+        Ok(r) => r,
+        Err(e) => return Err(oab::Error::Unknown),
+    };
+    client
+        .publish("msg".to_string(), Bytes::from("asd"))
+        .await
+        .unwrap();
     let url = data.server_url.clone();
     let dav = libs::fs::core();
     let serv = HttpServer::new(move || {
@@ -61,7 +77,13 @@ async fn web(data: AppState) -> Result<()> {
                 )
                 .into()
             });
-        let cors = actix_cors::Cors::permissive();
+        let cors = actix_cors::Cors::default()
+            .allow_any_method()
+            .allow_any_header()
+            .supports_credentials()
+            .allowed_origin_fn(|_, _| {
+                return true;
+            });
         let app = App::new();
         app.wrap(logger)
             .wrap(middleware::Compress::default())
@@ -85,7 +107,7 @@ async fn web(data: AppState) -> Result<()> {
                     .wrap_fn(|req, srv| {
                         let headers = &req.headers().clone();
                         let origin = match headers.get("Origin") {
-                            Some(o) => o.to_str().unwrap().clone().to_string(),
+                            Some(o) => o.to_str().unwrap().to_string(),
                             None => "".to_string(),
                         };
                         srv.call(req).map(move |res| {
@@ -129,6 +151,7 @@ struct Asset;
 #[actix_web::get("/{_:.*}")]
 async fn index(p: web::Path<String>) -> impl Responder {
     info!("{}", p);
+
     let p = &p.into_inner();
     match Asset::get(p) {
         Some(content) => HttpResponse::Ok()

@@ -19,7 +19,7 @@ import { modelsApp } from 'src/models';
 import api from 'src/boot/api';
 import msg from '@veypi/msg';
 import Editor from 'src/components/editor'
-import oafs from 'src/libs/oafs';
+import { oafs } from '@veypi/oaer'
 
 
 

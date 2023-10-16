@@ -41,7 +41,7 @@ where
 
 // pub type AsyncResult<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
-#[derive(Clone, ThisError, Debug, Deserialize, Serialize)]
+#[derive(ThisError, Debug)]
 pub enum Error {
     // system
     // EnvVarError,
@@ -128,6 +128,9 @@ pub enum Error {
 
     #[error("unknown error")]
     Unknown,
+
+    #[error(transparent)]
+    Other(#[from] anyhow::Error),
 }
 
 impl From<std::io::Error> for Error {
