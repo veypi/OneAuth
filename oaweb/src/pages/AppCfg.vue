@@ -20,7 +20,8 @@
         </template>
         <template #k_key>
           <div class="w-full div-center">
-            <q-btn color='primary'>获取秘钥</q-btn>
+            <q-btn color='primary' @click="getkey">获取秘钥</q-btn>
+            <span class="mx-2 select-all" v-if="tmpkey">{{ tmpkey }}</span>
           </div>
         </template>
         <template #k_redirect_append>
@@ -42,6 +43,9 @@ import { inject, onMounted, Ref, ref } from 'vue';
 import uploader from 'src/components/uploader';
 import api from 'src/boot/api';
 import msg from '@veypi/msg';
+import { useQuasar, copyToClipboard } from 'quasar';
+
+let $q = useQuasar();
 const keys = ref<any>([
   {
     name: 'name',
@@ -70,6 +74,28 @@ const save = () => {
     newApp.value = null
   }).catch(e => {
     msg.Warn('更新失败 ' + e)
+  })
+}
+
+const tmpkey = ref('')
+const getkey = () => {
+  $q.dialog({
+    title: '是否确定获取key',
+    message: '该操作会导致旧key失效',
+    cancel: true,
+    persistent: true
+  }).onOk(() => {
+    api.app.getKey(app.value.id).then(e => {
+      console.log(e)
+      tmpkey.value = e
+      copyToClipboard(e).then(e => {
+        msg.Info('已复制到剪贴板')
+      }).catch(e => {
+        tmpkey.value = e
+      })
+    }).catch(e => {
+      msg.Warn('获取失败 ' + e)
+    })
   })
 }
 

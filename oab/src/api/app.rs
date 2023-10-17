@@ -13,7 +13,7 @@ use tracing::info;
 
 use crate::{
     libs,
-    models::{access, app, rand_str, AccessLevel, Token},
+    models::{self, access, app, rand_str, AccessLevel, Token},
     AppState, Error, Result,
 };
 
@@ -26,6 +26,24 @@ pub async fn get(id: web::Path<String>, stat: web::Data<AppState>) -> Result<imp
         Ok(web::Json(s))
     } else {
         Err(Error::Missing("id".to_string()))
+    }
+}
+
+#[get("/app/{id}/key")]
+#[access_delete("app")]
+pub async fn get_key(id: web::Path<String>, stat: web::Data<AppState>) -> Result<impl Responder> {
+    let n = id.into_inner();
+    let obj = models::app::Entity::find_by_id(&n).one(stat.db()).await?;
+    if let Some(obj) = obj {
+        // Into ActiveModel
+        let mut obj: models::app::ActiveModel = obj.into();
+
+        let key = rand_str(32);
+        obj.key = sea_orm::ActiveValue::Set(key.clone());
+        obj.update(stat.db()).await?;
+        Ok(key)
+    } else {
+        Err(Error::NotFound(n))
     }
 }
 

@@ -14,7 +14,7 @@ export default {
     return ajax.get(this.local, { option: 'oa' })
   },
   getKey(uuid: string) {
-    return ajax.get(this.local + uuid, { option: 'key' })
+    return ajax.get(this.local + uuid + '/key')
   },
   create(name: string, icon: string) {
     return ajax.post(this.local, { name, icon })

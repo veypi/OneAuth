@@ -8,6 +8,7 @@
 
 // import '@veypi/oaer'
 import oaer from '@veypi/oaer'
+import '@veypi/oaer/dist/index.css'
 import bus from 'src/libs/bus'
 import util from 'src/libs/util'
 

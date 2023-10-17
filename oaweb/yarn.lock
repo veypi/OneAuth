@@ -530,10 +530,10 @@
   resolved "https://registry.yarnpkg.com/@veypi/msg/-/msg-0.1.1.tgz#94864ae2c0a81991b8a30d87f12d2245fdebbead"
   integrity sha512-UiAF/Y0EGT/37tGApptzHBNUpo78LbnrEkCqGAGMkJp86wrUyOgTAvuvQ197Ifqw9PIbjZM9dAgMv4DfMJQEYA==
 
-"@veypi/oaer@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@veypi/oaer/-/oaer-0.0.5.tgz#e29626baad7fb32c8764c13b5b1c11c41ff04404"
-  integrity sha512-QkYfpvu09b09YUByiS/ybmSeY6wKfjQZeEVTjWpqA1N4pU9/lQV9mXGPJmF2DduXD9EipctK4qzlsq1lsttoPA==
+"@veypi/oaer@^0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@veypi/oaer/-/oaer-0.0.6.tgz#02a1f9c54ec4e43805123a9f16ddfeda152e6758"
+  integrity sha512-B1czF/GGWPCVRdtXvqVjTE9m/Tli8fmhy9K6lPnbt89QzkdYVmQ6DMs1rugMlPw+Lflc3pqeQuCUmlKjKgMqPQ==
   dependencies:
     "@veypi/msg" "^0.1.0"
     "@veypi/one-icon" "2"

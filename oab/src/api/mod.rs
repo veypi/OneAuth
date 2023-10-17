@@ -25,6 +25,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         .service(user::update)
         .service(user::delete);
     cfg.service(app::get)
+        .service(app::get_key)
         .service(app::list)
         .service(app::create)
         .service(app::update)
