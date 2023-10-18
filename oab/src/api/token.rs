@@ -49,9 +49,9 @@ pub async fn get(
     let token = models::Token::from(&query.token, &key)?;
     if aid.starts_with("nats") {
         let nonce = &query.nonce.clone().unwrap();
-        let u = nkeys::KeyPair::from_seed(&stat.nats_secret).unwrap();
+        let u = nkeys::KeyPair::from_seed(&stat.nats_usr[1].clone()).unwrap();
         let res = base64::encode(u.sign(nonce.as_bytes()).unwrap());
-        return Ok(format!("{}@{}", res, &stat.nats_key));
+        return Ok(format!("{}@{}", res, &stat.nats_usr[0].clone()));
     };
     if !aid.is_empty() {
         // 从OA token 转向其他app token

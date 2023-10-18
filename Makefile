@@ -31,3 +31,10 @@ buildweb:
 	@cd oaweb && yarn build
 	@rm -rf ./oab/dist/*
 	@mv ./oaweb/dist/spa/* ./oab/dist/
+
+nats:
+	@nats-server -c ./script/nats.cfg
+
+.PHONY:oab
+oab:
+	@cd oab && cargo run -- -c ./cfg-demo.yml

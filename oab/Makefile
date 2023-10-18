@@ -6,7 +6,7 @@
 #
 
 run:
-	@cargo run
+	@cargo run -- -c ./cfg-demo.yml
 init:
 	@cargo run -- init
 

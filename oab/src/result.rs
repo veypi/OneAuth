@@ -126,11 +126,13 @@ pub enum Error {
     #[error("invalid header (expected {expected:?}, found {found:?})")]
     InvalidHeader { expected: String, found: String },
 
+    // #[error("serde yaml error")]
+    // SerdeYamlError{#[from] serde_yaml::Error}
+    #[error("serde yaml error")]
+    SerdeYamlError(#[from] serde_yaml::Error),
+
     #[error("unknown error")]
     Unknown,
-
-    #[error(transparent)]
-    Other(#[from] anyhow::Error),
 }
 
 impl From<std::io::Error> for Error {

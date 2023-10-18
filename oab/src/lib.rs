@@ -10,5 +10,5 @@ mod cfg;
 pub mod libs;
 pub mod models;
 mod result;
-pub use cfg::{init_log, AppState, ApplicationConfig, Clis, CLI};
+pub use cfg::{init_log, AppCli, AppState, ApplicationConfig, Clis, InfoOpt};
 pub use result::{Error, Result};

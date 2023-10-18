@@ -10,6 +10,7 @@ use bytes::Bytes;
 use actix_files as fs;
 use actix_web::{
     dev::{self, Service},
+    get,
     http::StatusCode,
     middleware::{self, ErrorHandlerResponse, ErrorHandlers},
     web::{self},
@@ -20,25 +21,28 @@ use mime_guess::from_path;
 use rust_embed::RustEmbed;
 
 use http::{HeaderName, HeaderValue};
-use oab::{api, init_log, libs, models, AppState, Clis, Result, CLI};
+use oab::{api, init_log, libs, models, AppCli, AppState, Clis, Result};
 use tracing::{error, info, warn};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    std::env::set_var("RUST_LOG", "debug");
-    std::env::set_var("RUST_BACKTRACE", "1");
-    std::env::set_var("asd", "asd");
-    init_log();
-    let mut data = AppState::new();
-    if let Some(c) = &CLI.command {
+    let cli = AppCli::new();
+    let mut data = AppState::new(&cli);
+    if data.debug {
+        std::env::set_var("RUST_LOG", "debug");
+        std::env::set_var("RUST_BACKTRACE", "1");
+    }
+    let _log = init_log(&data);
+    if cli.handle_service(data.clone())? {
+        info!("2");
+        return Ok(());
+    }
+    if let Some(c) = &cli.command {
         match c {
             Clis::Init => {
                 data.connect_sqlx()?;
                 models::init(data).await;
                 return Ok(());
-            }
-            Clis::Install | Clis::Uninstall | Clis::Start | Clis::Stop => {
-                return CLI.handle_service();
             }
             _ => {}
         };
@@ -46,11 +50,13 @@ async fn main() -> Result<()> {
     data.connect().await?;
     data.connect_sqlx()?;
     web(data).await?;
+    info!("1");
+    info!("12");
     Ok(())
 }
 async fn web(data: AppState) -> Result<()> {
     let client = match async_nats::ConnectOptions::new()
-        .nkey(data.nats_secret.clone())
+        .nkey(data.nats_sys[1].clone())
         .connect("127.0.0.1:4222")
         .await
     {
@@ -88,6 +94,7 @@ async fn web(data: AppState) -> Result<()> {
         app.wrap(logger)
             .wrap(middleware::Compress::default())
             .app_data(web::Data::new(data.clone()))
+            .service(info)
             .service(fs::Files::new("/media", data.media_path.clone()).show_files_listing())
             .service(
                 web::scope("api")
@@ -161,4 +168,9 @@ async fn index(p: web::Path<String>) -> impl Responder {
             .content_type(from_path("index.html").first_or_octet_stream().as_ref())
             .body(Asset::get("index.html").unwrap().data.into_owned()),
     }
+}
+
+#[get("/info")]
+pub async fn info(stat: web::Data<AppState>) -> Result<impl Responder> {
+    Ok(web::Json(stat.info.clone()))
 }
