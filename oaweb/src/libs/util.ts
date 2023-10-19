@@ -8,7 +8,10 @@ function padLeftZero(str: string): string {
 
 const util = {
   datetostr(d: string) {
-    let r = new Date(d + 'z')
+    if (!d.endsWith('Z')) {
+      d = d + 'Z'
+    }
+    let r = new Date(d)
     let delta = (new Date().getTime() - r.getTime()) / 1000
     if (delta < 0) {
     } else if (delta < 60) {

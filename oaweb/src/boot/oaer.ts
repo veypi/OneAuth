@@ -9,13 +9,14 @@
 // import '@veypi/oaer'
 import oaer from '@veypi/oaer'
 import '@veypi/oaer/dist/index.css'
+import cfg from 'src/cfg'
 import bus from 'src/libs/bus'
 import util from 'src/libs/util'
 
 oaer.set({
   token: util.getToken(),
-  host: 'http://' + window.location.host,
-  uuid: 'FR9P5t8debxc11aFF',
+  host: cfg.host,
+  uuid: cfg.id,
 })
 
 bus.on('token', (t: any) => {

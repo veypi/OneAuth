@@ -56,7 +56,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import Menu from 'src/components/menu.vue'
+import Menu from './menu.vue'
 import { useUserStore } from 'src/stores/user';
 import { OAer } from "@veypi/oaer";
 import { util } from 'src/libs';

@@ -5,7 +5,6 @@
 * @description：index
 */
 
-import { RouteLocationRaw } from 'vue-router';
 import { AccessLevel } from './auth';
 
 export { type Auths, type modelsSimpleAuth, NewAuths, R, AccessLevel, LevelOptions } from './auth'
@@ -54,14 +53,6 @@ export interface DocGroup {
   name: string
   icon: string
   items?: DocItem[]
-}
-
-export interface MenuLink {
-  title: string;
-  caption?: string;
-  to?: RouteLocationRaw;
-  link?: string;
-  icon?: string;
 }
 
 export interface modelsBread {

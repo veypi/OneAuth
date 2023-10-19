@@ -1,5 +1,6 @@
 import { Auths } from 'src/models/auth';
 import { RouteRecordRaw } from 'vue-router';
+import menus from 'src/layouts/menus'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -17,58 +18,48 @@ function loadcomponents(path: string, name: string, main: string) {
   return {
     path: path,
     name: name,
-    components: {
-      default: () => import("../pages/" + main + ".vue"),
-    }
+    component: () => import("../pages/" + main + ".vue"),
   }
 }
 const routes: RouteRecordRaw[] = [
 
   {
     path: '/',
-    component: () => import('../layouts/MainLayout.vue'),
+    component: () => import('src/layouts/MainLayout.vue'),
     meta: {
       requiresAuth: true,
     },
     redirect: 'home',
     children: [
+      {
+        path: 'app/:id',
+        name: 'app',
+        component: () => import("../layouts/AppLayout.vue"),
+        redirect: { name: 'app.home' },
+        children: [
+        ]
+      },
       loadcomponents('home', 'home', 'IndexPage'),
       loadcomponents('user', 'user', 'user'),
       loadcomponents('fs', 'fs', 'fs'),
       loadcomponents('doc', 'doc', 'doc'),
       loadcomponents('doc/:typ/:url(.*)', 'doc_item', 'docItem'),
       loadcomponents('settings', 'settings', 'settings'),
-      {
-        path: 'app/:id',
-        component: () => import("../layouts/AppLayout.vue"),
-        redirect: { name: 'app.home' },
-        children: [
-          loadcomponents('home', 'app.home', 'AppHome'),
-          loadcomponents('user', 'app.user', 'AppUser'),
-          loadcomponents('auth', 'app.auth', 'AppAuth'),
-          loadcomponents('settings', 'app.settings', 'AppCfg'),
-        ]
-      }
     ],
   },
-  {
-    path: '/login/:uuid?',
-    name: 'login',
-    component: () => import('../pages/login.vue'),
-  },
-  {
-    path: '/register/:uuid?',
-    name: 'register',
-    component: () => import('../pages/register.vue'),
-  },
-
-
-  // Always leave this as last one,
-  // but you can also remove it
-  {
-    path: '/:catchAll(.*)*',
-    component: () => import('../pages/404.vue'),
-  },
+  loadcomponents('/login/:uuid?', 'login', 'login'),
+  loadcomponents('/register/:uuid?', 'register', 'register'),
+  loadcomponents('/:catchAll(.*)*', '404', '404')
 ];
+for (let i of menus.appLinks.value) {
+  // @ts-ignore
+  routes[0].children[0].children.push(i.router)
+}
+for (let i in menus.uniqueLinks) {
+  for (let j of menus.uniqueLinks[i]) {
+    // @ts-ignore
+    routes[0].children[0].children.push(j.router)
+  }
+}
 
 export default routes;

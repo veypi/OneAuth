@@ -15,8 +15,13 @@ mod token;
 mod upload;
 mod user;
 use actix_web::web;
+use tracing::info;
+
+use crate::{AppState, Result};
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
+    cfg.service(info);
+    cfg.service(proxynats);
     cfg.service(upload::save_files);
     cfg.service(user::get)
         .service(user::list)
@@ -51,4 +56,28 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         .service(role::delete)
         .service(role::add)
         .service(role::drop);
+}
+
+#[actix_web::get("/info")]
+pub async fn info(stat: web::Data<AppState>) -> Result<impl actix_web::Responder> {
+    Ok(web::Json(stat.info.clone()))
+}
+
+#[actix_web::get("/nats/{p:.*}")]
+pub async fn proxynats(
+    req: actix_web::HttpRequest,
+    p: web::Path<String>,
+) -> Result<impl actix_web::Responder> {
+    let data = req.uri().query();
+    let p = p.into_inner();
+    let mut url = "http://127.0.0.1:8222".to_string();
+    if !p.is_empty() {
+        url = format!("{url}/{p}")
+    }
+    if let Some(query) = data {
+        url = format!("{url}?{query}")
+    };
+    info!(url);
+    let data = reqwest::get(url).await.unwrap().bytes().await.unwrap();
+    Ok(actix_web::HttpResponse::Ok().body(data))
 }

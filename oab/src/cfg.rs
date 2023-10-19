@@ -111,10 +111,10 @@ pub struct ApplicationConfig {
 
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct InfoOpt {
-    nats_url: String,
-    ws_url: String,
-    api_url: String,
-    token: Option<String>,
+    pub nats_url: String,
+    pub ws_url: String,
+    pub api_url: String,
+    pub token: Option<String>,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

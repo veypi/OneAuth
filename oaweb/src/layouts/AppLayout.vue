@@ -24,13 +24,12 @@
 <script lang="ts" setup>
 import msg from '@veypi/msg';
 import api from 'src/boot/api';
-import { MenuLink, modelsApp } from 'src/models';
-import { useMenuStore } from 'src/stores/menu';
+import { modelsApp } from 'src/models';
 import { computed, watch, ref, onMounted, provide, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
 import { RouteLocationNamedRaw } from 'vue-router';
+import menus from './menus'
 let route = useRoute();
-let menu = useMenuStore()
 
 let id = computed(() => route.params.id)
 let app = ref({} as modelsApp)
@@ -38,61 +37,40 @@ let app = ref({} as modelsApp)
 provide('app', app)
 
 const sync_app = () => {
+  let tid = id.value as string
   api.app.get(id.value as string).then((e: modelsApp) => {
     app.value = e
-    Links.value[1].title = e.name
-    for (let i in Links.value) {
-      let l: RouteLocationNamedRaw = Links.value[i].to as any
-      if (l.params) {
-        l.params.id = e.id
+    let links = menus.appLinks.value.concat([])
+    links[0].title = e.name
+    if (menus.uniqueLinks[tid]?.length) {
+      for (let r of menus.uniqueLinks[tid]) {
+        links.splice(1, 0, r)
       }
     }
+    for (let i in links) {
+      let l: RouteLocationNamedRaw = links[i].to as any
+      if (l.params) {
+        l.params.id = e.id
+      } else {
+        l.params = { id: e.id }
+      }
+    }
+    menus.items.value = links
   }).catch(e => {
     msg.Warn('sync app data failed: ' + e)
   })
 }
-const Links = ref([
-  {
-    title: '应用中心',
-    caption: '',
-    icon: 'v-apps',
-    to: { name: 'home' }
-  },
-  {
-    title: '',
-    caption: '',
-    icon: 'v-home',
-    to: { name: 'app.home', params: { id: id.value } }
-  },
-  {
-    title: '用户管理',
-    icon: 'v-team',
-    to: { name: 'app.user', params: { id: id.value } }
-  },
-  {
-    title: '权限管理',
-    icon: 'v-key',
-    to: { name: 'app.auth', params: { id: id.value } }
-  },
-  {
-    title: '应用设置',
-    caption: '',
-    icon: 'v-setting',
-    to: { name: 'app.settings', params: { id: id.value } }
-  },
-] as MenuLink[])
 watch(id, (e) => {
+  console.log(e)
   if (e) {
     sync_app()
   }
-})
+}, { immediate: true })
 
 onMounted(() => {
-  sync_app()
-  menu.set(Links.value)
 })
 onBeforeUnmount(() => {
-  menu.load_default()
+  menus.load_default()
 
 })
 </script>
