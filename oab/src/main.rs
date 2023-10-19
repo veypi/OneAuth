@@ -64,7 +64,7 @@ async fn web(data: AppState) -> Result<()> {
             return Err(oab::Error::Unknown);
         }
     };
-    libs::task::start_nats_online(client.clone());
+    // libs::task::start_nats_online(client.clone());
     client
         .publish("msg".to_string(), Bytes::from("asd"))
         .await

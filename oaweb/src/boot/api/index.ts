@@ -11,6 +11,7 @@ import token from "./token";
 import user from "./user";
 import resource from "./resource";
 import access from './access';
+import nats from './nats'
 
 
 
@@ -21,6 +22,7 @@ const api = {
   role,
   resource,
   access,
+  nats
 }
 
 
