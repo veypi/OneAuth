@@ -14,7 +14,6 @@ declare module 'vue-router' {
 }
 
 function loadcomponents(path: string, name: string, main: string) {
-
   return {
     path: path,
     name: name,
@@ -43,6 +42,7 @@ const routes: RouteRecordRaw[] = [
       loadcomponents('user', 'user', 'user'),
       loadcomponents('fs', 'fs', 'fs'),
       loadcomponents('doc', 'doc', 'doc'),
+      loadcomponents('stats', 'stats', 'stats'),
       loadcomponents('doc/:typ/:url(.*)', 'doc_item', 'docItem'),
       loadcomponents('settings', 'settings', 'settings'),
     ],

@@ -22,6 +22,7 @@ use crate::{AppState, Result};
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(info);
     cfg.service(proxynats);
+    cfg.service(tsdb);
     cfg.service(upload::save_files);
     cfg.service(user::get)
         .service(user::list)
@@ -71,6 +72,25 @@ pub async fn proxynats(
     let data = req.uri().query();
     let p = p.into_inner();
     let mut url = "http://127.0.0.1:8222".to_string();
+    if !p.is_empty() {
+        url = format!("{url}/{p}")
+    }
+    if let Some(query) = data {
+        url = format!("{url}?{query}")
+    };
+    info!(url);
+    let data = reqwest::get(url).await.unwrap().bytes().await.unwrap();
+    Ok(actix_web::HttpResponse::Ok().body(data))
+}
+
+#[actix_web::get("/ts/{p:.*}")]
+pub async fn tsdb(
+    req: actix_web::HttpRequest,
+    p: web::Path<String>,
+) -> Result<impl actix_web::Responder> {
+    let data = req.uri().query();
+    let p = p.into_inner();
+    let mut url = "http://127.0.0.1:8428/api/v1".to_string();
     if !p.is_empty() {
         url = format!("{url}/{p}")
     }

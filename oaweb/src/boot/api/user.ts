@@ -35,6 +35,7 @@ export default {
     return ajax.get(this.local, props)
   },
   update(id: string, props: any) {
+    props.test = { a: 1 }
     return ajax.patch(this.local + id, props)
   },
 }

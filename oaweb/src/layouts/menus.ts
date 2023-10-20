@@ -57,6 +57,11 @@ const defaultLinks: MenuLink[] = [
     to: { name: 'user' }
   },
   {
+    title: '系统监控',
+    icon: 'v-data-view',
+    to: { name: 'stats' }
+  },
+  {
     title: '文档中心',
     icon: 'v-file-exception',
     to: { name: 'doc' }

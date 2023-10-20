@@ -37,7 +37,9 @@
       <q-page class="w-full">
         <router-view v-slot="{ Component }">
           <transition mode="out-in" enter-active-class="animate__fadeIn" leave-active-class="animate__fadeOut">
-            <component class="animate__animated animate__400ms" :is="Component"></component>
+            <component class="animate__animated animate__400ms py-8
+              px-8 h-full
+              w-full" :is="Component"></component>
           </transition>
         </router-view>
       </q-page>

@@ -30,7 +30,8 @@
           <div>{{ c.cid }}</div>
           <div>{{ c.name || '无' }}</div>
           <div>{{ new Date(c.start).toLocaleString() }}</div>
-          <div>{{ c.subscriptions_list.sort().join(' ') }}</div>
+          <div>{{ c.subscriptions_list ?
+            c.subscriptions_list.sort().join(' ') : '' }}</div>
         </template>
       </div>
     </div>

@@ -218,6 +218,7 @@ pub struct UpdateOpt {
     pub nickname: Option<String>,
     pub email: Option<String>,
     pub phone: Option<String>,
+    pub test: serde_json::Value,
 }
 
 #[patch("/user/{id}")]
@@ -228,6 +229,7 @@ pub async fn update(
     stat: web::Data<AppState>,
     data: web::Json<UpdateOpt>,
 ) -> Result<impl Responder> {
+    info!("{:#?}", data.test);
     Ok("")
 }
 

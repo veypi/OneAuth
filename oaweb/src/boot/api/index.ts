@@ -12,6 +12,7 @@ import user from "./user";
 import resource from "./resource";
 import access from './access';
 import nats from './nats'
+import tsdb from './tsdb'
 
 
 
@@ -22,6 +23,7 @@ const api = {
   role,
   resource,
   access,
+  tsdb,
   nats
 }
 

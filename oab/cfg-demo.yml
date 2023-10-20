@@ -2,7 +2,7 @@
 uuid: FR9P5t8debxc11aFF
 key: AMpjwQHwVjGsb1WC4WG6
 debug: true
-server_url: 127.0.0.1:4001
+server_url: 0.0.0.0:4001
 media_path: /Users/veypi/test/media
 db_url: localhost:3306
 db_user: root
@@ -21,9 +21,9 @@ nats_sys:
 - UCOKXBGDAXXQOR4XUPUJ4O22HZ2A3KQN3JLCCYM3ISSKHLBZJXXQ3NLF
 - SUAEILQZDD2UT2ZNR6DCA44YCRKAZDYDOJRUPAUA7AOWFVGSSPFPCLXF24
 info:
-  ws_url: 127.0.0.1:4221
-  nats_url: 127.0.0.1:4222
-  api_url: 127.0.0.1:4001
+  ws_url: 198.19.249.3:4221
+  nats_url: 198.19.249.3:4222
+  api_url: 198.19.249.3:4001
 user_init_space: 300
 
 
