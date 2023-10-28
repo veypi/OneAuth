@@ -13,20 +13,20 @@ use std::sync::{Arc, Mutex};
 use tracing::{info, warn};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-struct sysInfo {
-    client: clientInfo,
+struct SysInfo {
+    client: ClientInfo,
     id: String,
     // server: String,
 }
 #[derive(Debug, Clone, Deserialize, Serialize)]
-struct clientInfo {
+struct ClientInfo {
     id: i64,
     acc: String,
     name: String,
     host: String,
 }
 pub fn start_nats_online(client: async_nats::client::Client) {
-    let db: Arc<Mutex<HashMap<i64, clientInfo>>> = Arc::new(Mutex::new(HashMap::new()));
+    let db: Arc<Mutex<HashMap<i64, ClientInfo>>> = Arc::new(Mutex::new(HashMap::new()));
     {
         let db = db.clone();
         let client = client.clone();
@@ -38,7 +38,7 @@ pub fn start_nats_online(client: async_nats::client::Client) {
             while let Some(msg) = sub.next().await {
                 let s = String::from_utf8(msg.payload.to_vec()).unwrap();
                 info!("{}", s);
-                let inf: sysInfo = serde_json::from_slice(&msg.payload.to_vec()).unwrap();
+                let inf: SysInfo = serde_json::from_slice(&msg.payload.to_vec()).unwrap();
                 info!("add {} {}", inf.client.id, inf.client.name);
                 let mut db = db.lock().unwrap();
                 db.insert(inf.client.id, inf.client);
@@ -55,7 +55,7 @@ pub fn start_nats_online(client: async_nats::client::Client) {
                 .unwrap();
             while let Some(msg) = sub.next().await {
                 // let s = String::from_utf8(msg.payload.to_vec()).unwrap();
-                let inf: sysInfo = serde_json::from_slice(&msg.payload.to_vec()).unwrap();
+                let inf: SysInfo = serde_json::from_slice(&msg.payload.to_vec()).unwrap();
                 info!("remove {} {}", inf.client.id, inf.client.name);
                 let mut db = db.lock().unwrap();
                 db.remove(&inf.client.id);
@@ -66,14 +66,14 @@ pub fn start_nats_online(client: async_nats::client::Client) {
         let mut sub = client.subscribe("sys.online".to_string()).await.unwrap();
         while let Some(msg) = sub.next().await {
             // // let s = String::from_utf8(msg.payload.to_vec()).unwrap();
-            // let inf: sysInfo = serde_json::from_slice(&msg.payload.to_vec()).unwrap();
+            // let inf: SysInfo = serde_json::from_slice(&msg.payload.to_vec()).unwrap();
             // info!("remove {} {}", inf.client.id, inf.client.name);
             // let mut db = db.lock().unwrap();
             // db.remove(&inf.client.id);
             if let Some(t) = msg.reply {
                 let d = {
                     let tmp = db.lock().unwrap();
-                    let payload: Vec<clientInfo> = tmp.iter().map(|(_, c)| c.clone()).collect();
+                    let payload: Vec<ClientInfo> = tmp.iter().map(|(_, c)| c.clone()).collect();
                     serde_json::to_string(&payload).unwrap()
                 };
                 match client.publish(t, d.into()).await {

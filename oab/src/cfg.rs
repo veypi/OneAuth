@@ -114,6 +114,7 @@ pub struct InfoOpt {
     pub nats_url: String,
     pub ws_url: String,
     pub api_url: String,
+    pub ts_url: String,
     pub token: Option<String>,
 }
 
@@ -193,9 +194,10 @@ impl AppState {
             ],
             user_init_space: 300,
             info: InfoOpt {
-                ws_url: "http://127.0.0.1:4221".to_string(),
-                nats_url: "http://127.0.0.1:4222".to_string(),
-                api_url: "http://127.0.0.1:4001".to_string(),
+                ws_url: "127.0.0.1:4221".to_string(),
+                nats_url: "127.0.0.1:4222".to_string(),
+                api_url: "127.0.0.1:4001".to_string(),
+                ts_url: "127.0.0.1:8428".to_string(),
                 token: None,
             },
         }

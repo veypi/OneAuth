@@ -5,12 +5,9 @@
 // Distributed under terms of the Apache license.
 //
 
-use bytes::Bytes;
-
 use actix_files as fs;
 use actix_web::{
     dev::{self, Service},
-    get,
     http::StatusCode,
     middleware::{self, ErrorHandlerResponse, ErrorHandlers},
     web::{self},
@@ -53,22 +50,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 async fn web(data: AppState) -> Result<()> {
-    let client = match async_nats::ConnectOptions::new()
-        .nkey(data.nats_usr[1].clone())
-        .connect(data.info.nats_url.clone())
-        .await
-    {
-        Ok(r) => r,
-        Err(e) => {
-            info!("{}", e);
-            return Err(oab::Error::Unknown);
-        }
-    };
     // libs::task::start_nats_online(client.clone());
-    client
-        .publish("msg".to_string(), Bytes::from("asd"))
-        .await
-        .unwrap();
     let url = data.server_url.clone();
     let dav = libs::fs::core();
     let serv = HttpServer::new(move || {

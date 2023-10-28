@@ -6,13 +6,22 @@
  -->
 <template>
   <div class="w-full h-full">
-    <div class="v-chart w-full h-full" ref="chartdom"></div>
+    <div class="h-16 flex justify-start items-center">
+      <q-chip clickable :color="enable_sync ? 'primary' : ''" @click="enable_sync = !enable_sync">{{ enable_sync ? '关闭同步'
+        :
+        '开启同步' }}</q-chip>
+      <q-chip clickable :color="mode === k ? 'primary' : ''" v-for="(v, k) in mode_label" :key="k"
+        @click="change_mode(k)">{{
+          v }}</q-chip>
+    </div>
+    <div class="v-chart w-full" style="height: calc(100% - 4rem);" ref="chartdom"></div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import * as echart from 'echarts'
 import api from 'src/boot/api';
+import { params, mode, change_mode, mode_label } from './params'
 import { onMounted, onUnmounted, computed, ref, watch, markRaw } from 'vue';
 
 interface Item {
@@ -24,22 +33,14 @@ interface Item {
 }
 let props = withDefaults(defineProps<{
   item: Item,
-  // start?: string,
-  // end?: string,
-  // step?: string
+  sync?: boolean,
 }>(),
   {
   }
 )
-let getparams = ref<any>({
-  start: () => {
-    let d = new Date()
-    d.setMinutes(d.getMinutes() - 3)
-    return d.toISOString()
-  }, end: undefined, step: '2s'
-})
 let count = 0
 let timer = ref<any[]>([])
+let enable_sync = ref(false)
 let chartdom = ref()
 let options = ref<{ [key: string]: any }>({})
 let chart: echart.ECharts = {} as any
@@ -58,6 +59,9 @@ const init_chart = () => {
   if (chart.clear) {
     chart.clear()
   }
+  timer.value.forEach(e => {
+    clearInterval(e)
+  })
   options.value = {
     animationThreshold: 200,
     tooltip: Object.assign({}, tooltip),
@@ -70,23 +74,30 @@ const init_chart = () => {
     xAxis: {
       type: 'time',
     },
+    dataZoom: [
+      {
+        type: 'slider',
+        xAxisIndex: [0],
+        filterMode: 'filter'
+      },
+    ],
     yAxis: {},
     series: []
   }
   if (props.item.valueFormatter) {
     options.value.tooltip.valueFormatter = props.item.valueFormatter
   }
-  let tmp = {} as any
-  if (getparams.value.start) {
-    tmp.start = getparams.value.start()
+  let tmp = {
+    start: params.value.start.toISOString(),
+    step: params.value.step,
   }
-  if (getparams.value.step) {
-    tmp.step = getparams.value.step
-  }
-  let query: string[] = Array.isArray(props.item.query) ? props.item.query :
+  let querys: string[] = Array.isArray(props.item.query) ? props.item.query :
     [props.item.query]
-  for (let q = 0; q < query.length; q++) {
-    api.tsdb.range(query[q], tmp).then(e => {
+  let labels = Array.isArray(props.item.label) ? props.item.label :
+    [props.item.label]
+  for (let q = 0; q < querys.length; q++) {
+    let query = querys[q]
+    api.tsdb.range(query, tmp).then(e => {
       if (e.status == 'success') {
         let data = e.data.result as any[]
         if (data.length == 0) {
@@ -96,19 +107,19 @@ const init_chart = () => {
         let idx = options.value.series.length || 0
         data.forEach(d => {
           let name = props.item.name
-          if (typeof props.item.label === 'string') {
-            name = props.item.label
-          } else if (typeof props.item.label === 'function') {
-            name = props.item.label(d.metric)
-          } else if (Array.isArray(props.item.label)) {
-            name = props.item.label[q]
+          let label = labels[q]
+          if (typeof label === 'string') {
+            name = label
+          } else if (typeof label === 'function') {
+            name = label(d.metric)
           }
           options.value.series.push({
             name: name,
             data: d.values.map((e: any) =>
               [e[0] * 1000, Number(e[1])]),
             metric: d.metric,
-            origin: query[q],
+            metric_str: JSON.stringify(d.metric),
+            origin: query,
             symbol: 'none',
             smooth: true,
             type: 'line',
@@ -116,7 +127,7 @@ const init_chart = () => {
         })
         chart.setOption(options.value)
         let t = setInterval(() => {
-          sync_chart(idx, query[q], count)
+          sync_chart(idx, query, count)
         }, 1000)
         timer.value.push(t)
       }
@@ -125,16 +136,30 @@ const init_chart = () => {
   // let query = props.query
 }
 const sync_chart = (idx: number, query: string, c: number) => {
+  if (!enable_sync.value) {
+    return
+  }
   api.tsdb.query(query).then(e => {
     if (e.status == 'success') {
       let data = e.data.result as any[]
       if (data.length == 0) {
         console.warn('not get data')
+        timer.value.forEach(e => {
+          clearInterval(e)
+        })
         return
       }
       if (count === c) {
         data.forEach((d, i) => {
-          options.value.series[idx + i].data.push([d.value[0] * 1000,
+          let sidx = idx + i
+          if (d.metric) {
+            let ti = options.value.series.findIndex((s: any) =>
+              query === s.origin && JSON.stringify(d.metric) === s.metric_str)
+            if (ti >= 0) {
+              sidx = ti
+            }
+          }
+          options.value.series[sidx].data.push([d.value[0] * 1000,
           Number(d.value[1])])
         })
         chart.setOption(options.value)
@@ -143,17 +168,22 @@ const sync_chart = (idx: number, query: string, c: number) => {
   })
 }
 
+
+
 watch(computed(() => props.item), q => {
-  timer.value.forEach(e => {
-    clearInterval(e)
-  })
   if (q) {
     init_chart()
   }
-}, { immediate: true })
+})
+
+watch(mode, q => {
+  init_chart()
+})
 
 onMounted(() => {
-  chart = markRaw(echart.init(chartdom.value))
+  enable_sync.value = props.sync
+  chart = markRaw(echart.init(chartdom.value, null, { renderer: 'svg' }))
+  init_chart()
 })
 onUnmounted(() => {
   timer.value.forEach(e => {

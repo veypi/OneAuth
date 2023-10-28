@@ -61,7 +61,20 @@ import { useRouter } from 'vue-router';
 import Menu from './menu.vue'
 import { useUserStore } from 'src/stores/user';
 import { OAer } from "@veypi/oaer";
-import { util } from 'src/libs';
+import { util, bus } from 'src/libs';
+import oaer from '@veypi/oaer'
+import '@veypi/oaer/dist/index.css'
+import cfg from 'src/cfg'
+
+oaer.set({
+  token: util.getToken(),
+  host: cfg.host,
+  uuid: cfg.id,
+})
+
+bus.on('token', (t: any) => {
+  oaer.set({ token: t })
+})
 
 const user = useUserStore()
 const router = useRouter()

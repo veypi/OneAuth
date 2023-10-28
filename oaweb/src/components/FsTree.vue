@@ -10,7 +10,7 @@
       class="cursor-pointer rounded-full h-8 pr-4 flex items-center hover:bg-gray-100" @click="toggle">
       <q-icon class="transition-all mx-2" :class="[expand ? 'rotate-90' :
         '']" style="font-size: 24px;" :name="root.type ===
-    'directory' ? 'v-caret-right' : 'v-file'"> </q-icon>
+    'directory' ? 'v-right' : 'v-file'"> </q-icon>
       <div>
         {{ root.basename || '/' }}
       </div>

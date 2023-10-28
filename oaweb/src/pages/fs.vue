@@ -16,13 +16,17 @@
 <script lang="ts" setup>
 import FsTree from 'src/components/FsTree.vue';
 import { oafs, fileProps } from '@veypi/oaer';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 let root = ref({} as fileProps)
 
+watch(oafs.ready, e => {
+  if (e) {
+    oafs.dav().stat('/').then(e => {
+      root.value = e as fileProps
+    })
+  }
+}, { immediate: true })
 onMounted(() => {
-  oafs.dav().stat('/').then(e => {
-    root.value = e as fileProps
-  })
 })
 </script>
 
