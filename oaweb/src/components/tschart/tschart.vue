@@ -6,7 +6,7 @@
  -->
 <template>
   <div class="w-full h-full">
-    <div class="h-16 flex justify-start items-center">
+    <div v-if="enable_mode" class="h-16 flex justify-start items-center">
       <q-chip clickable :color="enable_sync ? 'primary' : ''" @click="enable_sync = !enable_sync">{{ enable_sync ? '关闭同步'
         :
         '开启同步' }}</q-chip>
@@ -14,26 +14,33 @@
         @click="change_mode(k)">{{
           v }}</q-chip>
     </div>
-    <div class="v-chart w-full" style="height: calc(100% - 4rem);" ref="chartdom"></div>
+    <div class="v-chart w-full" :style="{
+      height:
+        enable_mode ? 'calc(100% - 4rem)' : '100%'
+    }" ref="chartdom"></div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import * as echart from 'echarts'
 import api from 'src/boot/api';
-import { params, mode, change_mode, mode_label } from './params'
+// import { params, mode, change_mode, mode_label } from './params'
+import use_params from './params'
 import { onMounted, onUnmounted, computed, ref, watch, markRaw } from 'vue';
 
+let { params, mode, change_mode, mode_label } = use_params()
 interface Item {
   name: string
   query: string | string[]
-  ext?: string
   valueFormatter?: (s: number) => string
   label?: string | string[] | ((s: any) => string)
 }
 let props = withDefaults(defineProps<{
   item: Item,
   sync?: boolean,
+  enable_zoom?: boolean,
+  time_mode?: number,
+  enable_mode?: boolean,
 }>(),
   {
   }
@@ -63,6 +70,7 @@ const init_chart = () => {
     clearInterval(e)
   })
   options.value = {
+    title: { text: props.item.name, x: 'center' },
     animationThreshold: 200,
     tooltip: Object.assign({}, tooltip),
     axisPointer: {
@@ -74,15 +82,17 @@ const init_chart = () => {
     xAxis: {
       type: 'time',
     },
-    dataZoom: [
+    yAxis: {},
+    series: []
+  }
+  if (props.enable_zoom) {
+    options.value.dataZoom = [
       {
         type: 'slider',
         xAxisIndex: [0],
         filterMode: 'filter'
       },
-    ],
-    yAxis: {},
-    series: []
+    ]
   }
   if (props.item.valueFormatter) {
     options.value.tooltip.valueFormatter = props.item.valueFormatter
@@ -182,6 +192,9 @@ watch(mode, q => {
 
 onMounted(() => {
   enable_sync.value = props.sync
+  if (props.time_mode) {
+    change_mode(props.time_mode)
+  }
   chart = markRaw(echart.init(chartdom.value, null, { renderer: 'svg' }))
   init_chart()
 })
@@ -193,7 +206,10 @@ onUnmounted(() => {
 </script>
 
 <style>
-.v-chart {}
+.v-chart {
+  min-width: 20rem;
+  min-height: 15rem;
+}
 
 .v-echarts-tooltip {
   /* height: 5rem; */

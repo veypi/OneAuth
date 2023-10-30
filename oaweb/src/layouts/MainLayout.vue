@@ -16,7 +16,6 @@
 
         <q-icon class="mx-2" size="2rem" @click="$q.dark.toggle" :name="$q.dark.mode ? 'v-light' : 'v-dark'"></q-icon>
         <OAer v-if="user.ready" @logout="user.logout" :is-dark="$q.dark.mode as boolean">
-          123
         </OAer>
       </q-toolbar>
       <q-toolbar class="">

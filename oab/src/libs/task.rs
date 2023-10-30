@@ -9,7 +9,9 @@ use std::time::{Duration, Instant};
 use futures_util::StreamExt;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::process;
 use std::sync::{Arc, Mutex};
+use sysinfo::{Pid, ProcessExt, System, SystemExt};
 use tracing::{info, warn};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -25,6 +27,38 @@ struct ClientInfo {
     name: String,
     host: String,
 }
+
+pub fn start_stats_info(url: String) {
+    tokio::spawn(async move {
+        let pid = process::id();
+        info!("star on pid {}", pid);
+        let mut s = System::new_all();
+        let pid = Pid::from(pid as usize);
+        let props = sysinfo::ProcessRefreshKind::everything();
+        let url = format!("http://{}/api/v1/import/prometheus", url);
+        let client = reqwest::Client::new();
+        let start = Instant::now();
+        loop {
+            tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+            s.refresh_process_specifics(pid, props);
+            if let Some(process) = s.process(pid) {
+                let stat_str = format!(
+                    "oa_stats_cpu {}\noa_stats_mem {}\noa_stats_start {}",
+                    process.cpu_usage(),
+                    process.memory(),
+                    start.elapsed().as_secs(),
+                );
+                match client.post(&url).body(stat_str).send().await {
+                    Ok(_) => {}
+                    Err(e) => {
+                        warn!("{}", e);
+                    }
+                }
+            }
+        }
+    });
+}
+
 pub fn start_nats_online(client: async_nats::client::Client) {
     let db: Arc<Mutex<HashMap<i64, ClientInfo>>> = Arc::new(Mutex::new(HashMap::new()));
     {

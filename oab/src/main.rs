@@ -49,8 +49,10 @@ async fn main() -> Result<()> {
     web(data).await?;
     Ok(())
 }
+
 async fn web(data: AppState) -> Result<()> {
     // libs::task::start_nats_online(client.clone());
+    libs::task::start_stats_info(data.info.ts_url.clone());
     let url = data.server_url.clone();
     let dav = libs::fs::core();
     let serv = HttpServer::new(move || {

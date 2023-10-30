@@ -61,7 +61,6 @@ const sync_app = () => {
   })
 }
 watch(id, (e) => {
-  console.log(e)
   if (e) {
     sync_app()
   }

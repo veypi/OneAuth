@@ -7,7 +7,7 @@
 
 
 const cfg = {
-  host: 'http://' + window.location.host,
+  host: window.location.protocol + '//' + window.location.host,
   id: 'FR9P5t8debxc11aFF',
 }
 

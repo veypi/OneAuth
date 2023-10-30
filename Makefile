@@ -21,7 +21,7 @@ dropTag:
 	@git push origin :refs/tags/$(version)
 
 run:
-	go run *.go -d
+	@cd oab && cargo run -- -c ./cfg-demo.yml
 
 
 syncDB:
