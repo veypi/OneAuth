@@ -68,10 +68,11 @@ pub async fn info(stat: web::Data<AppState>) -> Result<impl actix_web::Responder
 pub async fn proxynats(
     req: actix_web::HttpRequest,
     p: web::Path<String>,
+    stat: web::Data<AppState>,
 ) -> Result<impl actix_web::Responder> {
     let data = req.uri().query();
     let p = p.into_inner();
-    let mut url = "http://127.0.0.1:8222".to_string();
+    let mut url = stat.nats_url.clone();
     if !p.is_empty() {
         url = format!("{url}/{p}")
     }
@@ -87,10 +88,11 @@ pub async fn proxynats(
 pub async fn tsdb(
     req: actix_web::HttpRequest,
     p: web::Path<String>,
+    stat: web::Data<AppState>,
 ) -> Result<impl actix_web::Responder> {
     let data = req.uri().query();
     let p = p.into_inner();
-    let mut url = "http://127.0.0.1:8428/api/v1".to_string();
+    let mut url = format!("{}/api/v1", stat.ts_url);
     if !p.is_empty() {
         url = format!("{url}/{p}")
     }

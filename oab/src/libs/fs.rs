@@ -89,16 +89,23 @@ pub async fn dav_handler(
                     Some(o) => o.to_str().unwrap(),
                     None => "",
                 };
+                let allowed_headers =
+                    match req.request.headers().get("Access-Control-Request-Headers") {
+                        Some(o) => o.to_str().unwrap(),
+                        None => "",
+                    };
+                let allowed_method =
+                    match req.request.headers().get("Access-Control-Request-Method") {
+                        Some(o) => o.to_str().unwrap(),
+                        None => "",
+                    };
                 Response::builder()
                     .status(200)
                     .header("WWW-Authenticate", "Basic realm=\"file\"")
                     .header("Access-Control-Allow-Origin", origin)
                     .header("Access-Control-Allow-Credentials", "true")
-                    .header("Access-Control-Allow-Headers", "auth_token, depth")
-                    .header(
-                        "Access-Control-Allow-Methods",
-                        "OPTIONS, DELETE, GET, POST, PUT, HEAD, TRACE, PATCH, CONNECT, PROPFIND",
-                    )
+                    .header("Access-Control-Allow-Headers", allowed_headers)
+                    .header("Access-Control-Allow-Methods", allowed_method)
                     .header(
                         "Access-Control-Expose-Headers",
                         "access-control-allow-origin, content-type",

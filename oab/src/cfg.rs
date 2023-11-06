@@ -35,7 +35,7 @@ use crate::Result;
 #[clap(name = "oab")]
 #[clap(about = "oab", long_about = None)]
 pub struct AppCli {
-    #[clap(short = 'c', value_name = "cfg",default_value_t = String::from("~/.config/oab/oab.yml"), value_hint = clap::ValueHint::DirPath)]
+    #[clap(short = 'c', value_name = "cfg",default_value_t = String::from("~/.config/oa/oab.yml"), value_hint = clap::ValueHint::DirPath)]
     cfg: String,
     #[clap(subcommand)]
     pub command: Option<Clis>,
@@ -131,6 +131,8 @@ pub struct AppState {
     pub db_name: String,
     pub log_dir: Option<String>,
     pub fs_root: String,
+    pub ts_url: String,
+    pub nats_url: String,
     pub nats_usr: [String; 2],
     pub nats_node: [String; 2],
     pub nats_sys: [String; 2],
@@ -180,6 +182,8 @@ impl AppState {
             log_level: None,
             _sqlx: None,
             _db: None,
+            ts_url: "127.0.0.1:8428".to_string(),
+            nats_url: "127.0.0.1:4222".to_string(),
             nats_usr: [
                 String::from("UCXFAAVMCPTATZUZX6H24YF6FI3NKPQBPLM6BNN2EDFPNSUUEZPNFKEL"),
                 String::from("SUACQNAAFKDKRBXS62J4JYZ7DWZS7UNUQI52BOFGGBUACHTDHRQP7I66GI"),

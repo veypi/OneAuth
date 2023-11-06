@@ -9,8 +9,6 @@ mod app_plugin;
 pub mod entity;
 mod user_plugin;
 
-
-
 use serde::{Deserialize, Serialize};
 use tracing::info;
 

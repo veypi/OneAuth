@@ -58,7 +58,7 @@ const onSubmit = () => {
       util.setToken(data.auth_token)
       msg.Info('登录成功')
       user.fetchUserData()
-      let url = route.query.redirect || data.redirect || '/'
+      let url = route.query.redirect || data.redirect || ''
       redirect(url)
     }).catch(e => {
       let m = e === '1' ? '被禁止登录' : e === '2' ? '正在申请中' : e
@@ -81,8 +81,10 @@ let ifLogOut = computed(() => {
 
 
 function redirect(url: string) {
+  if (url === 'undefined') {
+    url = ''
+  }
   if (uuid.value && uuid.value !== app.id) {
-
     api.app.get(uuid.value as string).then((app: modelsApp) => {
       api.token(uuid.value as string).get({
         token:

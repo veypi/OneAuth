@@ -35,7 +35,7 @@ pub fn start_stats_info(url: String) {
         let mut s = System::new_all();
         let pid = Pid::from(pid as usize);
         let props = sysinfo::ProcessRefreshKind::everything();
-        let url = format!("http://{}/api/v1/import/prometheus", url);
+        let url = format!("{}/api/v1/import/prometheus", url);
         let client = reqwest::Client::new();
         let start = Instant::now();
         loop {
