@@ -51,14 +51,14 @@ pub struct AccessCore {
 }
 
 pub trait UserPlugin {
-    fn token(&self, ac: Vec<AccessCore>) -> Token;
+    fn token(&self, aid: String, ac: Vec<AccessCore>) -> Token;
     fn check_pass(&self, p: &str) -> Result<()>;
     fn update_pass(&mut self, p: &str) -> Result<()>;
 }
 
 // impl User {
 impl UserPlugin for super::entity::user::Model {
-    fn token(&self, ac: Vec<AccessCore>) -> Token {
+    fn token(&self, aid: String, ac: Vec<AccessCore>) -> Token {
         let default_ico = "/media/".to_string();
         let t = Token {
             iss: "oa".to_string(),
@@ -66,6 +66,7 @@ impl UserPlugin for super::entity::user::Model {
             exp: (Utc::now() + Duration::days(4)).timestamp(),
             iat: Utc::now().timestamp(),
             id: self.id.clone(),
+            aid: aid,
             icon: self.icon.as_ref().unwrap_or(&default_ico).to_string(),
             access: Some(ac),
             nickname: self
@@ -174,6 +175,7 @@ pub struct Token {
     pub id: String,  // 用户id
     pub nickname: String,
     pub icon: String,
+    pub aid: String,
     pub access: Option<Vec<AccessCore>>,
 }
 

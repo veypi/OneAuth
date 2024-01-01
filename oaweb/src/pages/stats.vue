@@ -39,20 +39,20 @@ const querys = ref<{
 }[]>([
   {
     name: 'cpu',
-    query: `oa_stats_cpu`,
+    query: `srv_cpu{i='oa'}`,
     label: 'cpu',
     valueFormatter: (value: number) => value.toFixed(2) + "%",
   },
   {
     name: '内存',
-    query: `oa_stats_mem / 1048576`,
+    query: `srv_mem{i='oa'} / 1048576`,
     label: '内存',
     valueFormatter: (value: number) => value.toFixed(2) + "MB",
   },
 ])
 
 onMounted(() => {
-  api.tsdb.query('oa_stats_start').then(e => {
+  api.tsdb.query('srv_start{i="oa"}').then(e => {
     if (e.data.result.length) {
       let s = Number(e.data.result[0].value[1])
       if (s < 60) {

@@ -5,19 +5,17 @@
 // Distributed under terms of the Apache license.
 //
 
-use actix_files as fs;
+use actix_files;
 use actix_web::{
-    dev::{self, Service},
+    dev::{self},
     http::StatusCode,
     middleware::{self, ErrorHandlerResponse, ErrorHandlers},
     web::{self},
     App, HttpResponse, HttpServer, Responder,
 };
-use futures_util::future::FutureExt;
 use mime_guess::from_path;
 use rust_embed::RustEmbed;
 
-use http::{HeaderName, HeaderValue};
 use oab::{api, init_log, libs, models, AppCli, AppState, Clis, Result};
 use tracing::{error, info, warn};
 
@@ -54,7 +52,6 @@ async fn web(data: AppState) -> Result<()> {
     // libs::task::start_nats_online(client.clone());
     libs::task::start_stats_info(data.ts_url.clone());
     let url = data.server_url.clone();
-    let dav = libs::fs::core();
     let serv = HttpServer::new(move || {
         let logger = middleware::Logger::default();
         let json_config = web::JsonConfig::default()
@@ -80,7 +77,9 @@ async fn web(data: AppState) -> Result<()> {
         app.wrap(logger)
             .wrap(middleware::Compress::default())
             .app_data(web::Data::new(data.clone()))
-            .service(fs::Files::new("/media", data.media_path.clone()).show_files_listing())
+            .service(
+                actix_files::Files::new("/media", data.media_path.clone()).show_files_listing(),
+            )
             .service(
                 web::scope("api")
                     .wrap(cors)
@@ -95,31 +94,9 @@ async fn web(data: AppState) -> Result<()> {
                     .configure(api::routes),
             )
             .service(
-                web::scope("file")
-                    .wrap_fn(|req, srv| {
-                        let headers = &req.headers().clone();
-                        let origin = match headers.get("Origin") {
-                            Some(o) => o.to_str().unwrap().to_string(),
-                            None => "".to_string(),
-                        };
-                        srv.call(req).map(move |res| {
-                            let res = match res {
-                                Ok(mut expr) => {
-                                    let headers = expr.headers_mut();
-                                    headers.insert(
-                                        HeaderName::try_from("Access-Control-Allow-Origin")
-                                            .unwrap(),
-                                        HeaderValue::from_str(&origin).unwrap(),
-                                    );
-                                    Ok(expr)
-                                }
-                                Err(e) => Err(e),
-                            };
-                            res
-                        })
-                    })
-                    .app_data(web::Data::new(dav.clone()))
-                    .service(web::resource("/{tail:.*}").to(libs::fs::dav_handler)),
+                web::scope("fs")
+                    .wrap(oab::fs::FsWrap {})
+                    .configure(oab::fs::routes),
             )
             .service(index)
     });

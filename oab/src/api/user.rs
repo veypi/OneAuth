@@ -143,7 +143,10 @@ pub async fn login(
         .fetch_all(stat.sqlx())
         .await?;
         Ok(HttpResponse::build(http::StatusCode::OK)
-            .insert_header(("auth_token", u.token(result).to_string(&stat.key)?))
+            .insert_header((
+                "auth_token",
+                u.token(stat.uuid.clone(), result).to_string(&stat.key)?,
+            ))
             .body("".to_string()))
     } else {
         Ok(HttpResponse::build(http::StatusCode::FORBIDDEN)

@@ -86,9 +86,12 @@ pub enum Error {
     InvalidVerifyCode,
     #[error("invalid token")]
     InvalidToken,
+    #[error("invalid token scheme: {0}")]
+    InvalidScheme(String),
     #[error("expired token")]
     ExpiredToken,
-
+    // #[error("basic auth error")]
+    // InvalidBasicAuthError(#[from] http_auth_basic::AuthBasicError),
     #[error("no access")]
     NotAuthed,
     #[error("login failed")]
@@ -172,10 +175,20 @@ impl From<actix_multipart::MultipartError> for Error {
         Error::BusinessException(format!("{:?}", e))
     }
 }
+impl From<http_auth_basic::AuthBasicError> for Error {
+    fn from(value: http_auth_basic::AuthBasicError) -> Self {
+        Error::BusinessException(format!("{:?}", value))
+    }
+}
 
 impl From<Box<dyn std::fmt::Display>> for Error {
     fn from(e: Box<dyn std::fmt::Display>) -> Self {
         Error::BusinessException(format!("{}", e))
+    }
+}
+impl From<&str> for Error {
+    fn from(value: &str) -> Self {
+        Error::BusinessException(format!("{}", value))
     }
 }
 

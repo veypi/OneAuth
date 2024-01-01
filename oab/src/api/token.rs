@@ -81,7 +81,7 @@ pub async fn get(
                     .one(stat.db())
                     .await?
                     .unwrap();
-                let str = u.token(result).to_string(&appobj.key)?;
+                let str = u.token(appobj.id.clone(), result).to_string(&appobj.key)?;
                 Ok(str)
             } else {
                 Err(Error::NotAuthed)
@@ -92,18 +92,21 @@ pub async fn get(
                 .await?
                 .unwrap();
             let str = u
-                .token(vec![
-                    AccessCore {
-                        name: "app".to_string(),
-                        rid: None,
-                        level: models::AccessLevel::Read,
-                    },
-                    AccessCore {
-                        name: "user".to_string(),
-                        rid: None,
-                        level: models::AccessLevel::Read,
-                    },
-                ])
+                .token(
+                    stat.uuid.clone(),
+                    vec![
+                        AccessCore {
+                            name: "app".to_string(),
+                            rid: None,
+                            level: models::AccessLevel::Read,
+                        },
+                        AccessCore {
+                            name: "user".to_string(),
+                            rid: None,
+                            level: models::AccessLevel::Read,
+                        },
+                    ],
+                )
                 .to_string(&stat.key)?;
             Ok(str)
         }

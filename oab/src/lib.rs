@@ -7,6 +7,7 @@
 
 pub mod api;
 mod cfg;
+pub mod fs;
 pub mod libs;
 pub mod models;
 mod result;

@@ -43,7 +43,7 @@ pub fn start_stats_info(url: String) {
             s.refresh_process_specifics(pid, props);
             if let Some(process) = s.process(pid) {
                 let stat_str = format!(
-                    "oa_stats_cpu {}\noa_stats_mem {}\noa_stats_start {}",
+                    "srv_cpu{{i=\"oa\"}} {}\nsrv_mem{{i=\"oa\"}} {}\nsrv_start{{i=\"oa\"}} {}",
                     process.cpu_usage(),
                     process.memory(),
                     start.elapsed().as_secs(),

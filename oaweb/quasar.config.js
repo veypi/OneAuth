@@ -122,7 +122,7 @@ module.exports = configure(function(/* ctx */) {
           changeOrigin: true,
           ws: true,
         },
-        '/file': {
+        '/fs': {
           target: 'http://127.0.0.1:4001/',
           changeOrigin: true,
           ws: true,
