@@ -35,8 +35,8 @@ async fn save_files(
         dir = "tmp".to_string();
     }
     let mut res: Vec<String> = Vec::new();
-    form.files.into_iter().for_each(|v| {
-        let fname = v.file_name.unwrap_or("unknown".to_string());
+    for v in form.files.into_iter() {
+        let fname = v.file_name.clone().unwrap_or("unknown".to_string());
         let root = Path::new(&stat.media_path).join(dir.clone());
         if !root.exists() {
             match fs::create_dir_all(root.clone()) {
@@ -52,8 +52,8 @@ async fn save_files(
             t.id,
             fname
         );
-        info!("saving to {temp_file}");
-        match v.file.persist(temp_file) {
+        info!("saving {:?} to {temp_file}", v.file.path().to_str());
+        match fs::copy(v.file.path(), &temp_file) {
             Ok(p) => {
                 info!("{:#?}", p);
                 res.push(format!("/media/{}/{}.{}", dir, t.id, fname))
@@ -62,7 +62,7 @@ async fn save_files(
                 warn!("{}", e);
             }
         };
-    });
+    }
 
     Ok(web::Json(res))
 }

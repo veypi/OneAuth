@@ -281,7 +281,6 @@ pub fn init_log(stat: &AppState) -> Option<tracing_appender::non_blocking::Worke
             .with_max_level(level)
             .with_ansi(false)
             .init();
-        info!("asd");
         Some(_guard)
     } else {
         tracing_subscriber::fmt()
