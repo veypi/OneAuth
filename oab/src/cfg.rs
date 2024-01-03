@@ -14,94 +14,12 @@ use std::{
     time::Duration,
 };
 
-use clap::{Args, Parser, Subcommand};
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use serde::{Deserialize, Serialize};
 use sqlx::{mysql::MySqlPoolOptions, Pool};
-use tracing::{info, Level};
+use tracing::Level;
 
 use crate::Result;
-
-// lazy_static! {
-//     pub static ref CLI: AppCli = AppCli::new();
-// }
-// use lazy_static::lazy_static;
-
-// lazy_static! {
-//     pub static ref CONFIG: ApplicationConfig = ApplicationConfig::new();
-// }
-
-#[derive(Debug, Parser)]
-#[clap(name = "oab")]
-#[clap(about = "oab", long_about = None)]
-pub struct AppCli {
-    #[clap(short = 'c', value_name = "cfg",default_value_t = String::from("~/.config/oa/oab.yml"), value_hint = clap::ValueHint::DirPath)]
-    cfg: String,
-    #[clap(subcommand)]
-    pub command: Option<Clis>,
-}
-
-#[derive(Debug, Subcommand)]
-pub enum Clis {
-    Init,
-    Install,
-    Uninstall,
-    Start,
-    Stop,
-    Web,
-    Dump,
-    Cfg(CfgOpt),
-}
-
-#[derive(Debug, Args)]
-#[clap(args_conflicts_with_subcommands = true)]
-pub struct CfgOpt {
-    command: Option<String>,
-}
-
-impl AppCli {
-    pub fn new() -> Self {
-        AppCli::parse()
-    }
-    pub fn handle_service(&self, data: AppState) -> Result<bool> {
-        let label: service_manager::ServiceLabel = "v.oa".parse().unwrap();
-
-        // Get generic service by detecting what is available on the platform
-        let manager = <dyn service_manager::ServiceManager>::native()
-            .expect("Failed to detect management platform");
-
-        if let Some(c) = &self.command {
-            match c {
-                Clis::Install => {
-                    let p = std::env::current_exe()?;
-                    info!("deploy {}", p.to_str().unwrap());
-                    manager.install(service_manager::ServiceInstallCtx {
-                        label: label.clone(),
-                        program: p,
-                        args: vec![],
-                        contents: None, // Optional String for system-specific service content.
-                    })?
-                }
-                Clis::Uninstall => manager.uninstall(service_manager::ServiceUninstallCtx {
-                    label: label.clone(),
-                })?,
-                Clis::Start => manager.start(service_manager::ServiceStartCtx {
-                    label: label.clone(),
-                })?,
-                Clis::Stop => manager.stop(service_manager::ServiceStopCtx {
-                    label: label.clone(),
-                })?,
-                Clis::Dump => {
-                    let res = serde_yaml::to_string(&data)?;
-                    println!("{}", res);
-                }
-                _ => return Ok(false),
-            }
-            return Ok(true);
-        };
-        Ok(false)
-    }
-}
 
 #[derive(Debug, serde::Serialize, serde::Deserialize, Clone)]
 pub struct ApplicationConfig {
@@ -130,6 +48,7 @@ pub struct AppState {
     pub db_pass: String,
     pub db_name: String,
     pub log_dir: Option<String>,
+    pub auto_task: bool,
     pub fs_root: String,
     pub ts_url: String,
     pub nats_url: String,
@@ -149,9 +68,9 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(cli: &AppCli) -> Self {
+    pub fn new(cli_path: &str) -> Self {
         let mut res = Self::defaut();
-        let mut f = match File::open(cli.cfg.clone()) {
+        let mut f = match File::open(cli_path) {
             Ok(f) => f,
             Err(ref e) if e.kind() == io::ErrorKind::NotFound => {
                 // res.connect_sqlx().unwrap();
@@ -159,7 +78,7 @@ impl AppState {
             }
             Err(e) => panic!("{}", e),
         };
-        File::open(cli.cfg.clone()).unwrap();
+        File::open(cli_path).unwrap();
         let mut yml_data = String::new();
         f.read_to_string(&mut yml_data).unwrap();
         //读取配置
@@ -177,6 +96,7 @@ impl AppState {
             db_pass: "123456".to_string(),
             db_name: "oneauth".to_string(),
             log_dir: None,
+            auto_task: true,
             media_path: "/Users/veypi/test/media".to_string(),
             fs_root: "/Users/veypi/test/media".to_string(),
             log_level: None,

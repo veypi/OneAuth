@@ -7,9 +7,11 @@
 
 pub mod api;
 mod cfg;
+mod cli;
 pub mod fs;
 pub mod libs;
 pub mod models;
 mod result;
-pub use cfg::{init_log, AppCli, AppState, ApplicationConfig, Clis, InfoOpt};
+pub use cfg::{init_log, AppState, ApplicationConfig, InfoOpt};
+pub use cli::{AppCli, Clis};
 pub use result::{Error, Result};

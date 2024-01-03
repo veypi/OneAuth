@@ -22,14 +22,13 @@ use tracing::{error, info, warn};
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = AppCli::new();
-    let mut data = AppState::new(&cli);
+    let mut data = AppState::new(&cli.cfg);
     if data.debug {
         std::env::set_var("RUST_LOG", "debug");
         std::env::set_var("RUST_BACKTRACE", "full");
     }
     let _log = init_log(&data);
     if cli.handle_service(data.clone())? {
-        info!("2");
         return Ok(());
     }
     if let Some(c) = &cli.command {
@@ -44,13 +43,14 @@ async fn main() -> Result<()> {
     };
     data.connect().await?;
     data.connect_sqlx()?;
+    if data.auto_task {
+        libs::task::start_stats_info(data.ts_url.clone());
+    }
     web(data).await?;
     Ok(())
 }
 
 async fn web(data: AppState) -> Result<()> {
-    // libs::task::start_nats_online(client.clone());
-    libs::task::start_stats_info(data.ts_url.clone());
     let url = data.server_url.clone();
     let serv = HttpServer::new(move || {
         let logger = middleware::Logger::default();
