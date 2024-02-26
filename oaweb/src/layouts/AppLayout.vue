@@ -6,7 +6,7 @@
  -->
 <template>
   <div class="p-4 w-full h-full">
-    <div class="flex items-center mb-8">
+    <div class="flex items-center mb-8 cursor-pointer" @click="util.goto(app.host)">
       <q-avatar class="mx-2" round size="4rem">
         <img :src="app.icon">
       </q-avatar>
@@ -23,6 +23,7 @@
 
 <script lang="ts" setup>
 import msg from '@veypi/msg';
+import util from 'src/libs/util';
 import api from 'src/boot/api';
 import { modelsApp } from 'src/models';
 import { computed, watch, ref, onMounted, provide, onBeforeUnmount } from 'vue';

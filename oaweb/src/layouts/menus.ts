@@ -86,7 +86,6 @@ const appLinks = ref([
   tmp_router('用户管理', 'v-team', 'user', 'user'),
   tmp_router('权限管理', 'v-key', 'auth', 'auth'),
   tmp_router('应用设置', 'v-setting', 'cfg', 'cfg'),
-  tmp_router('test', 'v-key', 'test', '../IndexPage'),
 ] as MenuLink[])
 
 
