@@ -31,6 +31,12 @@
           </q-popup-edit>
         </q-td>
       </template>
+      <template #body-cell-action="props">
+
+        <q-td :props="props">
+          <q-btn v-if='cfg.id === app.id' size='sm' color='secondary' @click='reset(props.row.id)'>重置密码</q-btn>
+        </q-td>
+      </template>
     </q-table>
   </div>
 </template>
@@ -41,6 +47,7 @@ import { AUStatus, modelsAppUser, modelsUser, modelsApp } from 'src/models';
 import api from 'src/boot/api';
 import msg from '@veypi/msg';
 import { util } from 'src/libs';
+import cfg from 'src/cfg';
 
 const auOpts: { [index: number]: any } = {
   [AUStatus.OK]: ['正常', 'positive'],
@@ -81,6 +88,9 @@ const update_status = (id: string, n: number, old: number) => {
   })
 
   console.log([id, n, old])
+}
+
+const reset = (id: string) => {
 }
 
 const sync = () => {

@@ -35,7 +35,7 @@ const tmp_router = (title: string, icon: string, path: string, com:
   }
 }
 let uniqueLinks: { [key: string]: [MenuLink] } = {
-  [cfg.id]: [tmp_router('系统信息', 'v-data-view', 'oasys', 'oasys')]
+  // [cfg.id]: [tmp_router('系统信息', 'v-data-view', 'oasys', 'oasys')]
 }
 
 const defaultLinks: MenuLink[] = [
@@ -45,33 +45,33 @@ const defaultLinks: MenuLink[] = [
     icon: 'v-apps',
     to: { name: 'home' }
   },
-  {
-    title: '文件管理',
-    caption: '',
-    icon: 'v-folder',
-    to: { name: 'fs' }
-  },
+  // {
+  //   title: '文件管理',
+  //   caption: '',
+  //   icon: 'v-folder',
+  //   to: { name: 'fs' }
+  // },
   {
     title: '账号设置',
     icon: 'v-user',
     to: { name: 'user' }
   },
-  {
-    title: '系统监控',
-    icon: 'v-data-view',
-    to: { name: 'stats' }
-  },
+  // {
+  //   title: '系统监控',
+  //   icon: 'v-data-view',
+  //   to: { name: 'stats' }
+  // },
   {
     title: '文档中心',
     icon: 'v-file-exception',
     to: { name: 'doc' }
   },
-  {
-    title: '设置',
-    caption: '',
-    icon: 'v-setting',
-    to: { name: 'settings' }
-  },
+  // {
+  //   title: '设置',
+  //   caption: '',
+  //   icon: 'v-setting',
+  //   to: { name: 'settings' }
+  // },
 ]
 
 const items = ref(defaultLinks)

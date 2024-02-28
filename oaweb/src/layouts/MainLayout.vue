@@ -46,8 +46,8 @@
     <q-footer style="z-index: 1;" bordered class="bg-grey-8 text-white flex justify-around">
       <span class="hover:text-black cursor-pointer" @click="$router.push({ name: 'doc' })">关于OA</span>
       <span class="hover:text-black cursor-pointer" @click="$router.push({ name: 'doc' })">使用须知</span>
-      <span class="hover:text-black cursor-pointer" @click="util.goto('https://veypi.com')">
-        ©2021 veypi
+      <span class="hover:text-black cursor-pointer">
+        @v1.1.2
       </span>
     </q-footer>
 

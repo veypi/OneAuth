@@ -100,7 +100,6 @@ async fn handle_file(req: &DavRequest, stat: web::Data<AppState>) -> Result<Stri
                                 let mut c = crypto::md5::Md5::new();
                                 let rs: String = credentials.user_id.chars().rev().collect();
                                 c.input_str(&rs);
-                                info!("{}|{}|{}", rs, c.result_str(), credentials.password);
                                 if c.result_str() == credentials.password {
                                     return Ok(format!("user/{}/", u.id));
                                 }
