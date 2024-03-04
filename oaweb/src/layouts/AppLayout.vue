@@ -30,10 +30,12 @@ import { computed, watch, ref, onMounted, provide, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
 import { RouteLocationNamedRaw } from 'vue-router';
 import menus from './menus'
+import { useUserStore } from 'src/stores/user';
 let route = useRoute();
 
 let id = computed(() => route.params.id)
 let app = ref({} as modelsApp)
+let user = useUserStore()
 
 provide('app', app)
 
@@ -42,6 +44,9 @@ const sync_app = () => {
   api.app.get(id.value as string).then((e: modelsApp) => {
     app.value = e
     let links = menus.appLinks.value.concat([])
+    if (!user.auth.Get('app', id.value).CanDelete()) {
+      links = [links[0]]
+    }
     links[0].title = e.name
     if (menus.uniqueLinks[tid]?.length) {
       for (let r of menus.uniqueLinks[tid]) {
