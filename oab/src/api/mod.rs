@@ -25,6 +25,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(tsdb);
     cfg.service(upload::save_files);
     cfg.service(user::get)
+        .service(user::reset)
         .service(user::list)
         .service(user::register)
         .service(user::login)

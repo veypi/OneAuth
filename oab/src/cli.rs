@@ -14,7 +14,7 @@ use tracing::info;
 #[clap(name = "oab")]
 #[clap(about = "oab", long_about = None)]
 pub struct AppCli {
-    #[clap(short = 'c', value_name = "cfg",default_value_t = String::from("~/.config/oa/oab.yml"), value_hint = clap::ValueHint::DirPath)]
+    #[clap(short = 'c', value_name = "cfg",default_value_t = String::from("/root/.config/oa/oab.yml"), value_hint = clap::ValueHint::DirPath)]
     pub cfg: String,
     #[clap(short = 'n', value_name = "name",default_value_t = String::from("v.oab"))]
     pub name: String,
