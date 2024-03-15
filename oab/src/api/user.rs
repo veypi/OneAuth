@@ -9,7 +9,7 @@ use std::fmt::Debug;
 
 use crate::{
     libs,
-    models::{self, app_user, user, AUStatus, UserPlugin},
+    models::{self, app_user, user, AUStatus, Token, UserPlugin},
     AppState, Error, Result,
 };
 use actix_web::{delete, get, head, http, patch, post, web, HttpResponse, Responder};
@@ -33,6 +33,47 @@ pub async fn get(id: web::Path<String>, stat: web::Data<AppState>) -> Result<imp
     } else {
         Err(Error::Missing("id".to_string()))
     }
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ResetOptions {
+    p: Option<String>,
+}
+
+#[get("/user/{id}/reset")]
+#[access_read("user")]
+pub async fn reset(
+    id: web::Path<String>,
+    stat: web::Data<AppState>,
+    t: web::ReqData<Token>,
+    query: web::Query<ResetOptions>,
+) -> Result<impl Responder> {
+    let id = id.into_inner();
+    // default optx123
+    let p = match query.into_inner().p {
+        Some(p) => p,
+        None => "b3B0eDEyMw==".to_string(),
+    };
+    if t.can_delete("user", &id) || id == t.id {
+        let mut uobj = models::user::Entity::find_by_id(&id)
+            .one(stat.db())
+            .await?
+            .ok_or("not found id")?;
+        let p = match base64::decode(p.as_bytes()) {
+            Err(_) => return Err(Error::ArgInvalid("password".to_string())),
+            Ok(p) => p,
+        };
+        let p = match std::str::from_utf8(&p) {
+            Ok(p) => p,
+            Err(_) => return Err(Error::ArgInvalid("password".to_string())),
+        };
+        let mut u: models::user::ActiveModel = uobj.clone().into();
+        uobj.update_pass(&p)?;
+        u.real_code = sea_orm::Set(uobj.real_code);
+        u.check_code = sea_orm::Set(uobj.check_code);
+        u.update(stat.db()).await?;
+    }
+    Ok("")
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -221,7 +262,6 @@ pub struct UpdateOpt {
     pub nickname: Option<String>,
     pub email: Option<String>,
     pub phone: Option<String>,
-    pub test: serde_json::Value,
 }
 
 #[patch("/user/{id}")]
@@ -232,7 +272,6 @@ pub async fn update(
     stat: web::Data<AppState>,
     data: web::Json<UpdateOpt>,
 ) -> Result<impl Responder> {
-    info!("{:#?}", data.test);
     Ok("")
 }
 

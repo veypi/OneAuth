@@ -48,6 +48,7 @@ import api from 'src/boot/api';
 import msg from '@veypi/msg';
 import { util } from 'src/libs';
 import cfg from 'src/cfg';
+import { useQuasar } from 'quasar';
 
 const auOpts: { [index: number]: any } = {
   [AUStatus.OK]: ['正常', 'positive'],
@@ -55,6 +56,7 @@ const auOpts: { [index: number]: any } = {
   [AUStatus.Applying]: ['申请中', 'primary'],
   [AUStatus.Disabled]: ['禁用', 'warning'],
 }
+let $q = useQuasar()
 let app = inject('app') as Ref<modelsApp>
 const columns = [
   {
@@ -91,6 +93,18 @@ const update_status = (id: string, n: number, old: number) => {
 }
 
 const reset = (id: string) => {
+  $q.dialog({
+    title: '是否重置密码',
+    message: '请谨慎操作',
+    cancel: true,
+    persistent: true
+  }).onOk(() => {
+    api.user.reset(id).then(e => {
+      msg.Info('重置成功 ')
+    }).catch(e => {
+      msg.Warn('失败 ' + e)
+    })
+  })
 }
 
 const sync = () => {

@@ -19,6 +19,12 @@ export default {
     }, prop)
     return ajax.post(this.local, data)
   },
+  reset(id: string, p?: string) {
+    if (p) {
+      p = Base64.encode(p)
+    }
+    return ajax.get(this.local + id + '/reset', { p: p })
+  },
   login(username: string, password: string) {
     return ajax.head(this.local + username, {
       typ: 'username',

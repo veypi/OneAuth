@@ -90,6 +90,11 @@ const reset = () => {
     msg.Warn('两次密码不一致')
     return
   }
+  api.user.reset(u.id, pass.value[0]).then((e) => {
+    msg.Info('密码重置成功')
+  }).catch(e => {
+    msg.Warn('密码重置失败 ' + e)
+  })
 }
 </script>
 
