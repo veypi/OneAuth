@@ -7,6 +7,7 @@
 
 <template>
   <div>
+
     <div v-if="ofApps.length > 0">
       <div class="flex justify-between">
         <h1 class="page-h1">我的应用</h1>
@@ -64,7 +65,7 @@
 import { onMounted, ref } from 'vue';
 import msg from '@veypi/msg';
 
-let user = useLocalUser()
+let user = useUserStore()
 
 
 let apps = ref<modelsApp[]>([]);
@@ -74,7 +75,7 @@ function getApps() {
   api.app.list().then(
     (e: modelsApp[]) => {
       apps.value = e;
-      api.app.user('-').list(user.value.id).then((aus: modelsAppUser[]) => {
+      api.app.user('-').list(user.id).then((aus: modelsAppUser[]) => {
         for (let i in aus) {
           let ai = apps.value.findIndex(a => a.id === aus[i].app_id)
           if (ai >= 0) {
@@ -107,7 +108,6 @@ let rules = {
 function create_new() {
   api.app.create(temp_app.value.name, temp_app.value.icon).then((e:
     modelsApp) => {
-    console.log(e)
     ofApps.value.push(e);
     msg.Info("创建成功");
     new_flag.value = false;

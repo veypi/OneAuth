@@ -7,9 +7,12 @@
 
 
 export default defineAppConfig({
-  id: '',
+  // host: window.location.protocol + '//' + window.location.host,
+  host: '',
+  id: 'FR9P5t8debxc11aFF',
   layout: {
     theme: '',
+    fullscreen: false,
     size: [0, 0],
     header_height: 80,
     footer_height: 16,

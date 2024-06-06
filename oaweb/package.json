@@ -12,6 +12,7 @@
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",
     "@veypi/msg": "^0.1.1",
+    "@veypi/oaer": "^0.2.2",
     "@veypi/one-icon": "^2.0.6",
     "axios": "^1.7.2",
     "js-base64": "^3.7.7",

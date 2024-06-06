@@ -1,4 +1,5 @@
 <template>
+  <NuxtLoadingIndicator />
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
@@ -7,9 +8,6 @@
 <script setup lang="ts">
 
 let app = useAppConfig()
-watch(app, () => {
-  document.documentElement.setAttribute('theme', app.layout.theme)
-}, { immediate: true })
 
 onMounted(() => {
   app.layout.size = [document.body.clientWidth, document.body.clientHeight]

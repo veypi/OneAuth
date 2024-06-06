@@ -10,6 +10,15 @@
       <div class="ico" @click="toggle_menu(1)"></div>
       <div @click="toggle_menu(2)">统一认证系统</div>
       <div class="grow"></div>
+      <OneIcon class="mx-2" @click="toggle_fullscreen">
+        {{ app.layout.fullscreen ? 'compress' : 'expend' }}
+      </OneIcon>
+
+      <OneIcon class="mx-2" @click="toggle_theme">
+        {{ app.layout.theme === '' ? 'light' : 'dark' }}
+      </OneIcon>
+      <OAer v-if="user.ready" @logout="user.logout" :is-dark="app.layout.theme !== ''">
+      </OAer>
     </div>
     <div class="menu">
       <Menu :show_name="menu_mode === 2" :list="menu"></Menu>
@@ -27,6 +36,25 @@
 </template>
 
 <script lang="ts" setup>
+import { OneIcon } from '@veypi/one-icon'
+import { OAer } from "@veypi/oaer";
+import oaer from '@veypi/oaer'
+import '@veypi/oaer/dist/index.css'
+
+let app = useAppConfig()
+let router = useRouter()
+let user = useUserStore()
+
+app.host = window.location.protocol + '//' + window.location.host
+oaer.set({
+  token: util.getToken(),
+  host: app.host,
+  uuid: app.id,
+})
+
+bus.on('token', (t: any) => {
+  oaer.set({ token: t })
+})
 
 let menu = ref([
   { ico: 'home', name: '应用中心', path: '/' },
@@ -34,10 +62,10 @@ let menu = ref([
   { ico: 'file-exception', name: '文档中心', path: '/docs' },
   { ico: 'setting', name: '系统设置', path: '/settings' },
 ])
-let app = useAppConfig()
-let router = useRouter()
 if (!util.checkLogin()) {
   router.push('/login')
+} else {
+  user.fetchUserData()
 }
 let menu_mode = ref(1)
 let toggle_menu = (m: 0 | 1 | 2) => {
@@ -50,7 +78,22 @@ let toggle_menu = (m: 0 | 1 | 2) => {
     app.layout.menu_width = 100
   }
 }
-console.log(1111)
+
+const toggle_fullscreen = () => {
+  app.layout.fullscreen = !app.layout.fullscreen
+  if (app.layout.fullscreen) {
+    let docElm = document.documentElement;
+    docElm.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+}
+const toggle_theme = () => {
+  app.layout.theme =
+    app.layout.theme === '' ? 'dark' : ''
+  document.documentElement.setAttribute('theme', app.layout.theme)
+}
+
 </script>
 
 <style scoped lang="scss">

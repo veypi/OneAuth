@@ -51,15 +51,19 @@ withDefaults(defineProps<{
 <style scoped lang="scss">
 .items {
   .item {
-    opacity: 0.6;
+    opacity: 0.8;
+    cursor: pointer;
+    color: var(--base-txt);
   }
 
   .item[active=true] {
     opacity: 1;
+    background: var(--base-bg-1);
+    cursor: default;
   }
 
   .item:hover {
-    opacity: 0.8;
+    background: var(--base-bg-1);
   }
 }
 </style>
