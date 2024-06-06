@@ -1,0 +1,123 @@
+ <!--
+ * default.vue
+ * Copyright (C) 2024 veypi <i@veypi.com>
+ * 2024-05-31 17:09
+ * Distributed under terms of the MIT license.
+ -->
+<template>
+  <div class="page">
+    <div class="header flex justify-center items-center">
+      <div class="ico" @click="toggle_menu(1)"></div>
+      <div @click="toggle_menu(2)">统一认证系统</div>
+      <div class="grow"></div>
+    </div>
+    <div class="menu">
+      <Menu :show_name="menu_mode === 2" :list="menu"></Menu>
+    </div>
+    <div class="menu-hr"></div>
+    <div class="main">
+      <slot />
+    </div>
+    <div class="footer flex justify-around items-center">
+      <div @click="toggle_menu(0)">© 2024 veypi</div>
+      <div>使用说明</div>
+      <div>联系我们</div>
+    </div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+
+let menu = ref([
+  { ico: 'home', name: '应用中心', path: '/' },
+  { ico: 'user', name: '用户设置', path: '/user' },
+  { ico: 'file-exception', name: '文档中心', path: '/docs' },
+  { ico: 'setting', name: '系统设置', path: '/settings' },
+])
+let app = useAppConfig()
+let router = useRouter()
+if (!util.checkLogin()) {
+  router.push('/login')
+}
+let menu_mode = ref(1)
+let toggle_menu = (m: 0 | 1 | 2) => {
+  menu_mode.value = m
+  if (m == 0) {
+    app.layout.menu_width = 0
+  } else if (m == 1) {
+    app.layout.menu_width = 40
+  } else {
+    app.layout.menu_width = 100
+  }
+}
+console.log(1111)
+</script>
+
+<style scoped lang="scss">
+.page {
+  height: 100vh;
+  width: 100vw;
+
+  .header {
+    height: v-bind('app.layout.header_height + "px"');
+    user-select: none;
+    background: var(--header-bg);
+    color: var(--header-txt);
+    font-size: 24px;
+
+    .ico {
+      width: v-bind('app.layout.header_height * 0.8 + "px"');
+      height: v-bind('app.layout.header_height * 0.8 + "px"');
+      background: url('/favicon.ico') no-repeat;
+      background-size: cover;
+    }
+  }
+
+  .menu {
+    overflow: hidden;
+    vertical-align: top;
+    display: inline-block;
+    width: v-bind("app.layout.menu_width + 'px'");
+    height: calc(100vh - v-bind('app.layout.header_height + app.layout.footer_height + "px"'));
+    transition: width 0.3s linear;
+  }
+
+  .menu-hr {
+    vertical-align: top;
+    display: inline-block;
+    width: 1px;
+    height: calc(100vh - v-bind('app.layout.header_height + app.layout.footer_height + "px"'));
+    background: #999;
+  }
+
+  .main {
+    vertical-align: top;
+    display: inline-block;
+    overflow: auto;
+    width: calc(100vw - v-bind("app.layout.menu_width + 1 + 'px'"));
+    height: calc(100vh - v-bind('app.layout.header_height + app.layout.footer_height + "px"'));
+    transition: width 0.3s linear;
+  }
+
+  .footer {
+    height: v-bind("app.layout.footer_height + 'px'");
+    user-select: none;
+    background: var(--footer-bg);
+    color: var(--footer-txt);
+    font-size: 12px;
+    line-height: v-bind("app.layout.footer_height + 'px'");
+
+    div {
+      cursor: pointer;
+      opacity: 0.6;
+    }
+
+    div:hover {
+      opacity: 1;
+    }
+  }
+}
+</style>
+
+
+

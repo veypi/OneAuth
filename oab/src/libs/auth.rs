@@ -6,6 +6,7 @@
 //
 
 use std::cell::RefCell;
+use std::fmt;
 use std::pin::Pin;
 use std::rc::Rc;
 use std::task::{Context, Poll};
