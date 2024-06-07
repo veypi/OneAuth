@@ -14,6 +14,17 @@ export default defineNuxtConfig({
       "/api": {
         target: "http://127.0.0.1:4001/api",
         changeOrigin: true,
+        ws: true,
+      },
+      '/fs': {
+        target: 'http://127.0.0.1:4001/fs',
+        changeOrigin: true,
+        ws: true,
+      },
+      '/media': {
+        target: 'http://127.0.0.1:4001/media',
+        changeOrigin: true,
+        ws: true,
       },
     },
   },
@@ -34,7 +45,7 @@ export default defineNuxtConfig({
       script: [
         { src: '/icon.js' },
       ]
-    }
+    },
   },
 
   postcss: {

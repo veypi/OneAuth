@@ -7,7 +7,7 @@
 <template>
   <div class="select-none items flex flex-col">
     <template v-for="(v, i) in list">
-      <div class="item flex items-center justify-center gap-2 py-4" :active='v.path === route.fullPath'
+      <div class="item flex items-center justify-center gap-1 py-4" :active='v.path === route.fullPath'
         @click="$router.push(v.path)">
         <slot :name="'L' + i" @click='$router.push(v.path)'>
           <div class='ico' v-if="show_ico">

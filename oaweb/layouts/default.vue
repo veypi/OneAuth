@@ -17,18 +17,18 @@
       <OneIcon class="mx-2" @click="toggle_theme">
         {{ app.layout.theme === '' ? 'light' : 'dark' }}
       </OneIcon>
-      <OAer v-if="user.ready" @logout="user.logout" :is-dark="app.layout.theme !== ''">
+      <OAer class="mx-2" v-if="user.ready" @logout="user.logout" :is-dark="app.layout.theme !== ''">
       </OAer>
     </div>
     <div class="menu">
       <Menu :show_name="menu_mode === 2" :list="menu"></Menu>
     </div>
     <div class="menu-hr"></div>
-    <div class="main">
+    <div class="main px-8 py-6">
       <slot />
     </div>
     <div class="footer flex justify-around items-center">
-      <div @click="toggle_menu(0)">© 2024 veypi</div>
+      <div @click="util.goto('https://veypi.com')">© 2024 veypi</div>
       <div>使用说明</div>
       <div>联系我们</div>
     </div>
@@ -60,7 +60,8 @@ let menu = ref([
   { ico: 'home', name: '应用中心', path: '/' },
   { ico: 'user', name: '用户设置', path: '/user' },
   { ico: 'file-exception', name: '文档中心', path: '/docs' },
-  { ico: 'setting', name: '系统设置', path: '/settings' },
+  { ico: 'setting', name: '应用统计', path: '/stats' },
+  { ico: 'setting', name: '系统设置', path: '/setting' },
 ])
 if (!util.checkLogin()) {
   router.push('/login')
@@ -75,9 +76,10 @@ let toggle_menu = (m: 0 | 1 | 2) => {
   } else if (m == 1) {
     app.layout.menu_width = 40
   } else {
-    app.layout.menu_width = 100
+    app.layout.menu_width = 108
   }
 }
+toggle_menu(2)
 
 const toggle_fullscreen = () => {
   app.layout.fullscreen = !app.layout.fullscreen

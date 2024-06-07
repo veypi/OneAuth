@@ -11,10 +11,11 @@
   },
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",
-    "@veypi/msg": "^0.1.1",
-    "@veypi/oaer": "^0.2.2",
+    "@veypi/msg": "^0.1.4",
+    "@veypi/oaer": "^0.2.4",
     "@veypi/one-icon": "^2.0.6",
     "axios": "^1.7.2",
+    "echarts": "^5.5.0",
     "js-base64": "^3.7.7",
     "nuxt": "^3.11.2",
     "vue": "^3.4.27",

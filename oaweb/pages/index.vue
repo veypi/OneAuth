@@ -18,7 +18,7 @@
       </div>
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 text-center">
         <div v-for="(item, k) in ofApps" class="flex items-center justify-center" :key="k">
-          <!-- <AppCard :core="item" :is_part="true"></AppCard> -->
+          <Appcard :core="item" :is_part="true"></Appcard>
         </div>
       </div>
     </div>
@@ -26,7 +26,7 @@
       <h1 class="page-h1">应用中心</h1>
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 text-center">
         <div v-for="(item, k) in apps" class="flex items-center justify-center" :key="k">
-          <!-- <AppCard :core="item" :is_part="false"></AppCard> -->
+          <Appcard :core="item" :is_part="false"></Appcard>
         </div>
       </div>
     </div>
@@ -62,7 +62,6 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
 import msg from '@veypi/msg';
 
 let user = useUserStore()

@@ -3,9 +3,9 @@
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
-  <div id='v-msg'></div>
 </template>
 <script setup lang="ts">
+
 
 let app = useAppConfig()
 
