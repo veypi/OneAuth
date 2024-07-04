@@ -6,17 +6,11 @@
  -->
 
 <template>
-  <div class="core rounded-2xl p-3">
-    <div class="grid gap-4 grid-cols-5">
-      <div class="col-span-2">
-        <img :src="core.icon">
-      </div>
-      <div class="col-span-3 grid grid-cols-1 items-center text-left">
-        <div class="truncate h-10 flex items-center text-xl italic font-bold">
-          {{ core.name }}
-        </div>
-        <span class="truncate">{{ }}</span>
-      </div>
+  <div class="core rounded-2xl" @click="Go">
+    <img class="logo rounded-full" :src="core.icon">
+    <div class="txt">
+      <div class="title truncate italic font-bold">{{ core.name }}</div>
+      <div class="des"></div>
     </div>
   </div>
 </template>
@@ -39,7 +33,7 @@ const u = useUserStore()
 
 function Go() {
   if (props.is_part) {
-    router.push({ name: "app.home", params: { id: props.core.id } });
+    router.push('/app/' + props.core.id)
     return
   }
   // $q.dialog({
@@ -69,9 +63,42 @@ function Go() {
   })
 }
 </script>
-<style scoped>
+<style scoped lang="scss">
 .core {
+  user-select: none;
+  cursor: pointer;
   width: 256px;
-  background: rgba(146, 145, 145, 0.1);
+  height: 96px;
+  padding: 12px;
+  background: var(--base-bg-1);
+  filter: brightness(1.05);
+
+  .logo {
+    vertical-align: top;
+    display: inline-block;
+    width: 72px;
+    height: 72px;
+  }
+
+  .txt {
+    vertical-align: top;
+    display: inline-block;
+    width: 160px;
+    height: 72px;
+
+    .title {
+      padding-left: 12px;
+      text-align: left;
+      width: 160px;
+      height: 48px;
+      line-height: 48px;
+      font-size: 24px;
+    }
+
+    .des {
+      height: 24px;
+      padding-left: 12px;
+    }
+  }
 }
 </style>

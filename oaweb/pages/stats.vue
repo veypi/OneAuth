@@ -12,16 +12,22 @@
     </div>
     <div class="w-40 text-center py-4 start_card">
       <div class="text-3xl"> 已运行 </div>
-      <div class="text-2xl mt-2">
-        {{ start_time }}
-      </div>
+      <Tsdom class="text-2xl mt-2" query='srv_start'>
+        <template #single="{ data }">
+          {{ util.timetostr(data[1]) }}
+        </template>
+      </Tsdom>
+
     </div>
     <div class="flex flex-nowrap" style="">
+      <!-- <Tschart :item="querys[0]" :time_mode="1"></Tschart> -->
+      <Tsdom :sync_delta="1" delta="3m" step="1s" is_range query="srv_cpu" class="w-1/2">
+        <template #list="{ data }">
+          <Tsgraph title="CPU" :data="data" :data-formatter="data_formatter"></Tsgraph>
+        </template>
+      </Tsdom>
       <div class="w-1/2">
-        <Tschart :item="querys[0]" :time_mode="1"></Tschart>
-      </div>
-      <div class="w-1/2">
-        <Tschart :item="querys[1]" :time_mode="1"></Tschart>
+        <Tschart sync :item="querys[1]" :time_mode="0"></Tschart>
       </div>
     </div>
   </div>
@@ -33,6 +39,21 @@ import { ref, onUnmounted, onMounted } from 'vue';
 
 const start_time = ref('')
 const timer = ref()
+const data_formatter = (data: any[]) => {
+  let res = [] as any[]
+  data.forEach(e => {
+    res.push({
+      data: e.values.map((e: any) =>
+        [e[0] * 1000, Number(e[1])]),
+      smooth: true,
+      symbol: 'none',
+      type: 'line',
+      valueFormatter: (value: number) => value.toFixed(2) + "%",
+    })
+  })
+  console.log(res)
+  return res
+}
 const querys = ref<{
   name: string, query: string[] | string, label?: any,
   valueFormatter?: any

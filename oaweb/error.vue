@@ -8,7 +8,7 @@
 <template>
   <div class="flex justify-center items-center w-full h-full">
     <div class="text-center text-xl">
-      <OneIcon style="font-size: 200px">404</OneIcon>
+      <OneIcon name="404" style="font-size: 200px"></OneIcon>
       <div v-if='error && error.statusCode === 404'>
         路径失效啦! {{ count }}秒
       </div>

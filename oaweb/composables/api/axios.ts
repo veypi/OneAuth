@@ -53,7 +53,7 @@ const responseFailed = (error: AxiosError) => {
     alert('没有网络')
     return Promise.reject(new Error('请检查网络连接'))
   }
-  console.log(response)
+  console.warn(response)
   return Promise.reject(response?.data || response?.headers.error)
 }
 

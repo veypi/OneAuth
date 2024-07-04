@@ -12,7 +12,7 @@
       <div class="flex justify-between">
         <h1 class="page-h1">我的应用</h1>
         <div class="my-5 mr-10">
-          <div class='vbtn' outline @click="new_flag = true" v-if="user.auth.Get(R.App, '').CanCreate()">创建应用
+          <div class='vbtn bg-gray-400' @click="new_flag = true" v-if="user.auth.Get(R.App, '').CanCreate()">创建应用
           </div>
         </div>
       </div>
@@ -30,6 +30,11 @@
         </div>
       </div>
     </div>
+    <UModal v-model="new_flag">
+      <div class="p-4">
+        123
+      </div>
+    </UModal>
     <!-- <q-dialog :square="false" v-model="new_flag"> -->
     <!--   <q-card class="w-4/5 md:w-96 rounded-2xl"> -->
     <!--     <q-card-section> -->

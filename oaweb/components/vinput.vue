@@ -41,13 +41,14 @@
       </template>
       <template v-else-if="type === 'radio'">
         <div class="flex justify-between gap-4">
-          <template :key="ok" v-for="(ov, ok) of transDic">
-            <div :class="[value === ok ? 'radio-btn-active' :
-              'div-btn']" @click="setSelect(ok)" style="color:white;"
-              class="div-center font-bold grow truncate radio-btn rounded-md transition duration-500">
-              {{ ov || ok }}
-            </div>
-          </template>
+          {{ transDic }}
+          <!-- <template :key="ok" v-for="(ov, ok) of transDic"> -->
+          <!--   <div :class="[value === ok ? 'radio-btn-active' : -->
+          <!--     'div-btn']" @click="setSelect(ok)" style="color:white;" -->
+          <!--     class="div-center font-bold grow truncate radio-btn rounded-md transition duration-500"> -->
+          <!--     {{ ov || ok }} -->
+          <!--   </div> -->
+          <!-- </template> -->
         </div>
 
       </template>
@@ -225,6 +226,7 @@ const sync = () => {
           transDic.value[i.key] = i.name
         }
       }
+      console.log(transDic.value)
     } else {
       for (let i in props.options) {
         transDic.value[i] = props.options[i]

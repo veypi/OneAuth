@@ -23,6 +23,8 @@
 </template>
 
 <script lang="ts" setup>
+import msg from '@veypi/msg';
+
 
 definePageMeta({
   layout: false,
@@ -49,10 +51,7 @@ const onSubmit = () => {
       console.log([url])
       redirect(url)
     }).catch(e => {
-      let m = e === '1' ? '被禁止登录' : e === '2' ? '正在申请中' : e
-        === '3' ?
-        '申请被拒绝' : '登录失败:' + e
-      // msg.Warn(m)
+      msg.Warn(e)
     })
 }
 const onReset = () => {

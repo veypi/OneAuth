@@ -6,12 +6,12 @@
  -->
 <template>
   <div class="select-none items flex flex-col">
-    <template v-for="(v, i) in list">
-      <div class="item flex items-center justify-center gap-1 py-4" :active='v.path === route.fullPath'
+    <template v-for="(v, i) in menus">
+      <div class="item flex items-center justify-start px-3 gap-1 py-4" :active='is_equal(v.path, route.fullPath)'
         @click="$router.push(v.path)">
         <slot :name="'L' + i" @click='$router.push(v.path)'>
           <div class='ico' v-if="show_ico">
-            <OneIcon>{{ v.ico }}</OneIcon>
+            <OneIcon :name='v.ico' />
           </div>
           <div class="text-nowrap" v-if="show_name">
             {{ v.name }}
@@ -25,17 +25,21 @@
 <script lang="ts" setup>
 import { OneIcon } from '@veypi/one-icon'
 
+let menu_handler = useMenuStore()
+let menus = computed(() => menu_handler.menus)
 let route = useRoute()
-interface item {
-  ico: string
-  name: string
-  path: string
-  label?: string
-  subs?: item[]
+
+const is_equal = (p1: string, p2: string) => {
+  if (!p1.endsWith('/')) {
+    p1 = p1 + '/'
+  }
+  if (!p2.endsWith('/')) {
+    p2 = p2 + '/'
+  }
+  return p1 === p2
 }
 
 withDefaults(defineProps<{
-  list: item[],
   vertical?: boolean,
   show_ico?: boolean,
   show_name?: boolean,
@@ -58,7 +62,7 @@ withDefaults(defineProps<{
 
   .item[active=true] {
     opacity: 1;
-    background: var(--base-bg-1);
+    color: var(--color-warning);
     cursor: default;
   }
 

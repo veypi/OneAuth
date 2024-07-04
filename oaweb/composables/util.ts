@@ -7,6 +7,17 @@ function padLeftZero(str: string): string {
 
 
 const util = {
+  timetostr(d: number) {
+    if (d < 60) {
+      return d + '秒'
+    } else if (d < 3600) {
+      return (d / 60).toFixed(1) + '分钟'
+    } else if (d < 86400) {
+      return (d / 3600).toFixed(1) + '小时'
+    } else if (d < 2592000) {
+      return (d / 86400).toFixed(1) + '天'
+    }
+  },
   datetostr(d: string) {
     if (!d.endsWith('Z')) {
       d = d + 'Z'

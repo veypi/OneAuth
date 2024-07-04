@@ -3,7 +3,6 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   css: [
-    '~/assets/css/tailwind.css',
     '~/assets/css/app.scss',
   ],
 
@@ -47,13 +46,5 @@ export default defineNuxtConfig({
       ]
     },
   },
-
-  postcss: {
-    plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
-    }
-  },
-
-  modules: ["@pinia/nuxt"]
+  modules: ["@pinia/nuxt", "@nuxt/ui"]
 })

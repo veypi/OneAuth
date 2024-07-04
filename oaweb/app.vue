@@ -1,15 +1,16 @@
 <template>
-  <NuxtLoadingIndicator />
   <NuxtLayout>
-    <NuxtPage />
+    <NuxtPage keepalive :page-key="route => route.fullPath" />
   </NuxtLayout>
 </template>
 <script setup lang="ts">
 
 
 let app = useAppConfig()
-
+let menu = useMenuStore()
 onMounted(() => {
+  menu.default()
+  console.log('init app')
   app.layout.size = [document.body.clientWidth, document.body.clientHeight]
   window.onresize = () => {
     app.layout.size = [document.body.clientWidth, document.body.clientHeight]

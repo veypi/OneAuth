@@ -7,21 +7,16 @@
 <template>
   <div class="page">
     <div class="header flex justify-center items-center">
-      <div class="ico" @click="toggle_menu(1)"></div>
-      <div @click="toggle_menu(2)">统一认证系统</div>
+      <div class="ico" @click="router.push('/')"></div>
+      <div>统一认证系统</div>
       <div class="grow"></div>
-      <OneIcon class="mx-2" @click="toggle_fullscreen">
-        {{ app.layout.fullscreen ? 'compress' : 'expend' }}
-      </OneIcon>
-
-      <OneIcon class="mx-2" @click="toggle_theme">
-        {{ app.layout.theme === '' ? 'light' : 'dark' }}
-      </OneIcon>
+      <OneIcon class="mx-2" @click="toggle_fullscreen" :name="app.layout.fullscreen ? 'compress' : 'expend'"></OneIcon>
+      <OneIcon class="mx-2" @click="toggle_theme" :name="app.layout.theme === '' ? 'light' : 'dark'"></OneIcon>
       <OAer class="mx-2" v-if="user.ready" @logout="user.logout" :is-dark="app.layout.theme !== ''">
       </OAer>
     </div>
     <div class="menu">
-      <Menu :show_name="menu_mode === 2" :list="menu"></Menu>
+      <Menu :show_name="menu_mode === 2"></Menu>
     </div>
     <div class="menu-hr"></div>
     <div class="main px-8 py-6">
@@ -56,13 +51,6 @@ bus.on('token', (t: any) => {
   oaer.set({ token: t })
 })
 
-let menu = ref([
-  { ico: 'home', name: '应用中心', path: '/' },
-  { ico: 'user', name: '用户设置', path: '/user' },
-  { ico: 'file-exception', name: '文档中心', path: '/docs' },
-  { ico: 'setting', name: '应用统计', path: '/stats' },
-  { ico: 'setting', name: '系统设置', path: '/setting' },
-])
 if (!util.checkLogin()) {
   router.push('/login')
 } else {
@@ -95,6 +83,7 @@ const toggle_theme = () => {
     app.layout.theme === '' ? 'dark' : ''
   document.documentElement.setAttribute('theme', app.layout.theme)
 }
+
 
 </script>
 

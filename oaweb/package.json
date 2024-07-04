@@ -10,11 +10,13 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxt/ui": "^2.16.0",
     "@pinia/nuxt": "^0.5.1",
-    "@veypi/msg": "^0.1.4",
+    "@veypi/msg": "^0.2.0",
     "@veypi/oaer": "^0.2.4",
-    "@veypi/one-icon": "^2.0.6",
+    "@veypi/one-icon": "^3.0.0",
     "axios": "^1.7.2",
+    "cherry-markdown": "^0.8.42",
     "echarts": "^5.5.0",
     "js-base64": "^3.7.7",
     "nuxt": "^3.11.2",
@@ -23,9 +25,6 @@
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "devDependencies": {
-    "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.38",
-    "sass": "^1.77.4",
-    "tailwindcss": "^3.4.3"
+    "sass": "^1.77.4"
   }
 }
