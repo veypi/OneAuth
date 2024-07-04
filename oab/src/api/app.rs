@@ -22,7 +22,10 @@ use crate::{
 pub async fn get(id: web::Path<String>, stat: web::Data<AppState>) -> Result<impl Responder> {
     let n = id.into_inner();
     if !n.is_empty() {
-        let s = app::Entity::find_by_id(n).one(stat.db()).await?;
+        let s = app::Entity::find_by_id(&n).one(stat.db()).await?;
+        if s.is_none() {
+            return Err(Error::NotFound(n));
+        }
         Ok(web::Json(s))
     } else {
         Err(Error::Missing("id".to_string()))
