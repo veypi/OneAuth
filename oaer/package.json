@@ -1,0 +1,32 @@
+{
+  "name": "oaer",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "files": [
+    "dist",
+    "index.d.ts"
+  ],
+  "main": "./dist/oaer.umd.cjs",
+  "module": "./dist/oaer.js",
+  "types": "./index.d.ts",
+  "exports": {
+    "types": "./index.d.ts",
+    "import": "./dist/oaer.js",
+    "require": "./dist/oaer.umd.cjs"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "devDependencies": {
+    "sass": "^1.77.6",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/veypi/oneauth/oaer"
+  },
+  "license": "Apache-2.0"
+}
