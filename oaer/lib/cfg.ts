@@ -6,14 +6,13 @@
  */
 
 let cfg = {
-  self: '',
-
   uuid: '',
-  app_data: {},
-
-  ready: false,
+  refresh: '',
   token: '',
-  oa_token: '',
+
+
+  app_data: {},
+  ready: false,
   local_user: {},
 
   host: '',

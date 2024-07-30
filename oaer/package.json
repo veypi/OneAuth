@@ -28,5 +28,8 @@
     "type": "git",
     "url": "https://github.com/veypi/oneauth/oaer"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "^1.7.2"
+  }
 }
