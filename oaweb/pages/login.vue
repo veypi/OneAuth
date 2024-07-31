@@ -143,14 +143,14 @@ const register = () => {
   if (!checks.value.u || !checks.value.p || !checks.value.p2) {
     return
   }
-  // api.user.register(data.value.username, data.value.password).then(u => {
-  //   console.log(u)
-  //   msg.Info('注册成功')
-  //   router.push({ name: 'login' })
-  // }).catch(e => {
-  //   console.log(e)
-  //   msg.Warn('注册失败：' + e.data)
-  // })
+  api.user.register(data.value.username, data.value.password).then(u => {
+    console.log(u)
+    msg.Info('注册成功')
+    aOpt.value = ''
+  }).catch(e => {
+    console.log(e)
+    msg.Warn('注册失败：' + e.data)
+  })
 }
 const reset = () => {
   enable_check.value = true
@@ -238,7 +238,7 @@ onMounted(() => {
   user-select: none;
   position: sticky;
   padding: 2rem;
-  width: 40%;
+  width: 50%;
   min-width: 20rem;
   height: 50%;
 
