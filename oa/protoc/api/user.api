@@ -1,0 +1,39 @@
+import "base.api"
+
+
+type (
+    // 定义登录接口的请求体
+    LoginReq {
+        error
+        Username string `json:"username"`
+        Password string `json:"password"`
+    }
+    // 定义登录接口的响应体
+    LoginResp {
+        Id       int64  `json:"id"`
+        Name     string `json:"name"`
+        Token    string `json:"token"`
+        ExpireAt string `json:"expireAt"`
+    }
+)
+
+@server (
+    // 代表当前 service 代码块下的路由生成代码时都会被放到 user 目录下
+    group: user
+    // 定义路由前缀为 "/v1"
+    prefix: /api/user
+)
+
+
+// 定义 HTTP 服务
+// 微服务名称为main，生成的代码目录和配置文件将和 user 值相关
+service main {
+    // 定义 http.HandleFunc 转换的 go 文件名称及方法
+    @handler Login
+    // 定义接口
+    // 请求方法为 post
+    // 路由为 /user/login
+    // 请求体为 LoginReq
+    // 响应体为 LoginResp，响应体必须有 returns 关键字修饰
+    post /login (LoginReq) returns (LoginResp)
+}

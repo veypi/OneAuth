@@ -1,0 +1,5 @@
+
+type error {
+    status string `json:"status"`
+    code   int  `json:"code"`
+}
