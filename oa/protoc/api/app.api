@@ -4,7 +4,6 @@ import "base.api"
 type (
     // 定义登录接口的请求体
     AppReq {
-        error
         appname string `json:"username"`
         Password string `json:"password"`
     }

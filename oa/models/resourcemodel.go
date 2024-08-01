@@ -1,9 +1,6 @@
 package models
 
-import (
-	"github.com/zeromicro/go-zero/core/stores/cache"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
-)
+import "github.com/zeromicro/go-zero/core/stores/sqlx"
 
 var _ ResourceModel = (*customResourceModel)(nil)
 
@@ -12,6 +9,7 @@ type (
 	// and implement the added methods in customResourceModel.
 	ResourceModel interface {
 		resourceModel
+		withSession(session sqlx.Session) ResourceModel
 	}
 
 	customResourceModel struct {
@@ -20,8 +18,12 @@ type (
 )
 
 // NewResourceModel returns a model for the database table.
-func NewResourceModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) ResourceModel {
+func NewResourceModel(conn sqlx.SqlConn) ResourceModel {
 	return &customResourceModel{
-		defaultResourceModel: newResourceModel(conn, c, opts...),
+		defaultResourceModel: newResourceModel(conn),
 	}
+}
+
+func (m *customResourceModel) withSession(session sqlx.Session) ResourceModel {
+	return NewResourceModel(sqlx.NewSqlConnFromSession(session))
 }

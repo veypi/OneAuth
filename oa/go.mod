@@ -2,7 +2,10 @@ module oa
 
 go 1.21.5
 
-require github.com/zeromicro/go-zero v1.7.0
+require (
+	github.com/zeromicro/go-zero v1.7.0
+	github.com/zeromicro/x v0.0.0-20240408115609-8224c482b07e
+)
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect

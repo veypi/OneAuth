@@ -10,8 +10,6 @@ import (
 	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
-	"github.com/zeromicro/go-zero/core/stores/cache"
-	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/core/stringx"
 )
@@ -21,9 +19,6 @@ var (
 	appUserRows                = strings.Join(appUserFieldNames, ",")
 	appUserRowsExpectAutoSet   = strings.Join(stringx.Remove(appUserFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	appUserRowsWithPlaceHolder = strings.Join(stringx.Remove(appUserFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
-
-	cacheOaAppUserIdPrefix          = "cache:oa:appUser:id:"
-	cacheOaAppUserUserIdAppIdPrefix = "cache:oa:appUser:userId:appId:"
 )
 
 type (
@@ -36,7 +31,7 @@ type (
 	}
 
 	defaultAppUserModel struct {
-		sqlc.CachedConn
+		conn  sqlx.SqlConn
 		table string
 	}
 
@@ -50,39 +45,27 @@ type (
 	}
 )
 
-func newAppUserModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) *defaultAppUserModel {
+func newAppUserModel(conn sqlx.SqlConn) *defaultAppUserModel {
 	return &defaultAppUserModel{
-		CachedConn: sqlc.NewConn(conn, c, opts...),
-		table:      "`app_user`",
+		conn:  conn,
+		table: "`app_user`",
 	}
 }
 
 func (m *defaultAppUserModel) Delete(ctx context.Context, id int64) error {
-	data, err := m.FindOne(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	oaAppUserIdKey := fmt.Sprintf("%s%v", cacheOaAppUserIdPrefix, id)
-	oaAppUserUserIdAppIdKey := fmt.Sprintf("%s%v:%v", cacheOaAppUserUserIdAppIdPrefix, data.UserId, data.AppId)
-	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-		return conn.ExecCtx(ctx, query, id)
-	}, oaAppUserIdKey, oaAppUserUserIdAppIdKey)
+	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 
 func (m *defaultAppUserModel) FindOne(ctx context.Context, id int64) (*AppUser, error) {
-	oaAppUserIdKey := fmt.Sprintf("%s%v", cacheOaAppUserIdPrefix, id)
+	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", appUserRows, m.table)
 	var resp AppUser
-	err := m.QueryRowCtx(ctx, &resp, oaAppUserIdKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
-		query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", appUserRows, m.table)
-		return conn.QueryRowCtx(ctx, v, query, id)
-	})
+	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
 	case nil:
 		return &resp, nil
-	case sqlc.ErrNotFound:
+	case sqlx.ErrNotFound:
 		return nil, ErrNotFound
 	default:
 		return nil, err
@@ -90,19 +73,13 @@ func (m *defaultAppUserModel) FindOne(ctx context.Context, id int64) (*AppUser, 
 }
 
 func (m *defaultAppUserModel) FindOneByUserIdAppId(ctx context.Context, userId string, appId string) (*AppUser, error) {
-	oaAppUserUserIdAppIdKey := fmt.Sprintf("%s%v:%v", cacheOaAppUserUserIdAppIdPrefix, userId, appId)
 	var resp AppUser
-	err := m.QueryRowIndexCtx(ctx, &resp, oaAppUserUserIdAppIdKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
-		query := fmt.Sprintf("select %s from %s where `user_id` = ? and `app_id` = ? limit 1", appUserRows, m.table)
-		if err := conn.QueryRowCtx(ctx, &resp, query, userId, appId); err != nil {
-			return nil, err
-		}
-		return resp.Id, nil
-	}, m.queryPrimary)
+	query := fmt.Sprintf("select %s from %s where `user_id` = ? and `app_id` = ? limit 1", appUserRows, m.table)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, userId, appId)
 	switch err {
 	case nil:
 		return &resp, nil
-	case sqlc.ErrNotFound:
+	case sqlx.ErrNotFound:
 		return nil, ErrNotFound
 	default:
 		return nil, err
@@ -110,37 +87,15 @@ func (m *defaultAppUserModel) FindOneByUserIdAppId(ctx context.Context, userId s
 }
 
 func (m *defaultAppUserModel) Insert(ctx context.Context, data *AppUser) (sql.Result, error) {
-	oaAppUserIdKey := fmt.Sprintf("%s%v", cacheOaAppUserIdPrefix, data.Id)
-	oaAppUserUserIdAppIdKey := fmt.Sprintf("%s%v:%v", cacheOaAppUserUserIdAppIdPrefix, data.UserId, data.AppId)
-	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, appUserRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Created, data.Updated, data.AppId, data.UserId, data.Status)
-	}, oaAppUserIdKey, oaAppUserUserIdAppIdKey)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, appUserRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Created, data.Updated, data.AppId, data.UserId, data.Status)
 	return ret, err
 }
 
 func (m *defaultAppUserModel) Update(ctx context.Context, newData *AppUser) error {
-	data, err := m.FindOne(ctx, newData.Id)
-	if err != nil {
-		return err
-	}
-
-	oaAppUserIdKey := fmt.Sprintf("%s%v", cacheOaAppUserIdPrefix, data.Id)
-	oaAppUserUserIdAppIdKey := fmt.Sprintf("%s%v:%v", cacheOaAppUserUserIdAppIdPrefix, data.UserId, data.AppId)
-	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, appUserRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.Created, newData.Updated, newData.AppId, newData.UserId, newData.Status, newData.Id)
-	}, oaAppUserIdKey, oaAppUserUserIdAppIdKey)
+	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, appUserRowsWithPlaceHolder)
+	_, err := m.conn.ExecCtx(ctx, query, newData.Created, newData.Updated, newData.AppId, newData.UserId, newData.Status, newData.Id)
 	return err
-}
-
-func (m *defaultAppUserModel) formatPrimary(primary any) string {
-	return fmt.Sprintf("%s%v", cacheOaAppUserIdPrefix, primary)
-}
-
-func (m *defaultAppUserModel) queryPrimary(ctx context.Context, conn sqlx.SqlConn, v, primary any) error {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", appUserRows, m.table)
-	return conn.QueryRowCtx(ctx, v, query, primary)
 }
 
 func (m *defaultAppUserModel) tableName() string {

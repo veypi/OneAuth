@@ -10,8 +10,6 @@ import (
 	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
-	"github.com/zeromicro/go-zero/core/stores/cache"
-	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/core/stringx"
 )
@@ -21,9 +19,6 @@ var (
 	resourceRows                = strings.Join(resourceFieldNames, ",")
 	resourceRowsExpectAutoSet   = strings.Join(stringx.Remove(resourceFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	resourceRowsWithPlaceHolder = strings.Join(stringx.Remove(resourceFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
-
-	cacheOaResourceIdPrefix        = "cache:oa:resource:id:"
-	cacheOaResourceAppIdNamePrefix = "cache:oa:resource:appId:name:"
 )
 
 type (
@@ -36,7 +31,7 @@ type (
 	}
 
 	defaultResourceModel struct {
-		sqlc.CachedConn
+		conn  sqlx.SqlConn
 		table string
 	}
 
@@ -50,39 +45,27 @@ type (
 	}
 )
 
-func newResourceModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) *defaultResourceModel {
+func newResourceModel(conn sqlx.SqlConn) *defaultResourceModel {
 	return &defaultResourceModel{
-		CachedConn: sqlc.NewConn(conn, c, opts...),
-		table:      "`resource`",
+		conn:  conn,
+		table: "`resource`",
 	}
 }
 
 func (m *defaultResourceModel) Delete(ctx context.Context, id int64) error {
-	data, err := m.FindOne(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	oaResourceAppIdNameKey := fmt.Sprintf("%s%v:%v", cacheOaResourceAppIdNamePrefix, data.AppId, data.Name)
-	oaResourceIdKey := fmt.Sprintf("%s%v", cacheOaResourceIdPrefix, id)
-	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-		return conn.ExecCtx(ctx, query, id)
-	}, oaResourceAppIdNameKey, oaResourceIdKey)
+	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 
 func (m *defaultResourceModel) FindOne(ctx context.Context, id int64) (*Resource, error) {
-	oaResourceIdKey := fmt.Sprintf("%s%v", cacheOaResourceIdPrefix, id)
+	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", resourceRows, m.table)
 	var resp Resource
-	err := m.QueryRowCtx(ctx, &resp, oaResourceIdKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
-		query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", resourceRows, m.table)
-		return conn.QueryRowCtx(ctx, v, query, id)
-	})
+	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
 	case nil:
 		return &resp, nil
-	case sqlc.ErrNotFound:
+	case sqlx.ErrNotFound:
 		return nil, ErrNotFound
 	default:
 		return nil, err
@@ -90,19 +73,13 @@ func (m *defaultResourceModel) FindOne(ctx context.Context, id int64) (*Resource
 }
 
 func (m *defaultResourceModel) FindOneByAppIdName(ctx context.Context, appId string, name string) (*Resource, error) {
-	oaResourceAppIdNameKey := fmt.Sprintf("%s%v:%v", cacheOaResourceAppIdNamePrefix, appId, name)
 	var resp Resource
-	err := m.QueryRowIndexCtx(ctx, &resp, oaResourceAppIdNameKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
-		query := fmt.Sprintf("select %s from %s where `app_id` = ? and `name` = ? limit 1", resourceRows, m.table)
-		if err := conn.QueryRowCtx(ctx, &resp, query, appId, name); err != nil {
-			return nil, err
-		}
-		return resp.Id, nil
-	}, m.queryPrimary)
+	query := fmt.Sprintf("select %s from %s where `app_id` = ? and `name` = ? limit 1", resourceRows, m.table)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, appId, name)
 	switch err {
 	case nil:
 		return &resp, nil
-	case sqlc.ErrNotFound:
+	case sqlx.ErrNotFound:
 		return nil, ErrNotFound
 	default:
 		return nil, err
@@ -110,37 +87,15 @@ func (m *defaultResourceModel) FindOneByAppIdName(ctx context.Context, appId str
 }
 
 func (m *defaultResourceModel) Insert(ctx context.Context, data *Resource) (sql.Result, error) {
-	oaResourceAppIdNameKey := fmt.Sprintf("%s%v:%v", cacheOaResourceAppIdNamePrefix, data.AppId, data.Name)
-	oaResourceIdKey := fmt.Sprintf("%s%v", cacheOaResourceIdPrefix, data.Id)
-	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, resourceRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Created, data.Updated, data.AppId, data.Name, data.Des)
-	}, oaResourceAppIdNameKey, oaResourceIdKey)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, resourceRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Created, data.Updated, data.AppId, data.Name, data.Des)
 	return ret, err
 }
 
 func (m *defaultResourceModel) Update(ctx context.Context, newData *Resource) error {
-	data, err := m.FindOne(ctx, newData.Id)
-	if err != nil {
-		return err
-	}
-
-	oaResourceAppIdNameKey := fmt.Sprintf("%s%v:%v", cacheOaResourceAppIdNamePrefix, data.AppId, data.Name)
-	oaResourceIdKey := fmt.Sprintf("%s%v", cacheOaResourceIdPrefix, data.Id)
-	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, resourceRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.Created, newData.Updated, newData.AppId, newData.Name, newData.Des, newData.Id)
-	}, oaResourceAppIdNameKey, oaResourceIdKey)
+	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, resourceRowsWithPlaceHolder)
+	_, err := m.conn.ExecCtx(ctx, query, newData.Created, newData.Updated, newData.AppId, newData.Name, newData.Des, newData.Id)
 	return err
-}
-
-func (m *defaultResourceModel) formatPrimary(primary any) string {
-	return fmt.Sprintf("%s%v", cacheOaResourceIdPrefix, primary)
-}
-
-func (m *defaultResourceModel) queryPrimary(ctx context.Context, conn sqlx.SqlConn, v, primary any) error {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", resourceRows, m.table)
-	return conn.QueryRowCtx(ctx, v, query, primary)
 }
 
 func (m *defaultResourceModel) tableName() string {

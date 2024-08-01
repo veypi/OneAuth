@@ -10,8 +10,6 @@ import (
 	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
-	"github.com/zeromicro/go-zero/core/stores/cache"
-	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/core/stringx"
 )
@@ -21,8 +19,6 @@ var (
 	accessRows                = strings.Join(accessFieldNames, ",")
 	accessRowsExpectAutoSet   = strings.Join(stringx.Remove(accessFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	accessRowsWithPlaceHolder = strings.Join(stringx.Remove(accessFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
-
-	cacheOaAccessIdPrefix = "cache:oa:access:id:"
 )
 
 type (
@@ -34,7 +30,7 @@ type (
 	}
 
 	defaultAccessModel struct {
-		sqlc.CachedConn
+		conn  sqlx.SqlConn
 		table string
 	}
 
@@ -52,33 +48,27 @@ type (
 	}
 )
 
-func newAccessModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) *defaultAccessModel {
+func newAccessModel(conn sqlx.SqlConn) *defaultAccessModel {
 	return &defaultAccessModel{
-		CachedConn: sqlc.NewConn(conn, c, opts...),
-		table:      "`access`",
+		conn:  conn,
+		table: "`access`",
 	}
 }
 
 func (m *defaultAccessModel) Delete(ctx context.Context, id int64) error {
-	oaAccessIdKey := fmt.Sprintf("%s%v", cacheOaAccessIdPrefix, id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-		return conn.ExecCtx(ctx, query, id)
-	}, oaAccessIdKey)
+	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 
 func (m *defaultAccessModel) FindOne(ctx context.Context, id int64) (*Access, error) {
-	oaAccessIdKey := fmt.Sprintf("%s%v", cacheOaAccessIdPrefix, id)
+	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", accessRows, m.table)
 	var resp Access
-	err := m.QueryRowCtx(ctx, &resp, oaAccessIdKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
-		query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", accessRows, m.table)
-		return conn.QueryRowCtx(ctx, v, query, id)
-	})
+	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
 	case nil:
 		return &resp, nil
-	case sqlc.ErrNotFound:
+	case sqlx.ErrNotFound:
 		return nil, ErrNotFound
 	default:
 		return nil, err
@@ -86,30 +76,15 @@ func (m *defaultAccessModel) FindOne(ctx context.Context, id int64) (*Access, er
 }
 
 func (m *defaultAccessModel) Insert(ctx context.Context, data *Access) (sql.Result, error) {
-	oaAccessIdKey := fmt.Sprintf("%s%v", cacheOaAccessIdPrefix, data.Id)
-	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, accessRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Created, data.Updated, data.AppId, data.AccessId, data.Name, data.RoleId, data.UserId, data.Rid, data.Level)
-	}, oaAccessIdKey)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, accessRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Created, data.Updated, data.AppId, data.AccessId, data.Name, data.RoleId, data.UserId, data.Rid, data.Level)
 	return ret, err
 }
 
 func (m *defaultAccessModel) Update(ctx context.Context, data *Access) error {
-	oaAccessIdKey := fmt.Sprintf("%s%v", cacheOaAccessIdPrefix, data.Id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, accessRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, data.Created, data.Updated, data.AppId, data.AccessId, data.Name, data.RoleId, data.UserId, data.Rid, data.Level, data.Id)
-	}, oaAccessIdKey)
+	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, accessRowsWithPlaceHolder)
+	_, err := m.conn.ExecCtx(ctx, query, data.Created, data.Updated, data.AppId, data.AccessId, data.Name, data.RoleId, data.UserId, data.Rid, data.Level, data.Id)
 	return err
-}
-
-func (m *defaultAccessModel) formatPrimary(primary any) string {
-	return fmt.Sprintf("%s%v", cacheOaAccessIdPrefix, primary)
-}
-
-func (m *defaultAccessModel) queryPrimary(ctx context.Context, conn sqlx.SqlConn, v, primary any) error {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", accessRows, m.table)
-	return conn.QueryRowCtx(ctx, v, query, primary)
 }
 
 func (m *defaultAccessModel) tableName() string {

@@ -19,7 +19,7 @@ fmt:
 	@goctl api format --dir ./api
 
 gen_sql:
-	@goctl model mysql ddl -c --database oa -d ./models -s ./protoc/sql/base.sql
+	@goctl model mysql ddl --database oa -d ./models -s ./protoc/sql/20240801061157_base.sql
 
 # add sql script
 # sqlx migrate --source ./protoc/sql add  base
@@ -32,3 +32,6 @@ gen_db:
 	
 gen_api:
 	@goctl api go -api ./protoc/api/all.api -dir ./
+
+run:
+	@go run main.go -f ./etc/main.yaml

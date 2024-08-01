@@ -2,7 +2,6 @@
 package types
 
 type AppReq struct {
-	Error
 	Appname  string `json:"username"`
 	Password string `json:"password"`
 }
@@ -15,19 +14,38 @@ type AppResp struct {
 }
 
 type LoginReq struct {
-	Error
+	Id     string `json:"id"`
+	Code   string `json:"code"`
+	Verify string `json:"verify"`
+}
+
+type RegReq struct {
 	Username string `json:"username"`
-	Password string `json:"password"`
+	Pwd      string `json:"pwd"`
 }
 
-type LoginResp struct {
-	Id       int64  `json:"id"`
-	Name     string `json:"name"`
-	Token    string `json:"token"`
-	ExpireAt string `json:"expireAt"`
+type Auth struct {
+	Authorization string `header:"authorization"`
 }
 
-type Error struct {
-	Status string `json:"status"`
-	Code   int    `json:"code"`
+type GetReq struct {
+	Id int64 `path:"id"`
+}
+
+type ListReq struct {
+	Username string `query:"username"`
+}
+
+type UserResp struct {
+	Id       string `json:"id"`
+	Created  uint   `json:"created"`
+	Updated  uint   `json:"updated"`
+	Username string `json:"username"`
+	Nickname string `json:"nickname"`
+	Email    string `json:"email"`
+	Phone    string `json:"phone"`
+	Icon     string `json:"icon"`
+	Status   int64  `json:"status"` // 状态（0：ok，1：disabled）
+	Used     int64  `json:"used"`
+	Space    int64  `json:"space"`
 }

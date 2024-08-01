@@ -1,9 +1,6 @@
 package models
 
-import (
-	"github.com/zeromicro/go-zero/core/stores/cache"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
-)
+import "github.com/zeromicro/go-zero/core/stores/sqlx"
 
 var _ AppModel = (*customAppModel)(nil)
 
@@ -12,6 +9,7 @@ type (
 	// and implement the added methods in customAppModel.
 	AppModel interface {
 		appModel
+		withSession(session sqlx.Session) AppModel
 	}
 
 	customAppModel struct {
@@ -20,8 +18,12 @@ type (
 )
 
 // NewAppModel returns a model for the database table.
-func NewAppModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) AppModel {
+func NewAppModel(conn sqlx.SqlConn) AppModel {
 	return &customAppModel{
-		defaultAppModel: newAppModel(conn, c, opts...),
+		defaultAppModel: newAppModel(conn),
 	}
+}
+
+func (m *customAppModel) withSession(session sqlx.Session) AppModel {
+	return NewAppModel(sqlx.NewSqlConnFromSession(session))
 }
