@@ -32,8 +32,10 @@ func New(code int, msg string) *CodeErr {
 }
 
 var (
-	AuthFailed  = New(401, "auth failed")
-	AuthExpired = New(401, "auth expired")
-	AuthInvalid = New(401, "auth invalid")
-	ArgsInvalid = New(http.StatusUnprocessableEntity, "args invalid")
+	AuthFailed     = New(401, "auth failed")
+	AuthExpired    = New(401, "auth expired")
+	AuthInvalid    = New(401, "auth invalid")
+	ArgsInvalid    = New(http.StatusBadRequest, "args invalid")
+	UserNotFound   = New(400, "user not found")
+	UserPwdInvalid = New(400, "password invalid")
 )

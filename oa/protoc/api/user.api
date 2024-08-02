@@ -1,62 +1,59 @@
 import "base.api"
 
-
 type (
-    LoginReq {
-        id       string `json:"id"`
-        code     string `json:"code"`
-        verify   string `json:"verify"`
-    }
-    RegReq {
-        username string `json:"username"`
-        pwd      string `json:"pwd"`
-    }
-
-    getReq {
-        Id int64 `path:"id"`
-    }
-    listReq {
-        Username string `query:"username"`
-    }
-    userResp {
-		Id        string         `json:"id"`
-		Created   uint           `json:"created"`
-		Updated   uint           `json:"updated"`
-		Username  string         `json:"username"`
-		Nickname  string         `json:"nickname"`
-		Email     string         `json:"email"`
-		Phone     string         `json:"phone"`
-		Icon      string         `json:"icon"`
-		Status    int64          `json:"status"` // 状态（0：ok，1：disabled）
-		Used      int64          `json:"used"`
-		Space     int64          `json:"space"`
-    }
+	LoginReq {
+		id     string `path:"id"`
+		client string `json:"client"`
+		pwd    string `json:"pwd"`
+		typ    string `json:"typ,optional"`
+	}
+	RegReq {
+		username string `json:"username"`
+		pwd      string `json:"pwd"`
+	}
+	getReq {
+		Id int64 `path:"id"`
+	}
+	listReq {
+		Username string `query:"username"`
+	}
+	userResp {
+		Id       string `json:"id"`
+		Created  uint   `json:"created"`
+		Updated  uint   `json:"updated"`
+		Username string `json:"username"`
+		Nickname string `json:"nickname"`
+		Email    string `json:"email"`
+		Phone    string `json:"phone"`
+		Icon     string `json:"icon"`
+		Status   int64  `json:"status"` // 状态（0：ok，1：disabled）
+		Used     int64  `json:"used"`
+		Space    int64  `json:"space"`
+	}
 )
 
 @server (
-    group: user
-    prefix: /api/user
+	group:  user
+	prefix: /api/user
 )
-
 service main {
-    @handler Login
-    head / (LoginReq) returns ()
-    
-    @handler Reg
-    post / (RegReq) returns ()
-}
+	@handler Login
+	head /:id (LoginReq)
 
+	@handler Reg
+	post / (RegReq)
+}
 
 @server (
-    group: user
-    middleware: Auth
-    prefix: /api/user
+	group:      user
+	middleware: Auth
+	prefix:     /api/user
 )
-
 service main {
-    @handler get
-    get /:id (getReq) returns (userResp)
+	@handler get
+	get /:id (getReq) returns (userResp)
 
-    @handler list
-    get / (listReq) returns ([]userResp)
+	@handler list
+	get / (listReq) returns ([]userResp)
 }
+

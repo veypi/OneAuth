@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS `user`
 
     `username`      varchar(255) NOT NULL UNIQUE,
     `nickname`      varchar(255) NOT NULL,
-    `email`         varchar(255) NOT NULL,
-    `phone`         varchar(255) NOT NULL,
+    `email`         varchar(255) UNIQUE,
+    `phone`         varchar(255) UNIQUE,
     `icon`          varchar(255) NOT NULL DEFAULT "",
     `_real_code`    varchar(32) NOT NULL,
     `_check_code`   varchar(64) NOT NULL,
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS `token`
     `client_id`     varchar(32) NOT NULL,
     `app_id`        varchar(32) NOT NULL,
     `user_id`       varchar(32) NOT NULL,
-    `meta`          json,
+    `meta`          json NOT NULL,
 
     PRIMARY KEY (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -11,6 +11,7 @@ import (
 	"net/http"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
@@ -23,7 +24,8 @@ func Response(w http.ResponseWriter, resp interface{}, err error) {
 			code = e.Code
 			msg = e.Msg
 		case *mysql.MySQLError:
-			code = http.StatusUnprocessableEntity
+			logx.Info(e.Error())
+			code = http.StatusBadRequest
 			msg = e.Message
 		}
 		w.WriteHeader(code)

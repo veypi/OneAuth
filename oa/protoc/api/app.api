@@ -1,38 +1,38 @@
 import "base.api"
 
-
 type (
-    // 定义登录接口的请求体
-    AppReq {
-        appname string `json:"username"`
-        Password string `json:"password"`
-    }
-    // 定义登录接口的响应体
-    AppResp{
-        Id       int64  `json:"id"`
-        Name     string `json:"name"`
-        Token    string `json:"token"`
-        ExpireAt string `json:"expireAt"`
-    }
+	// 定义登录接口的请求体
+	AppReq {
+		appname  string `json:"username"`
+		Password string `json:"password"`
+		Pas      string `query:"pas"`
+		Pa       string `path:"pa"`
+	}
+	// 定义登录接口的响应体
+	AppResp {
+		Id       int64  `json:"id"`
+		Name     string `json:"name"`
+		Token    string `json:"token"`
+		ExpireAt string `json:"expireAt"`
+	}
 )
 
 @server (
-    // 代表当前 service 代码块下的路由生成代码时都会被放到 app 目录下
-    group: app
-    // 定义路由前缀为 "/v1"
-    prefix: /api/app
+	// 代表当前 service 代码块下的路由生成代码时都会被放到 app 目录下
+	group: app
+	// 定义路由前缀为 "/v1"
+	prefix: /api/app
 )
-
-
 // 定义 HTTP 服务
 // 微服务名称为 main，生成的代码目录和配置文件将和 user 值相关
-service  main {
-    // 定义 http.HandleFunc 转换的 go 文件名称及方法
-    @handler Login
-    // 定义接口
-    // 请求方法为 post
-    // 路由为 /app/login
-    // 请求体为 LoginReq
-    // 响应体为 LoginResp，响应体必须有 returns 关键字修饰
-    post /login (AppReq) returns (AppResp)
+service main {
+	// 定义 http.HandleFunc 转换的 go 文件名称及方法
+	@handler Login
+	// 定义接口
+	// 请求方法为 post
+	// 路由为 /app/login
+	// 请求体为 LoginReq
+	// 响应体为 LoginResp，响应体必须有 returns 关键字修饰
+	post /login/:pa (AppReq) returns (AppResp)
 }
+

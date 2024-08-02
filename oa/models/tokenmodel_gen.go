@@ -35,14 +35,14 @@ type (
 	}
 
 	Token struct {
-		Code     string         `db:"code"`
-		Created  time.Time      `db:"created"`
-		Updated  time.Time      `db:"updated"`
-		Expired  time.Time      `db:"expired"`
-		ClientId string         `db:"client_id"`
-		AppId    string         `db:"app_id"`
-		UserId   string         `db:"user_id"`
-		Meta     sql.NullString `db:"meta"`
+		Code     string    `db:"code"`
+		Created  time.Time `db:"created"`
+		Updated  time.Time `db:"updated"`
+		Expired  time.Time `db:"expired"`
+		ClientId string    `db:"client_id"`
+		AppId    string    `db:"app_id"`
+		UserId   string    `db:"user_id"`
+		Meta     string    `db:"meta"`
 	}
 )
 

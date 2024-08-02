@@ -1,4 +1,4 @@
-
 type auth {
-    Authorization string `header:"authorization"`
+	Authorization string `header:"authorization"`
 }
+

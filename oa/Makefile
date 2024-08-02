@@ -16,7 +16,7 @@ build:
 	@go build -o ./build/oa
 
 fmt:
-	@goctl api format --dir ./api
+	@goctl api format --dir ./protoc/api/
 
 gen_sql:
 	@goctl model mysql ddl --database oa -d ./models -s ./protoc/sql/20240801061157_base.sql
@@ -31,7 +31,17 @@ gen_db:
 	@sqlx migrate --source ./protoc/sql run -D $(db)
 	
 gen_api:
+	@goctl api format --dir ./protoc/api/
 	@goctl api go -api ./protoc/api/all.api -dir ./
+
+ts_dir= ../oaweb/composables/api/
+gen_ts:
+	@goctl api ts -api ./protoc/api/user.api -dir $(ts_dir)
+	@mv $(ts_dir)/main.ts $(ts_dir)/user.ts
+	@goctl api ts -api ./protoc/api/app.api -dir $(ts_dir)
+	@mv $(ts_dir)/main.ts $(ts_dir)/app.ts
+	@goctl api ts -api ./protoc/api/all.api -dir $(ts_dir)
+	@rm $(ts_dir)/main.ts
 
 run:
 	@go run main.go -f ./etc/main.yaml
