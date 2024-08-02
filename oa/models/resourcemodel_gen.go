@@ -36,12 +36,12 @@ type (
 	}
 
 	Resource struct {
-		Id      int64          `db:"id"`
-		Created time.Time      `db:"created"`
-		Updated time.Time      `db:"updated"`
-		AppId   string         `db:"app_id"`
-		Name    string         `db:"name"`
-		Des     sql.NullString `db:"des"`
+		Id      int64     `db:"id"`
+		Created time.Time `db:"created"`
+		Updated time.Time `db:"updated"`
+		AppId   string    `db:"app_id"`
+		Name    string    `db:"name"`
+		Des     string    `db:"des"`
 	}
 )
 

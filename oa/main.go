@@ -4,14 +4,12 @@ import (
 	"flag"
 	"fmt"
 
-	"oa/errs"
 	"oa/internal/config"
 	"oa/internal/handler"
 	"oa/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
-	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 var configFile = flag.String("f", "etc/main.yaml", "the config file")
@@ -27,7 +25,6 @@ func main() {
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
-	httpx.SetErrorHandler(errs.ErrorHandler)
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()

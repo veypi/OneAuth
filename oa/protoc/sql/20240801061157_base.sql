@@ -5,12 +5,12 @@ CREATE TABLE IF NOT EXISTS `user`
     `updated`       datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
 
     `username`      varchar(255) NOT NULL UNIQUE,
-    `nickname`      varchar(255),
-    `email`         varchar(255) UNIQUE,
-    `phone`         varchar(255) UNIQUE,
-    `icon`          varchar(255),
-    `_real_code`    varchar(32),
-    `_check_code`   binary(48),
+    `nickname`      varchar(255) NOT NULL,
+    `email`         varchar(255) NOT NULL,
+    `phone`         varchar(255) NOT NULL,
+    `icon`          varchar(255) NOT NULL DEFAULT "",
+    `_real_code`    varchar(32) NOT NULL,
+    `_check_code`   varchar(64) NOT NULL,
 
     `status`        int NOT NULL COMMENT '状态（0：ok，1：disabled）' DEFAULT 0,
     `used`          int NOT NULL DEFAULT 0,
@@ -27,13 +27,13 @@ CREATE TABLE IF NOT EXISTS `app`
 
     `_key`           varchar(32) NOT NULL,
     `name`          varchar(255) NOT NULL,
-    `icon`          varchar(255),
+    `icon`          varchar(255) NOT NULL DEFAULT "",
     `des`           TEXT,
     `user_count`    int NOT NULL DEFAULT 0,
     `hide`          tinyint(1) NOT NULL DEFAULT 0,
     `join_method`   int NOT NULL DEFAULT 0,
 
-    `role_id`       varchar(32),
+    `role_id`       varchar(32) NOT NULL,
     `host`          varchar(255) NOT NULL DEFAULT '',
     `redirect`      varchar(255) NOT NULL DEFAULT '',
     `status`        int NOT NULL COMMENT '状态（0：ok，1：disabled）' DEFAULT 0,
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS `role`
     `app_id`        varchar(32) NOT NULL,
 
     `name`          varchar(255) NOT NULL,
-    `des`           varchar(255),
+    `des`           varchar(255) NOT NULL DEFAULT '',
     `user_count`    int NOT NULL DEFAULT 0,
 
     PRIMARY KEY (`id`) USING BTREE
@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS `resource`
 
     `app_id`        varchar(32) NOT NULL,
     `name`          varchar(32) NOT NULL,
-    `des`           varchar(255),
+    `des`           varchar(255) NOT NULL DEFAULT '',
 
 
     PRIMARY KEY (`id`),
@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS `token`
 
 
 
-INSERT INTO `app` (`id`, `name`, `_key`, `role_id`)
+INSERT INTO `app` (`id`, `name`, `_key`, `role_id` )
 VALUES ('FR9P5t8debxc11aFF', 'oa', 'AMpjwQHwVjGsb1WC4WG6', '1lytMwQL4uiNd0vsc');
 
 INSERT INTO `resource` (`app_id`, `name`)

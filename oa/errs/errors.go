@@ -9,24 +9,31 @@ package errs
 
 import (
 	"fmt"
+	"net/http"
 )
 
-type CodeMsg struct {
+type CodeErr struct {
 	Code int
 	Msg  string
 }
 
-func (c *CodeMsg) Error() string {
+func (c *CodeErr) Error() string {
 	return fmt.Sprintf("code: %d, msg: %s", c.Code, c.Msg)
 }
 
+func (c *CodeErr) WithErr(e error) error {
+	c.Msg = fmt.Sprintf("%s: %s", c.Msg, e.Error())
+	return c
+}
+
 // New creates a new CodeMsg.
-func New(code int, msg string) error {
-	return &CodeMsg{Code: code, Msg: msg}
+func New(code int, msg string) *CodeErr {
+	return &CodeErr{Code: code, Msg: msg}
 }
 
 var (
 	AuthFailed  = New(401, "auth failed")
 	AuthExpired = New(401, "auth expired")
 	AuthInvalid = New(401, "auth invalid")
+	ArgsInvalid = New(http.StatusUnprocessableEntity, "args invalid")
 )

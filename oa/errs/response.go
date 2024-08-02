@@ -8,7 +8,6 @@
 package errs
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-sql-driver/mysql"
@@ -17,23 +16,21 @@ import (
 
 func Response(w http.ResponseWriter, resp interface{}, err error) {
 	if err != nil {
-		httpx.Error(w, err)
+		code := http.StatusInternalServerError
+		msg := err.Error()
+		switch e := err.(type) {
+		case *CodeErr:
+			code = e.Code
+			msg = e.Msg
+		case *mysql.MySQLError:
+			code = http.StatusUnprocessableEntity
+			msg = e.Message
+		}
+		w.WriteHeader(code)
+		w.Write([]byte(msg))
 	} else if resp != nil {
 		httpx.OkJson(w, resp)
 	} else {
 		httpx.Ok(w)
-	}
-}
-
-func ErrorHandler(err error) (int, any) {
-	switch e := err.(type) {
-	case *CodeMsg:
-		return e.Code, e.Msg
-	case *mysql.MySQLError:
-		fmt.Printf("\nerror: %v| %v\n", e.SQLState, e.Number)
-		return http.StatusUnprocessableEntity, e.Message
-	default:
-		fmt.Printf("\nerror: %T| %v\n", err, err)
-		return http.StatusInternalServerError, err.Error()
 	}
 }

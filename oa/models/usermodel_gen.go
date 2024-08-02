@@ -25,8 +25,6 @@ type (
 	userModel interface {
 		Insert(ctx context.Context, data *User) (sql.Result, error)
 		FindOne(ctx context.Context, id string) (*User, error)
-		FindOneByEmail(ctx context.Context, email sql.NullString) (*User, error)
-		FindOneByPhone(ctx context.Context, phone sql.NullString) (*User, error)
 		FindOneByUsername(ctx context.Context, username string) (*User, error)
 		Update(ctx context.Context, data *User) error
 		Delete(ctx context.Context, id string) error
@@ -38,19 +36,19 @@ type (
 	}
 
 	User struct {
-		Id        string         `db:"id"` // User UUID
-		Created   time.Time      `db:"created"`
-		Updated   time.Time      `db:"updated"`
-		Username  string         `db:"username"`
-		Nickname  sql.NullString `db:"nickname"`
-		Email     sql.NullString `db:"email"`
-		Phone     sql.NullString `db:"phone"`
-		Icon      sql.NullString `db:"icon"`
-		RealCode  sql.NullString `db:"_real_code"`
-		CheckCode sql.NullString `db:"_check_code"`
-		Status    int64          `db:"status"` // 状态（0：ok，1：disabled）
-		Used      int64          `db:"used"`
-		Space     int64          `db:"space"`
+		Id        string    `db:"id"` // User UUID
+		Created   time.Time `db:"created"`
+		Updated   time.Time `db:"updated"`
+		Username  string    `db:"username"`
+		Nickname  string    `db:"nickname"`
+		Email     string    `db:"email"`
+		Phone     string    `db:"phone"`
+		Icon      string    `db:"icon"`
+		RealCode  string    `db:"_real_code"`
+		CheckCode string    `db:"_check_code"`
+		Status    int64     `db:"status"` // 状态（0：ok，1：disabled）
+		Used      int64     `db:"used"`
+		Space     int64     `db:"space"`
 	}
 )
 
@@ -71,34 +69,6 @@ func (m *defaultUserModel) FindOne(ctx context.Context, id string) (*User, error
 	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", userRows, m.table)
 	var resp User
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
-	switch err {
-	case nil:
-		return &resp, nil
-	case sqlx.ErrNotFound:
-		return nil, ErrNotFound
-	default:
-		return nil, err
-	}
-}
-
-func (m *defaultUserModel) FindOneByEmail(ctx context.Context, email sql.NullString) (*User, error) {
-	var resp User
-	query := fmt.Sprintf("select %s from %s where `email` = ? limit 1", userRows, m.table)
-	err := m.conn.QueryRowCtx(ctx, &resp, query, email)
-	switch err {
-	case nil:
-		return &resp, nil
-	case sqlx.ErrNotFound:
-		return nil, ErrNotFound
-	default:
-		return nil, err
-	}
-}
-
-func (m *defaultUserModel) FindOneByPhone(ctx context.Context, phone sql.NullString) (*User, error) {
-	var resp User
-	query := fmt.Sprintf("select %s from %s where `phone` = ? limit 1", userRows, m.table)
-	err := m.conn.QueryRowCtx(ctx, &resp, query, phone)
 	switch err {
 	case nil:
 		return &resp, nil

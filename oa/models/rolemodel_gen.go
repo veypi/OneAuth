@@ -35,13 +35,13 @@ type (
 	}
 
 	Role struct {
-		Id        string         `db:"id"`
-		Created   time.Time      `db:"created"`
-		Updated   time.Time      `db:"updated"`
-		AppId     string         `db:"app_id"`
-		Name      string         `db:"name"`
-		Des       sql.NullString `db:"des"`
-		UserCount int64          `db:"user_count"`
+		Id        string    `db:"id"`
+		Created   time.Time `db:"created"`
+		Updated   time.Time `db:"updated"`
+		AppId     string    `db:"app_id"`
+		Name      string    `db:"name"`
+		Des       string    `db:"des"`
+		UserCount int64     `db:"user_count"`
 	}
 )
 

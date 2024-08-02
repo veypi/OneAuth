@@ -19,7 +19,6 @@ func RegHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			errs.Response(w, nil, err)
 			return
 		}
-
 		l := user.NewRegLogic(r.Context(), svcCtx)
 		err := l.Reg(&req)
 		errs.Response(w, nil, err)

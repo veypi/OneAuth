@@ -40,12 +40,12 @@ type (
 		Updated    time.Time      `db:"updated"`
 		Key        string         `db:"_key"`
 		Name       string         `db:"name"`
-		Icon       sql.NullString `db:"icon"`
+		Icon       string         `db:"icon"`
 		Des        sql.NullString `db:"des"`
 		UserCount  int64          `db:"user_count"`
 		Hide       int64          `db:"hide"`
 		JoinMethod int64          `db:"join_method"`
-		RoleId     sql.NullString `db:"role_id"`
+		RoleId     string         `db:"role_id"`
 		Host       string         `db:"host"`
 		Redirect   string         `db:"redirect"`
 		Status     int64          `db:"status"` // 状态（0：ok，1：disabled）
