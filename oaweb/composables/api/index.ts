@@ -1,32 +1,14 @@
 /*
  * index.ts
- * Copyright (C) 2023 veypi <i@veypi.com>
- * 2023-09-22 20:17
+ * Copyright (C) 2024 veypi <i@veypi.com>
+ * 2024-08-02 17:40
  * Distributed under terms of the MIT license.
  */
 
-import app from "./app";
-import role from "./role";
-import token from "./token";
-import user from "./user";
-import resource from "./resource";
-import access from './access';
-import nats from './nats'
-import tsdb from './tsdb'
+import * as user from './user'
+import * as app from './app'
 
-
-
-const api = {
+export default {
   user,
-  app,
-  token,
-  role,
-  resource,
-  access,
-  tsdb,
-  nats
+  app
 }
-
-
-export default api;
-

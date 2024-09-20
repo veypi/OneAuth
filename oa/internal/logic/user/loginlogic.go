@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"strings"
 	"time"
 
@@ -33,6 +34,7 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 func (l *LoginLogic) Login(req *types.LoginReq) (string, error) {
 	// todo: add your logic here and delete this line
 	m := models.NewUserModel(l.svcCtx.Sqlx())
+	fmt.Printf("\n|%v|\n", req)
 	var u *models.User
 	var err error
 	switch req.Typ {

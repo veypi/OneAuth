@@ -9,8 +9,9 @@ import './assets/css/oaer.scss'
 
 
 export class OAer {
-  domid: string
   id: string
+  code: string
+  domid: string
   dom: {
     mask: HTMLDivElement
     frame: HTMLDivElement
@@ -18,8 +19,9 @@ export class OAer {
     b1?: HTMLDivElement
     login_box?: HTMLDivElement
   }
-  constructor(id: string, domid?: string) {
+  constructor(id: string, code: string, domid?: string) {
     this.id = id
+    this.code = code
     this.domid = domid || 'oaer'
     this.dom = {
       frame: document.querySelector(`#${this.domid}`)!,

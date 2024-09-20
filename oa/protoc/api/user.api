@@ -3,9 +3,9 @@ import "base.api"
 type (
 	LoginReq {
 		id     string `path:"id"`
-		client string `json:"client"`
-		pwd    string `json:"pwd"`
-		typ    string `json:"typ,optional"`
+		pwd    string `form:"pwd"`
+		client string `form:"client"`
+		typ    string `form:"typ,optional"`
 	}
 	RegReq {
 		username string `json:"username"`

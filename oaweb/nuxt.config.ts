@@ -11,17 +11,17 @@ export default defineNuxtConfig({
   nitro: {
     devProxy: {
       "/api": {
-        target: "http://127.0.0.1:4001/api",
+        target: "http://127.0.0.1:4000/api",
         changeOrigin: true,
         ws: true,
       },
       '/fs': {
-        target: 'http://127.0.0.1:4001/fs',
+        target: 'http://127.0.0.1:4000/fs',
         changeOrigin: true,
         ws: true,
       },
       '/media': {
-        target: 'http://127.0.0.1:4001/media',
+        target: 'http://127.0.0.1:4000/media',
         changeOrigin: true,
         ws: true,
       },

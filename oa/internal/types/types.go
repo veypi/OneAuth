@@ -2,9 +2,8 @@
 package types
 
 type AppReq struct {
-	Appname  string `json:"username"`
+	Appname  string `form:"username"`
 	Password string `json:"password"`
-	Pas      string `query:"pas"`
 	Pa       string `path:"pa"`
 }
 
@@ -17,9 +16,9 @@ type AppResp struct {
 
 type LoginReq struct {
 	Id     string `path:"id"`
-	Client string `json:"client"`
-	Pwd    string `json:"pwd"`
-	Typ    string `json:"typ,optional"`
+	Pwd    string `form:"pwd"`
+	Client string `form:"client"`
+	Typ    string `form:"typ,optional"`
 }
 
 type RegReq struct {

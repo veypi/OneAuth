@@ -5,6 +5,11 @@
 [Demo](https://oa.veypi.com)
 
 
+## Auth
+
+code用来兑换本身应用token和兑换其他应用付出权限token
+oa code 可以用来生成其他code和刷新本身code
+
 
 ### 依赖库
 

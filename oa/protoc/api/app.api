@@ -3,9 +3,8 @@ import "base.api"
 type (
 	// 定义登录接口的请求体
 	AppReq {
-		appname  string `json:"username"`
+		appname  string `form:"username"`
 		Password string `json:"password"`
-		Pas      string `query:"pas"`
 		Pa       string `path:"pa"`
 	}
 	// 定义登录接口的响应体
@@ -33,6 +32,6 @@ service main {
 	// 路由为 /app/login
 	// 请求体为 LoginReq
 	// 响应体为 LoginResp，响应体必须有 returns 关键字修饰
-	post /login/:pa (AppReq) returns (AppResp)
+	get /login/:pa (AppReq) returns (AppResp)
 }
 

@@ -1,14 +1,16 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 
 	"oa/errs"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"oa/internal/logic/app"
 	"oa/internal/svc"
 	"oa/internal/types"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 func LoginHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -18,6 +20,7 @@ func LoginHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			errs.Response(w, nil, err)
 			return
 		}
+		fmt.Printf("\n|%v|\n", req)
 
 		l := app.NewLoginLogic(r.Context(), svcCtx)
 		resp, err := l.Login(&req)

@@ -88,6 +88,7 @@
 
 <script lang="ts" setup>
 import msg from '@veypi/msg';
+import { Base64 } from 'js-base64';
 
 
 definePageMeta({
@@ -126,7 +127,7 @@ const login = () => {
     return
   }
   api.user.login(data.value.username,
-    data.value.password).then((data: any) => {
+    { client: 'vvv', typ: 'sss', pwd: Base64.encodeURL(data.value.password) }).then((data: any) => {
       util.setToken(data.auth_token)
       // msg.Info('登录成功')
       // user.fetchUserData()
@@ -143,13 +144,16 @@ const register = () => {
   if (!checks.value.u || !checks.value.p || !checks.value.p2) {
     return
   }
-  api.user.register(data.value.username, data.value.password).then(u => {
+  api.user.reg({
+    username: data.value.username, pwd:
+      Base64.encodeURL(data.value.password)
+  }).then(u => {
     console.log(u)
     msg.Info('注册成功')
     aOpt.value = ''
   }).catch(e => {
     console.log(e)
-    msg.Warn('注册失败：' + e.data)
+    msg.Warn('注册失败：' + e)
   })
 }
 const reset = () => {
