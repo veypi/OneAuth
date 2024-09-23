@@ -16,6 +16,7 @@ import (
 type config struct {
 	rest.RestConf
 	DSN string `json:"dsn"`
+	JWT string `json:"jwt"`
 }
 
 var Config = &config{}

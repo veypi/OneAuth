@@ -10,10 +10,10 @@ package main
 import (
 	"oa/api"
 	"oa/cfg"
+	"oa/errs"
 	_ "oa/models"
 
 	"github.com/veypi/OneBD/rest"
-	"github.com/veypi/OneBD/rest/middlewares"
 	"github.com/veypi/utils/logv"
 )
 
@@ -33,9 +33,8 @@ func runWeb() error {
 	}
 	apiRouter := app.Router().SubRouter("api")
 	api.Use(apiRouter)
-
-	apiRouter.Use(middlewares.JsonResponse)
-	apiRouter.SetErrFunc(middlewares.JsonErrorResponse)
+	apiRouter.Use(errs.JsonResponse)
+	apiRouter.SetErrFunc(errs.JsonErrorResponse)
 	app.Router().Print()
 	return app.Run()
 }

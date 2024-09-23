@@ -14,7 +14,6 @@ func useApp(r rest.Router) {
 	r.Get("/", appList)
 	r.Patch("/:app_id", appPatch)
 	r.Post("/", appPost)
-	r.Put("/:app_id", appPut)
 }
 func appDelete(x *rest.X) (any, error) {
 	opts := &M.AppDelete{}
@@ -23,6 +22,7 @@ func appDelete(x *rest.X) (any, error) {
 		return nil, err
 	}
 	data := &M.App{}
+
 
 	err = cfg.DB().Where("id = ?", opts.ID).Delete(data).Error
 
@@ -36,6 +36,7 @@ func appGet(x *rest.X) (any, error) {
 	}
 	data := &M.App{}
 
+
 	err = cfg.DB().Where("id = ?", opts.ID).First(data).Error
 
 	return data, err
@@ -48,9 +49,10 @@ func appList(x *rest.X) (any, error) {
 	}
 	data := make([]*M.App, 0, 10)
 
+
 	query := cfg.DB()
 	if opts.Name != nil {
-		query = query.Where("name LIKE ?", opts.Name)
+	    query = query.Where("name LIKE ?", opts.Name)
 	}
 	err = query.Find(&data).Error
 
@@ -63,6 +65,7 @@ func appPatch(x *rest.X) (any, error) {
 		return nil, err
 	}
 	data := &M.App{}
+
 
 	err = cfg.DB().Where("id = ?", opts.ID).First(data).Error
 	if err != nil {
@@ -96,36 +99,13 @@ func appPost(x *rest.X) (any, error) {
 	}
 	data := &M.App{}
 
+
 	data.ID = strings.ReplaceAll(uuid.New().String(), "-", "")
 	data.Name = opts.Name
 	data.Icon = opts.Icon
 	data.Des = opts.Des
 	data.Participate = opts.Participate
 	err = cfg.DB().Create(data).Error
-
-	return data, err
-}
-func appPut(x *rest.X) (any, error) {
-	opts := &M.AppPut{}
-	err := x.Parse(opts)
-	if err != nil {
-		return nil, err
-	}
-	data := &M.App{}
-
-	err = cfg.DB().Where("id = ?", opts.ID).First(data).Error
-	if err != nil {
-		return nil, err
-	}
-	optsMap := map[string]interface{}{
-		"id":		opts.ID,
-		"name":		opts.Name,
-		"icon":		opts.Icon,
-		"des":		opts.Des,
-		"participate":	opts.Participate,
-		"init_role_id":	opts.InitRoleID,
-	}
-	err = cfg.DB().Model(data).Updates(optsMap).Error
 
 	return data, err
 }

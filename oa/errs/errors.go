@@ -10,7 +10,27 @@ package errs
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/veypi/OneBD/rest"
 )
+
+func JsonResponse(x *rest.X, data any) error {
+	x.WriteHeader(http.StatusOK)
+	return x.JSON(map[string]any{"code": 0, "data": data})
+}
+
+func JsonErrorResponse(x *rest.X, err error) {
+	code := 50000
+	var msg string
+	if e := err.(*CodeErr); e != nil {
+		code = e.Code
+		msg = e.Msg
+	} else {
+		msg = err.Error()
+	}
+	x.WriteHeader(code / 100)
+	x.JSON(map[string]any{"code": code, "err": msg})
+}
 
 type CodeErr struct {
 	Code int
@@ -32,10 +52,11 @@ func New(code int, msg string) *CodeErr {
 }
 
 var (
-	AuthFailed     = New(401, "auth failed")
-	AuthExpired    = New(401, "auth expired")
-	AuthInvalid    = New(401, "auth invalid")
-	ArgsInvalid    = New(http.StatusBadRequest, "args invalid")
-	UserNotFound   = New(400, "user not found")
-	UserPwdInvalid = New(400, "password invalid")
+	ArgsInvalid  = New(40001, "args invalid")
+	AuthNotFound = New(40100, "auth not found")
+	AuthFailed   = New(40101, "auth failed")
+	AuthExpired  = New(40102, "auth expired")
+	AuthInvalid  = New(40103, "auth invalid")
+	AuthNoPerm   = New(40104, "no permission")
+	NotFound     = New(40400, "not found")
 )

@@ -14,7 +14,7 @@ import (
 
 type BaseModel struct {
 	// ID        uint           `json:"id" gorm:"primaryKey" methods:"get,patch,delete" parse:"path"`
-	ID string `json:"id" gorm:"primaryKey;type:varchar(32)" methods:"get,put,patch,delete" parse:"path"`
+	ID string `json:"id" gorm:"primaryKey;type:varchar(32)" methods:"get,patch,delete" parse:"path"`
 	BaseDate
 }
 

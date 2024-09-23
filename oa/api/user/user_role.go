@@ -1,20 +1,31 @@
 package user
 
 import (
-	"github.com/veypi/OneBD/rest"
-	M "oa/models"
-	"oa/cfg"
-	"strings"
 	"github.com/google/uuid"
+	"github.com/veypi/OneBD/rest"
+	"oa/cfg"
+	M "oa/models"
+	"strings"
 )
 
 func useUserRole(r rest.Router) {
+	r.Delete("/:user_role_id", userRoleDelete)
 	r.Get("/:user_role_id", userRoleGet)
 	r.Get("/", userRoleList)
 	r.Patch("/:user_role_id", userRolePatch)
 	r.Post("/", userRolePost)
-	r.Put("/:user_role_id", userRolePut)
-	r.Delete("/:user_role_id", userRoleDelete)
+}
+func userRoleDelete(x *rest.X) (any, error) {
+	opts := &M.UserRoleDelete{}
+	err := x.Parse(opts)
+	if err != nil {
+		return nil, err
+	}
+	data := &M.UserRole{}
+
+	err = cfg.DB().Where("id = ?", opts.ID).Delete(data).Error
+
+	return data, err
 }
 func userRoleGet(x *rest.X) (any, error) {
 	opts := &M.UserRoleGet{}
@@ -57,9 +68,6 @@ func userRolePatch(x *rest.X) (any, error) {
 		return nil, err
 	}
 	optsMap := make(map[string]interface{})
-	if opts.UserID != nil {
-		optsMap["user_id"] = opts.UserID
-	}
 	if opts.Status != nil {
 		optsMap["status"] = opts.Status
 	}
@@ -80,38 +88,6 @@ func userRolePost(x *rest.X) (any, error) {
 	data.RoleID = opts.RoleID
 	data.Status = opts.Status
 	err = cfg.DB().Create(data).Error
-
-	return data, err
-}
-func userRolePut(x *rest.X) (any, error) {
-	opts := &M.UserRolePut{}
-	err := x.Parse(opts)
-	if err != nil {
-		return nil, err
-	}
-	data := &M.UserRole{}
-
-	err = cfg.DB().Where("id = ?", opts.ID).First(data).Error
-	if err != nil {
-		return nil, err
-	}
-	optsMap := map[string]interface{}{
-		"id":		opts.ID,
-		"status":	opts.Status,
-	}
-	err = cfg.DB().Model(data).Updates(optsMap).Error
-
-	return data, err
-}
-func userRoleDelete(x *rest.X) (any, error) {
-	opts := &M.UserRoleDelete{}
-	err := x.Parse(opts)
-	if err != nil {
-		return nil, err
-	}
-	data := &M.UserRole{}
-
-	err = cfg.DB().Where("id = ?", opts.ID).Delete(data).Error
 
 	return data, err
 }

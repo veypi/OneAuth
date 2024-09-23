@@ -1,20 +1,21 @@
 package user
 
 import (
-	"github.com/veypi/OneBD/rest"
-	M "oa/models"
 	"oa/cfg"
+	"oa/libs/auth"
+	M "oa/models"
 	"strings"
+
 	"github.com/google/uuid"
+	"github.com/veypi/OneBD/rest"
 )
 
 func useUser(r rest.Router) {
-	r.Delete("/:user_id", userDelete)
-	r.Get("/:user_id", userGet)
-	r.Get("/", userList)
-	r.Patch("/:user_id", userPatch)
-	r.Post("/", userPost)
-	r.Put("/:user_id", userPut)
+	r.Delete("/:user_id", auth.Check("user", "user_id", auth.DoDelete), userDelete)
+	r.Get("/:user_id", auth.Check("user", "user_id", auth.DoRead), userGet)
+	r.Get("/", auth.Check("user", "", auth.DoRead), userList)
+	r.Patch("/:user_id", auth.Check("user", "user_id", auth.DoUpdate), userPatch)
+	r.Post("/", auth.Check("user", "", auth.DoCreate), userPost)
 }
 func userDelete(x *rest.X) (any, error) {
 	opts := &M.UserDelete{}
@@ -113,37 +114,19 @@ func userPost(x *rest.X) (any, error) {
 
 	data.ID = strings.ReplaceAll(uuid.New().String(), "-", "")
 	data.Username = opts.Username
-	data.Nickname = opts.Nickname
-	data.Icon = opts.Icon
-	data.Email = opts.Email
-	data.Phone = opts.Phone
-	data.Status = opts.Status
+	if opts.Nickname != nil {
+		data.Nickname = *opts.Nickname
+	}
+	if opts.Icon != nil {
+		data.Icon = *opts.Icon
+	}
+	if opts.Email != nil {
+		data.Email = *opts.Email
+	}
+	if opts.Phone != nil {
+		data.Phone = *opts.Phone
+	}
 	err = cfg.DB().Create(data).Error
-
-	return data, err
-}
-func userPut(x *rest.X) (any, error) {
-	opts := &M.UserPut{}
-	err := x.Parse(opts)
-	if err != nil {
-		return nil, err
-	}
-	data := &M.User{}
-
-	err = cfg.DB().Where("id = ?", opts.ID).First(data).Error
-	if err != nil {
-		return nil, err
-	}
-	optsMap := map[string]interface{}{
-		"id":		opts.ID,
-		"username":	opts.Username,
-		"nickname":	opts.Nickname,
-		"icon":		opts.Icon,
-		"email":	opts.Email,
-		"phone":	opts.Phone,
-		"status":	opts.Status,
-	}
-	err = cfg.DB().Model(data).Updates(optsMap).Error
 
 	return data, err
 }

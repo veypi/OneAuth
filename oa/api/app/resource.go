@@ -10,6 +10,7 @@ func useResource(r rest.Router) {
 	r.Post("/", resourcePost)
 	r.Delete("/", resourceDelete)
 	r.Get("/", resourceList)
+	r.Delete("/:resource_id", resourceDelete)
 }
 func resourcePost(x *rest.X) (any, error) {
 	opts := &M.ResourcePost{}

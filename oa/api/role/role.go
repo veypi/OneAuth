@@ -9,46 +9,11 @@ import (
 )
 
 func useRole(r rest.Router) {
-	r.Put("/:role_id", rolePut)
-	r.Delete("/:role_id", roleDelete)
 	r.Get("/:role_id", roleGet)
 	r.Get("/", roleList)
 	r.Patch("/:role_id", rolePatch)
 	r.Post("/", rolePost)
-}
-func rolePut(x *rest.X) (any, error) {
-	opts := &M.RolePut{}
-	err := x.Parse(opts)
-	if err != nil {
-		return nil, err
-	}
-	data := &M.Role{}
-
-	err = cfg.DB().Where("id = ?", opts.ID).First(data).Error
-	if err != nil {
-		return nil, err
-	}
-	optsMap := map[string]interface{}{
-		"id":		opts.ID,
-		"name":		opts.Name,
-		"des":		opts.Des,
-		"app_id":	opts.AppID,
-	}
-	err = cfg.DB().Model(data).Updates(optsMap).Error
-
-	return data, err
-}
-func roleDelete(x *rest.X) (any, error) {
-	opts := &M.RoleDelete{}
-	err := x.Parse(opts)
-	if err != nil {
-		return nil, err
-	}
-	data := &M.Role{}
-
-	err = cfg.DB().Where("id = ?", opts.ID).Delete(data).Error
-
-	return data, err
+	r.Delete("/:role_id", roleDelete)
 }
 func roleGet(x *rest.X) (any, error) {
 	opts := &M.RoleGet{}
@@ -117,6 +82,18 @@ func rolePost(x *rest.X) (any, error) {
 	data.Des = opts.Des
 	data.AppID = opts.AppID
 	err = cfg.DB().Create(data).Error
+
+	return data, err
+}
+func roleDelete(x *rest.X) (any, error) {
+	opts := &M.RoleDelete{}
+	err := x.Parse(opts)
+	if err != nil {
+		return nil, err
+	}
+	data := &M.Role{}
+
+	err = cfg.DB().Where("id = ?", opts.ID).Delete(data).Error
 
 	return data, err
 }

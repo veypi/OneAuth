@@ -7,6 +7,7 @@ replace github.com/veypi/OneBD => ../../../workspace/OneBD/
 replace github.com/veypi/utils => ../../../workspace/OceanCurrent/utils/
 
 require (
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
 	github.com/veypi/OneBD v0.0.0-00010101000000-000000000000
 	github.com/veypi/utils v0.3.7

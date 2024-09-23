@@ -12,67 +12,33 @@ type UserGet struct {
 
 type UserList struct {
 	Username *string `json:"username" gorm:"varchar(100);unique;default:not null"  parse:"json"`
-
 	Nickname *string `json:"nickname"  parse:"json"`
-
-	Email *string `json:"email" gorm:"varchar(20);unique;default:null"  parse:"json"`
-
-	Phone *string `json:"phone" gorm:"varchar(50);unique;default:null"  parse:"json"`
-
-	Status *uint `json:"status"  parse:"json"`
+	Email    *string `json:"email" gorm:"varchar(20);unique;default:null"  parse:"json"`
+	Phone    *string `json:"phone" gorm:"varchar(50);unique;default:null"  parse:"json"`
+	Status   *uint   `json:"status"  parse:"json"`
 }
 
 type UserPatch struct {
-	ID string `json:"id" gorm:"primaryKey;type:varchar(32)"  parse:"path@user_id"`
-
+	ID       string  `json:"id" gorm:"primaryKey;type:varchar(32)"  parse:"path@user_id"`
 	Username *string `json:"username" gorm:"varchar(100);unique;default:not null"  parse:"json"`
-
 	Nickname *string `json:"nickname"  parse:"json"`
-
-	Icon *string `json:"icon"  parse:"json"`
-
-	Email *string `json:"email" gorm:"varchar(20);unique;default:null"  parse:"json"`
-
-	Phone *string `json:"phone" gorm:"varchar(50);unique;default:null"  parse:"json"`
-
-	Status *uint `json:"status"  parse:"json"`
+	Icon     *string `json:"icon"  parse:"json"`
+	Email    *string `json:"email" gorm:"varchar(20);unique;default:null"  parse:"json"`
+	Phone    *string `json:"phone" gorm:"varchar(50);unique;default:null"  parse:"json"`
+	Status   *uint   `json:"status"  parse:"json"`
 }
 
 type UserPost struct {
-	Username string `json:"username" gorm:"varchar(100);unique;default:not null"  parse:"json"`
-
-	Nickname string `json:"nickname"  parse:"json"`
-
-	Icon string `json:"icon"  parse:"json"`
-
-	Email string `json:"email" gorm:"varchar(20);unique;default:null"  parse:"json"`
-
-	Phone string `json:"phone" gorm:"varchar(50);unique;default:null"  parse:"json"`
-
-	Status uint `json:"status"  parse:"json"`
-}
-
-type UserPut struct {
-	ID string `json:"id" gorm:"primaryKey;type:varchar(32)"  parse:"path@user_id"`
-
-	Username string `json:"username" gorm:"varchar(100);unique;default:not null"  parse:"json"`
-
-	Nickname string `json:"nickname"  parse:"json"`
-
-	Icon string `json:"icon"  parse:"json"`
-
-	Email string `json:"email" gorm:"varchar(20);unique;default:null"  parse:"json"`
-
-	Phone string `json:"phone" gorm:"varchar(50);unique;default:null"  parse:"json"`
-
-	Status uint `json:"status"  parse:"json"`
+	Username string  `json:"username" gorm:"varchar(100);unique;default:not null"  parse:"json"`
+	Nickname *string `json:"nickname"  parse:"json"`
+	Icon     *string `json:"icon"  parse:"json"`
+	Email    *string `json:"email" gorm:"varchar(20);unique;default:null"  parse:"json"`
+	Phone    *string `json:"phone" gorm:"varchar(50);unique;default:null"  parse:"json"`
 }
 
 type UserRoleDelete struct {
-	ID string `json:"id" gorm:"primaryKey;type:varchar(32)"  parse:"path@user_role_id"`
-
+	ID     string `json:"id" gorm:"primaryKey;type:varchar(32)"  parse:"path@user_role_id"`
 	UserID string `json:"user_id"  parse:"path"`
-
 	RoleID string `json:"role_id"  parse:"path"`
 }
 
@@ -85,23 +51,12 @@ type UserRoleList struct {
 }
 
 type UserRolePatch struct {
-	ID string `json:"id" gorm:"primaryKey;type:varchar(32)"  parse:"path@user_role_id"`
-
-	UserID *string `json:"user_id"  parse:"path"`
-
+	ID     string  `json:"id" gorm:"primaryKey;type:varchar(32)"  parse:"path@user_role_id"`
 	Status *string `json:"status"  parse:"json"`
 }
 
 type UserRolePost struct {
 	UserID string `json:"user_id"  parse:"path"`
-
 	RoleID string `json:"role_id"  parse:"path"`
-
-	Status string `json:"status"  parse:"json"`
-}
-
-type UserRolePut struct {
-	ID string `json:"id" gorm:"primaryKey;type:varchar(32)"  parse:"path@user_role_id"`
-
 	Status string `json:"status"  parse:"json"`
 }
