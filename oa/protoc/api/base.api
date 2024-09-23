@@ -1,4 +1,0 @@
-type auth {
-	Authorization string `header:"authorization"`
-}
-
