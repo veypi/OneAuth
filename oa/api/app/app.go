@@ -1,11 +1,11 @@
 package app
 
 import (
-	"github.com/veypi/OneBD/rest"
-	M "oa/models"
-	"oa/cfg"
-	"strings"
 	"github.com/google/uuid"
+	"github.com/veypi/OneBD/rest"
+	"oa/cfg"
+	M "oa/models"
+	"strings"
 )
 
 func useApp(r rest.Router) {
@@ -23,7 +23,6 @@ func appDelete(x *rest.X) (any, error) {
 	}
 	data := &M.App{}
 
-
 	err = cfg.DB().Where("id = ?", opts.ID).Delete(data).Error
 
 	return data, err
@@ -35,7 +34,6 @@ func appGet(x *rest.X) (any, error) {
 		return nil, err
 	}
 	data := &M.App{}
-
 
 	err = cfg.DB().Where("id = ?", opts.ID).First(data).Error
 
@@ -49,10 +47,9 @@ func appList(x *rest.X) (any, error) {
 	}
 	data := make([]*M.App, 0, 10)
 
-
 	query := cfg.DB()
 	if opts.Name != nil {
-	    query = query.Where("name LIKE ?", opts.Name)
+		query = query.Where("name LIKE ?", opts.Name)
 	}
 	err = query.Find(&data).Error
 
@@ -65,7 +62,6 @@ func appPatch(x *rest.X) (any, error) {
 		return nil, err
 	}
 	data := &M.App{}
-
 
 	err = cfg.DB().Where("id = ?", opts.ID).First(data).Error
 	if err != nil {
@@ -98,7 +94,6 @@ func appPost(x *rest.X) (any, error) {
 		return nil, err
 	}
 	data := &M.App{}
-
 
 	data.ID = strings.ReplaceAll(uuid.New().String(), "-", "")
 	data.Name = opts.Name

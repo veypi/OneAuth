@@ -1,11 +1,11 @@
 package app
 
 import (
-	"github.com/veypi/OneBD/rest"
-	M "oa/models"
-	"oa/cfg"
-	"strings"
 	"github.com/google/uuid"
+	"github.com/veypi/OneBD/rest"
+	"oa/cfg"
+	M "oa/models"
+	"strings"
 )
 
 func useAppUser(r rest.Router) {
@@ -23,7 +23,6 @@ func appUserPost(x *rest.X) (any, error) {
 	}
 	data := &M.AppUser{}
 
-
 	data.ID = strings.ReplaceAll(uuid.New().String(), "-", "")
 	data.AppID = opts.AppID
 	data.UserID = opts.UserID
@@ -40,7 +39,6 @@ func appUserDelete(x *rest.X) (any, error) {
 	}
 	data := &M.AppUser{}
 
-
 	err = cfg.DB().Where("id = ?", opts.ID).Delete(data).Error
 
 	return data, err
@@ -52,7 +50,6 @@ func appUserGet(x *rest.X) (any, error) {
 		return nil, err
 	}
 	data := &M.AppUser{}
-
 
 	err = cfg.DB().Where("id = ?", opts.ID).First(data).Error
 
@@ -66,16 +63,15 @@ func appUserList(x *rest.X) (any, error) {
 	}
 	data := make([]*M.AppUser, 0, 10)
 
-
 	query := cfg.DB()
 	if opts.AppID != nil {
-	    query = query.Where("app_id LIKE ?", opts.AppID)
+		query = query.Where("app_id LIKE ?", opts.AppID)
 	}
 	if opts.UserID != nil {
-	    query = query.Where("user_id LIKE ?", opts.UserID)
+		query = query.Where("user_id LIKE ?", opts.UserID)
 	}
 	if opts.Status != nil {
-	    query = query.Where("status LIKE ?", opts.Status)
+		query = query.Where("status LIKE ?", opts.Status)
 	}
 	err = query.Find(&data).Error
 
@@ -88,7 +84,6 @@ func appUserPatch(x *rest.X) (any, error) {
 		return nil, err
 	}
 	data := &M.AppUser{}
-
 
 	err = cfg.DB().Where("id = ?", opts.ID).First(data).Error
 	if err != nil {

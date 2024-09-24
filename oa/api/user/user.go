@@ -1,10 +1,14 @@
 package user
 
 import (
+	"fmt"
+	"math/rand"
 	"oa/cfg"
+	"oa/errs"
 	"oa/libs/auth"
 	M "oa/models"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/veypi/OneBD/rest"
@@ -15,8 +19,9 @@ func useUser(r rest.Router) {
 	r.Get("/:user_id", auth.Check("user", "user_id", auth.DoRead), userGet)
 	r.Get("/", auth.Check("user", "", auth.DoRead), userList)
 	r.Patch("/:user_id", auth.Check("user", "user_id", auth.DoUpdate), userPatch)
-	r.Post("/", auth.Check("user", "", auth.DoCreate), userPost)
+	r.Post("/", userPost)
 }
+
 func userDelete(x *rest.X) (any, error) {
 	opts := &M.UserDelete{}
 	err := x.Parse(opts)
@@ -114,11 +119,18 @@ func userPost(x *rest.X) (any, error) {
 
 	data.ID = strings.ReplaceAll(uuid.New().String(), "-", "")
 	data.Username = opts.Username
+	data.Salt = opts.Salt
+	data.Code = opts.Code
+	if data.Username == "" || len(data.Salt) != 32 || len(data.Code) != 256 {
+		return nil, errs.ArgsInvalid
+	}
 	if opts.Nickname != nil {
 		data.Nickname = *opts.Nickname
 	}
 	if opts.Icon != nil {
 		data.Icon = *opts.Icon
+	} else {
+		data.Icon = fmt.Sprintf("/media/icon/%d.jpg", rand.New(rand.NewSource(time.Now().UnixNano())).Intn(230))
 	}
 	if opts.Email != nil {
 		data.Email = *opts.Email
@@ -126,7 +138,10 @@ func userPost(x *rest.X) (any, error) {
 	if opts.Phone != nil {
 		data.Phone = *opts.Phone
 	}
+	data.Status = 1
 	err = cfg.DB().Create(data).Error
-
-	return data, err
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }

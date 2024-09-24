@@ -1,11 +1,11 @@
 package role
 
 import (
-	"github.com/veypi/OneBD/rest"
-	M "oa/models"
-	"oa/cfg"
-	"strings"
 	"github.com/google/uuid"
+	"github.com/veypi/OneBD/rest"
+	"oa/cfg"
+	M "oa/models"
+	"strings"
 )
 
 func useRole(r rest.Router) {

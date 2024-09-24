@@ -12,6 +12,7 @@ import (
 	"oa/api/access"
 	"oa/api/app"
 	"oa/api/role"
+	"oa/api/token"
 	"oa/api/user"
 )
 
@@ -20,4 +21,5 @@ func Use(r rest.Router) {
 	app.Use(r.SubRouter("app"))
 	role.Use(r.SubRouter("role"))
 	user.Use(r.SubRouter("user"))
+	token.Use(r.SubRouter("token"))
 }
