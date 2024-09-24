@@ -31,5 +31,6 @@ func init() {
 	cfg.ObjList = append(cfg.ObjList, &Role{})
 	cfg.ObjList = append(cfg.ObjList, &User{})
 	cfg.ObjList = append(cfg.ObjList, &UserRole{})
+	cfg.ObjList = append(cfg.ObjList, &Token{})
 	cfg.ObjList = append(cfg.ObjList, &App{})
 }

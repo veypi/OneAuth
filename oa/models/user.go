@@ -2,17 +2,17 @@ package models
 
 type User struct {
 	BaseModel
-	Username string `json:"username" gorm:"varchar(100);unique;default:not null" methods:"post,*patch,*list" parse:"json"`
-	Nickname string `json:"nickname" methods:"*post,*patch,*list" parse:"json"`
+	Username string `json:"username" gorm:"type:varchar(100);unique;default:not null" methods:"post,*patch,*list" parse:"json"`
+	Nickname string `json:"nickname" gorm:"type:varchar(100)" methods:"*post,*patch,*list" parse:"json"`
 	Icon     string `json:"icon" methods:"*post,*patch" parse:"json"`
 
-	Email string `json:"email" gorm:"varchar(20);unique;default:null" methods:"*post,*patch,*list" parse:"json"`
-	Phone string `json:"phone" gorm:"varchar(50);unique;default:null" methods:"*post,*patch,*list" parse:"json"`
+	Email string `json:"email" gorm:"unique;type:varchar(50);default:null" methods:"*post,*patch,*list" parse:"json"`
+	Phone string `json:"phone" gorm:"type:varchar(30);unique;default:null" methods:"*post,*patch,*list" parse:"json"`
 
 	Status uint `json:"status" methods:"*patch,*list" parse:"json"`
 
-	RealCode  string `json:"-"`
-	CheckCode string `json:"-"`
+	Salt string `json:"-" gorm:"type:varchar(32)" methods:"post" parse:"json"`
+	Code string `json:"-" gorm:"type:varchar(256)" methods:"post" parse:"json"`
 }
 
 type UserRole struct {
