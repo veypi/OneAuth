@@ -28,6 +28,9 @@ type Access []struct {
 }
 
 func (a *Access) Check(target string, tid string, l AuthLevel) bool {
+	if l == DoNone {
+		return true
+	}
 	for _, line := range *a {
 		if target == line.Name && l >= line.Level {
 			if line.TID == "" || line.TID == tid {

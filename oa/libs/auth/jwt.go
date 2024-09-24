@@ -13,10 +13,23 @@ import (
 	"oa/cfg"
 	"oa/errs"
 	"strings"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/veypi/OneBD/rest"
 )
+
+func GenJwt(claim *Claims) (string, error) {
+	if claim.ExpiresAt == nil {
+		claim.ExpiresAt = jwt.NewNumericDate(time.Now().Add(5 * time.Minute))
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
+	tokenString, err := token.SignedString(cfg.Config.JWT)
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
 
 func CheckJWT(x *rest.X) (*Claims, error) {
 	authHeader := x.Request.Header.Get("Authorization")
