@@ -8,10 +8,14 @@
 package errs
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/veypi/OneBD/rest"
+	"github.com/veypi/utils/logv"
+	"gorm.io/gorm"
 )
 
 func JsonResponse(x *rest.X, data any) error {
@@ -22,11 +26,29 @@ func JsonResponse(x *rest.X, data any) error {
 func JsonErrorResponse(x *rest.X, err error) {
 	code := 50000
 	var msg string
-	if e := err.(*CodeErr); e != nil {
+	switch e := err.(type) {
+	case *CodeErr:
 		code = e.Code
 		msg = e.Msg
-	} else {
-		msg = err.Error()
+	case *mysql.MySQLError:
+		if e.Number == 1062 {
+			code = DuplicateKey.Code
+			msg = DuplicateKey.Msg
+		} else {
+			logv.Warn().Msgf("unhandled db error %d: %s", e.Number, err)
+			msg = "db error"
+		}
+	default:
+		if errors.Is(e, gorm.ErrRecordNotFound) {
+			code = NotFound.Code
+			msg = NotFound.Msg
+		} else if errors.Is(e, rest.ErrParse) {
+			code = ArgsInvalid.Code
+			msg = e.Error()
+		} else {
+			logv.Warn().Msgf("unhandled error type: %T\n%s", err, err)
+			msg = e.Error()
+		}
 	}
 	x.WriteHeader(code / 100)
 	x.JSON(map[string]any{"code": code, "err": msg})
@@ -42,7 +64,12 @@ func (c *CodeErr) Error() string {
 }
 
 func (c *CodeErr) WithErr(e error) error {
-	c.Msg = fmt.Sprintf("%s: %s", c.Msg, e.Error())
+	c.Msg = fmt.Errorf("%s: %w", c.Msg, e).Error()
+	return c
+}
+
+func (c *CodeErr) WithStr(m string) error {
+	c.Msg = fmt.Errorf("%s: %s", c.Msg, m).Error()
 	return c
 }
 
@@ -53,6 +80,7 @@ func New(code int, msg string) *CodeErr {
 
 var (
 	ArgsInvalid  = New(40001, "args invalid")
+	DuplicateKey = New(40002, "duplicate key")
 	AuthNotFound = New(40100, "auth not found")
 	AuthFailed   = New(40101, "auth failed")
 	AuthExpired  = New(40102, "auth expired")
