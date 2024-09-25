@@ -17,5 +17,5 @@ type AccessPost struct {
 	RoleID *string `json:"role_id" gorm:"index;type:varchar(32);default: null"  parse:"json"`
 	Name   string  `json:"name"  parse:"json"`
 	TID    string  `json:"tid"  parse:"json"`
-	Level  string  `json:"level"  parse:"json"`
+	Level  uint    `json:"level"  parse:"json"`
 }

@@ -15,8 +15,8 @@ import (
 
 var db *gorm.DB
 
-var cmdDB = CMD.SubCommand("db", "database operations")
-var cmdMigrate = cmdDB.SubCommand("migrate", "migrate database")
+var CmdDB = CMD.SubCommand("db", "database operations")
+var cmdMigrate = CmdDB.SubCommand("migrate", "migrate database")
 var ObjList = make([]any, 0, 10)
 
 func init() {
@@ -31,7 +31,7 @@ func init() {
 		DB().DisableForeignKeyConstraintWhenMigrating = false
 		return DB().AutoMigrate(ObjList...)
 	}
-	cmdDB.SubCommand("drop", "drop database").Command = func() error {
+	CmdDB.SubCommand("drop", "drop database").Command = func() error {
 		return DB().Migrator().DropTable(ObjList...)
 	}
 }

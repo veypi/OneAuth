@@ -57,12 +57,14 @@ type UserRoleDelete struct {
 	ID     string `json:"id" gorm:"primaryKey;type:varchar(32)"  parse:"path@user_role_id"`
 	UserID string `json:"user_id"  parse:"path"`
 	RoleID string `json:"role_id"  parse:"path"`
+	AppID  string `json:"app_id"  parse:"json"`
 }
 
 type UserRolePost struct {
 	UserID string `json:"user_id"  parse:"path"`
 	RoleID string `json:"role_id"  parse:"path"`
 	Status string `json:"status"  parse:"json"`
+	AppID  string `json:"app_id"  parse:"json"`
 }
 
 type UserRoleList struct {

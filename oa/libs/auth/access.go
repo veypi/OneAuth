@@ -21,7 +21,7 @@ const (
 	DoAll    = 5
 )
 
-type Access []struct {
+type Access []*struct {
 	Name  string    `json:"name"`
 	TID   string    `json:"tid"`
 	Level AuthLevel `json:"level"`
@@ -43,6 +43,7 @@ func (a *Access) Check(target string, tid string, l AuthLevel) bool {
 
 type Claims struct {
 	UID    string `json:"uid"`
+	AID    string `json:"aid"`
 	Name   string `json:"name"`
 	Icon   string `json:"icon"`
 	Access Access `json:"access"`

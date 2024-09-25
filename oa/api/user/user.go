@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/veypi/OneBD/rest"
+	"gorm.io/gorm"
 )
 
 func useUser(r rest.Router) {
@@ -121,8 +122,8 @@ func userPost(x *rest.X) (any, error) {
 	data.Username = opts.Username
 	data.Salt = opts.Salt
 	data.Code = opts.Code
-	if data.Username == "" || len(data.Salt) != 32 || len(data.Code) != 256 {
-		return nil, errs.ArgsInvalid
+	if data.Username == "" || len(data.Salt) != 32 || len(data.Code) != 64 {
+		return nil, errs.ArgsInvalid.WithStr("username/salt/code length")
 	}
 	if opts.Nickname != nil {
 		data.Nickname = *opts.Nickname
@@ -139,9 +140,26 @@ func userPost(x *rest.X) (any, error) {
 		data.Phone = *opts.Phone
 	}
 	data.Status = 1
-	err = cfg.DB().Create(data).Error
-	if err != nil {
-		return nil, err
-	}
+	err = cfg.DB().Transaction(func(tx *gorm.DB) error {
+		err := tx.Create(data).Error
+		if err != nil {
+			return err
+		}
+		app := &M.App{}
+		err = tx.Where("id = ?", cfg.Config.ID).First(app).Error
+		if err != nil {
+			return err
+		}
+		status := "ok"
+		if app.Participate != "auto" {
+			status = "applying"
+		}
+
+		return tx.Create(&M.AppUser{
+			UserID: data.ID,
+			AppID:  cfg.Config.ID,
+			Status: status,
+		}).Error
+	})
 	return data, nil
 }

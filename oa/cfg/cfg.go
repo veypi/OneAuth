@@ -9,6 +9,7 @@ package cfg
 
 import (
 	"github.com/veypi/OneBD/rest"
+	"github.com/veypi/utils"
 	"github.com/veypi/utils/flags"
 	"github.com/veypi/utils/logv"
 )
@@ -16,7 +17,8 @@ import (
 type config struct {
 	rest.RestConf
 	DSN string `json:"dsn"`
-	JWT string `json:"jwt"`
+	ID  string `json:"id"`
+	Key string `json:"key"`
 }
 
 var Config = &config{}
@@ -34,6 +36,12 @@ func init() {
 	CMD.Before = func() error {
 		flags.LoadCfg(*configFile, Config)
 		CMD.Parse()
+		if Config.Key == "" {
+			Config.Key = utils.RandSeq(32)
+		}
+		if Config.ID == "" {
+			Config.ID = utils.RandSeq(32)
+		}
 		logv.SetLevel(logv.AssertFuncErr(logv.ParseLevel(Config.LoggerLevel)))
 		return nil
 	}

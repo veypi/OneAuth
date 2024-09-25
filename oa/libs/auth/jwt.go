@@ -21,14 +21,29 @@ import (
 
 func GenJwt(claim *Claims) (string, error) {
 	if claim.ExpiresAt == nil {
-		claim.ExpiresAt = jwt.NewNumericDate(time.Now().Add(5 * time.Minute))
+		claim.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour))
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
-	tokenString, err := token.SignedString(cfg.Config.JWT)
+	tokenString, err := token.SignedString([]byte(cfg.Config.Key))
 	if err != nil {
 		return "", err
 	}
 	return tokenString, nil
+}
+
+func ParseJwt(tokenString string) (*Claims, error) {
+	claims := &Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(cfg.Config.Key), nil
+	})
+
+	if err != nil || !token.Valid {
+		return nil, errs.AuthInvalid
+	}
+	return claims, nil
 }
 
 func CheckJWT(x *rest.X) (*Claims, error) {
@@ -43,17 +58,11 @@ func CheckJWT(x *rest.X) (*Claims, error) {
 	}
 
 	// Parse the token
-	claims := &Claims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(cfg.Config.JWT), nil
-	})
-
-	if err != nil || !token.Valid {
-		return nil, errs.AuthInvalid
+	claims, err := ParseJwt(tokenString)
+	if err != nil {
+		return nil, err
 	}
+
 	x.Request = x.Request.WithContext(context.WithValue(x.Request.Context(), "uid", claims.ID))
 	return claims, nil
 }

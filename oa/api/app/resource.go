@@ -34,8 +34,8 @@ func resourceDelete(x *rest.X) (any, error) {
 		return nil, err
 	}
 	data := &M.Resource{
-		AppID:	opts.AppID,
-		Name:	opts.Name,
+		AppID: opts.AppID,
+		Name:  opts.Name,
 	}
 
 	err = cfg.DB().Delete(data).Error

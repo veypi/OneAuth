@@ -1,16 +1,21 @@
 package token
 
 import (
+	"encoding/hex"
 	"oa/cfg"
+	"oa/errs"
+	"oa/libs/auth"
 	M "oa/models"
-	"strings"
+	"time"
 
-	"github.com/google/uuid"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/veypi/OneBD/rest"
+	"github.com/veypi/utils"
+	"github.com/veypi/utils/logv"
 )
 
 func useToken(r rest.Router) {
-	r.Get("/salt/:id", tokenSalt)
+	r.Post("/salt", tokenSalt)
 	r.Post("/", tokenPost)
 	r.Get("/:token_id", tokenGet)
 	r.Patch("/:token_id", tokenPatch)
@@ -24,10 +29,100 @@ func tokenSalt(x *rest.X) (any, error) {
 		return nil, err
 	}
 	data := &M.User{}
+	query := "username = ?"
+	if opts.Typ == nil {
+	} else if *opts.Typ == "email" {
+		query = "email = ?"
+	} else if *opts.Typ == "phone" {
+		query = "phone = ?"
+	}
 
-	err = cfg.DB().Where("id = ?", opts.ID).First(data).Error
-	return data.Salt, err
+	err = cfg.DB().Where(query, opts.Username).First(data).Error
+	return map[string]string{"salt": data.Salt, "id": data.ID}, err
 }
+
+// for user login app
+func tokenPost(x *rest.X) (any, error) {
+	opts := &M.TokenPost{}
+	err := x.Parse(opts)
+	if err != nil {
+		return nil, err
+	}
+	aid := cfg.Config.ID
+	if opts.AppID != nil {
+		aid = *opts.AppID
+	}
+	data := &M.Token{}
+	claim := &auth.Claims{}
+	claim.IssuedAt = jwt.NewNumericDate(time.Now())
+	claim.Issuer = "oa"
+	if opts.Token != nil {
+		// for other app redirect
+		oldClaim, err := auth.ParseJwt(*opts.Token)
+		if err != nil {
+			return nil, err
+		}
+		err = cfg.DB().Where("id = ?", oldClaim.ID).First(data).Error
+		if err != nil {
+			return nil, err
+		}
+		if oldClaim.AID == *opts.AppID {
+			// refresh token
+		} else {
+			// gen other app token
+		}
+	} else if opts.Salt != nil && opts.Code != nil && aid == cfg.Config.ID {
+		// for oa login
+		user := &M.User{}
+		err = cfg.DB().Where("id = ?", opts.UserID).Find(user).Error
+		if err != nil {
+			return nil, err
+		}
+		logv.Info().Str("user", user.ID).Msg("login")
+		code := *opts.Code
+		salt := logv.AssertFuncErr(hex.DecodeString(*opts.Salt))
+		key := logv.AssertFuncErr(hex.DecodeString(user.Code))
+		logv.Warn().Msgf("%d: %d", len(key), len(salt))
+		logv.Warn().Msgf("%s: %s", user.Code, *opts.Salt)
+		de, err := utils.AesDecrypt([]byte(code), key, salt)
+		if err != nil || de != user.ID {
+			return nil, errs.AuthInvalid
+		}
+		data.UserID = opts.UserID
+		data.AppID = aid
+		if opts.ExpiredAt != nil {
+			data.ExpiredAt = *opts.ExpiredAt
+		} else {
+			data.ExpiredAt = time.Now().Add(time.Hour * 72)
+		}
+		if opts.OverPerm != nil {
+			data.OverPerm = *opts.OverPerm
+		}
+		// logv.AssertError(cfg.DB().Create(data).Error)
+		claim.AID = aid
+		claim.UID = user.ID
+		claim.Name = user.Username
+		claim.Icon = user.Icon
+		if user.Nickname != "" {
+			claim.Name = user.Nickname
+		}
+		acList := make(auth.Access, 0, 10)
+		logv.AssertError(cfg.DB().Debug().Table("accesses a").
+			Select("a.name, a.t_id, a.level").
+			Joins("INNER JOIN user_roles ur ON ur.role_id = a.role_id AND ur.user_id = ?", user.ID).
+			Scan(&acList).Error)
+		claim.Access = acList
+		token := logv.AssertFuncErr(auth.GenJwt(claim))
+		return map[string]string{"refresh": token, "token": token}, err
+	} else {
+		return nil, errs.ArgsInvalid
+	}
+	claim.ExpiresAt = jwt.NewNumericDate(data.ExpiredAt)
+	err = cfg.DB().Create(data).Error
+
+	return data, err
+}
+
 func tokenGet(x *rest.X) (any, error) {
 	opts := &M.TokenGet{}
 	err := x.Parse(opts)
@@ -72,27 +167,6 @@ func tokenDelete(x *rest.X) (any, error) {
 	data := &M.Token{}
 
 	err = cfg.DB().Where("id = ?", opts.ID).Delete(data).Error
-
-	return data, err
-}
-func tokenPost(x *rest.X) (any, error) {
-	opts := &M.TokenPost{}
-	err := x.Parse(opts)
-	if err != nil {
-		return nil, err
-	}
-	data := &M.Token{}
-
-	data.ID = strings.ReplaceAll(uuid.New().String(), "-", "")
-	data.UserID = opts.UserID
-	data.AppID = opts.AppID
-	if opts.ExpiredAt != nil {
-		data.ExpiredAt = *opts.ExpiredAt
-	}
-	if opts.OverPerm != nil {
-		data.OverPerm = *opts.OverPerm
-	}
-	err = cfg.DB().Create(data).Error
 
 	return data, err
 }

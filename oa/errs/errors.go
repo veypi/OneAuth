@@ -24,8 +24,13 @@ func JsonResponse(x *rest.X, data any) error {
 }
 
 func JsonErrorResponse(x *rest.X, err error) {
-	code := 50000
-	var msg string
+	code, msg := errIter(err)
+	x.WriteHeader(code / 100)
+	x.JSON(map[string]any{"code": code, "err": msg})
+}
+
+func errIter(err error) (code int, msg string) {
+	code = 50000
 	switch e := err.(type) {
 	case *CodeErr:
 		code = e.Code
@@ -38,6 +43,8 @@ func JsonErrorResponse(x *rest.X, err error) {
 			logv.Warn().Msgf("unhandled db error %d: %s", e.Number, err)
 			msg = "db error"
 		}
+	case interface{ Unwrap() error }:
+		return errIter(e.Unwrap())
 	default:
 		if errors.Is(e, gorm.ErrRecordNotFound) {
 			code = NotFound.Code
@@ -50,8 +57,7 @@ func JsonErrorResponse(x *rest.X, err error) {
 			msg = e.Error()
 		}
 	}
-	x.WriteHeader(code / 100)
-	x.JSON(map[string]any{"code": code, "err": msg})
+	return
 }
 
 type CodeErr struct {
@@ -64,13 +70,19 @@ func (c *CodeErr) Error() string {
 }
 
 func (c *CodeErr) WithErr(e error) error {
-	c.Msg = fmt.Errorf("%s: %w", c.Msg, e).Error()
-	return c
+	nerr := &CodeErr{
+		Code: c.Code,
+		Msg:  fmt.Errorf("%s: %w", c.Msg, e).Error(),
+	}
+	return nerr
 }
 
 func (c *CodeErr) WithStr(m string) error {
-	c.Msg = fmt.Errorf("%s: %s", c.Msg, m).Error()
-	return c
+	nerr := &CodeErr{
+		Code: c.Code,
+		Msg:  fmt.Errorf("%s: %s", c.Msg, m).Error(),
+	}
+	return nerr
 }
 
 // New creates a new CodeMsg.
@@ -87,4 +99,5 @@ var (
 	AuthInvalid  = New(40103, "auth invalid")
 	AuthNoPerm   = New(40104, "no permission")
 	NotFound     = New(40400, "not found")
+	DBError      = New(50010, "db error")
 )
