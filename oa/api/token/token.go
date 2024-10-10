@@ -68,10 +68,21 @@ func tokenPost(x *rest.X) (any, error) {
 		}
 		if oldClaim.AID == *opts.AppID {
 			// refresh token
+			claim.AID = oldClaim.AID
+			claim.UID = oldClaim.UID
+			claim.Name = oldClaim.Name
+			claim.Icon = oldClaim.Icon
+			claim.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Minute * 10))
+			acList := make(auth.Access, 0, 10)
+			logv.AssertError(cfg.DB().Table("accesses a").
+				Select("a.name, a.t_id, a.level").
+				Joins("INNER JOIN user_roles ur ON ur.role_id = a.role_id AND ur.user_id = ?", oldClaim.UID).
+				Scan(&acList).Error)
+			claim.Access = acList
 		} else {
 			// gen other app token
 		}
-	} else if opts.Salt != nil && opts.Code != nil && aid == cfg.Config.ID {
+	} else if opts.Code != nil && aid == cfg.Config.ID {
 		// for oa login
 		user := &M.User{}
 		err = cfg.DB().Where("id = ?", opts.UserID).Find(user).Error
@@ -82,8 +93,6 @@ func tokenPost(x *rest.X) (any, error) {
 		code := *opts.Code
 		salt := logv.AssertFuncErr(hex.DecodeString(*opts.Salt))
 		key := logv.AssertFuncErr(hex.DecodeString(user.Code))
-		logv.Warn().Msgf("%d: %d", len(key), len(salt))
-		logv.Warn().Msgf("%s: %s", user.Code, *opts.Salt)
 		de, err := utils.AesDecrypt([]byte(code), key, salt)
 		if err != nil || de != user.ID {
 			return nil, errs.AuthInvalid
@@ -98,29 +107,26 @@ func tokenPost(x *rest.X) (any, error) {
 		if opts.OverPerm != nil {
 			data.OverPerm = *opts.OverPerm
 		}
-		// logv.AssertError(cfg.DB().Create(data).Error)
+		if opts.Device != nil {
+			data.Device = *opts.Device
+		}
+		data.ExpiredAt = time.Now().Add(time.Hour)
+		logv.AssertError(cfg.DB().Create(data).Error)
+		claim.ID = data.ID
 		claim.AID = aid
 		claim.UID = user.ID
 		claim.Name = user.Username
 		claim.Icon = user.Icon
+		claim.ExpiresAt = jwt.NewNumericDate(data.ExpiredAt)
 		if user.Nickname != "" {
 			claim.Name = user.Nickname
 		}
-		acList := make(auth.Access, 0, 10)
-		logv.AssertError(cfg.DB().Debug().Table("accesses a").
-			Select("a.name, a.t_id, a.level").
-			Joins("INNER JOIN user_roles ur ON ur.role_id = a.role_id AND ur.user_id = ?", user.ID).
-			Scan(&acList).Error)
-		claim.Access = acList
-		token := logv.AssertFuncErr(auth.GenJwt(claim))
-		return map[string]string{"refresh": token, "token": token}, err
 	} else {
 		return nil, errs.ArgsInvalid
 	}
-	claim.ExpiresAt = jwt.NewNumericDate(data.ExpiredAt)
-	err = cfg.DB().Create(data).Error
 
-	return data, err
+	token := logv.AssertFuncErr(auth.GenJwt(claim))
+	return token, err
 }
 
 func tokenGet(x *rest.X) (any, error) {

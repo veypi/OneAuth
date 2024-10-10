@@ -13,4 +13,5 @@ type Token struct {
 	App       *App      `json:"-"`
 	ExpiredAt time.Time `json:"expired_at" methods:"*post,*patch" parse:"json"`
 	OverPerm  string    `json:"over_perm" methods:"*post,*patch" parse:"json"`
+	Device    string    `json:"device" methods:"*post" parse:"json"`
 }

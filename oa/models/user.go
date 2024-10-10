@@ -18,7 +18,7 @@ type User struct {
 
 	Status uint `json:"status" methods:"*patch,*list" parse:"json"`
 
-	Salt string `json:"-" gorm:"type:varchar(32)" methods:"post" parse:"json"`
+	Salt string `json:"-" gorm:"type:varchar(32)"`
 	Code string `json:"-" gorm:"type:varchar(64)" methods:"post" parse:"json"`
 }
 
