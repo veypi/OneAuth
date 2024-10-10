@@ -1,14 +1,13 @@
-/*
- * index.ts
- * Copyright (C) 2024 veypi <i@veypi.com>
- * 2024-08-02 17:40
- * Distributed under terms of the MIT license.
- */
-
-import * as user from './user'
-import * as app from './app'
+import * as user from "./user"
+import * as token from "./token"
+import * as role from "./role"
+import * as app from "./app"
+import * as access from "./access"
 
 export default {
   user,
-  app
+  token,
+  role,
+  app,
+  access
 }

@@ -1,10 +1,8 @@
-/*
- * gocliRequest.ts
- * Copyright (C) 2024 veypi <i@veypi.com>
- * 2024-08-02 17:14
- * Distributed under terms of the MIT license.
- */
-
+//
+// Copyright (C) 2024 veypi <i@veypi.com>
+// 2024-10-11 00:21:45
+// Distributed under terms of the MIT license.
+//
 
 import axios, { AxiosError, type AxiosResponse } from 'axios';
 
@@ -18,6 +16,7 @@ import axios, { AxiosError, type AxiosResponse } from 'axios';
 axios.defaults.withCredentials = true
 const proxy = axios.create({
   withCredentials: true,
+  baseURL: "/api/",
   headers: {
     'content-type': 'application/json;charset=UTF-8',
   },
@@ -84,36 +83,49 @@ const responseFailed = (error: AxiosError) => {
 
 proxy.interceptors.response.use(responseSuccess, responseFailed)
 
-
 interface data {
-  params?: any
-  req?: any
-  headers?: any
+  json?: any
+  query?: any
+  form?: any
+  header?: any
+}
+
+function transData(d: data) {
+  let opts = { params: d.query, data: {}, headers: {} as any }
+  if (d.form) {
+    opts.data = d.form
+    opts.headers['content-type'] = 'application/x-www-form-urlencoded'
+  }
+  if (d.json) {
+    opts.data = d.json
+    opts.headers['content-type'] = 'application/json'
+  }
+  if (d.header) {
+    opts.headers = Object.assign(opts.headers, d.header)
+  }
+  return opts
 }
 
 export const webapi = {
-  get<T>(url: string, req: data): Promise<T> {
-    return proxy.request<T, any>({ method: 'get', url: url, headers: req.headers, data: req.req, params: req.params })
+  Get<T>(url: string, req: data): Promise<T> {
+    return proxy.request<T, any>(Object.assign({ method: 'get', url: url }, transData(req)))
   },
-  head<T>(url: string, req: data): Promise<T> {
-    return proxy.request<T, any>({ method: 'head', url: url, headers: req.headers, data: req.req, params: req.params })
+  Head<T>(url: string, req: data): Promise<T> {
+    return proxy.request<T, any>(Object.assign({ method: 'head', url: url }, transData(req)))
   },
-  delete<T>(url: string, req: data): Promise<T> {
-    return proxy.request<T, any>({ method: 'delete', url: url, headers: req.headers, data: req.req, params: req.params })
+  Delete<T>(url: string, req: data): Promise<T> {
+    return proxy.request<T, any>(Object.assign({ method: 'delete', url: url }, transData(req)))
   },
 
-  post<T>(url: string, req: data): Promise<T> {
-    return proxy.request<T, any>({ method: 'post', url: url, headers: req.headers, data: req.req, params: req.params })
+  Post<T>(url: string, req: data): Promise<T> {
+    return proxy.request<T, any>(Object.assign({ method: 'post', url: url }, transData(req)))
   },
-  put<T>(url: string, req: data): Promise<T> {
-    return proxy.request<T, any>({ method: 'put', url: url, headers: req.headers, data: req.req, params: req.params })
+  Put<T>(url: string, req: data): Promise<T> {
+    return proxy.request<T, any>(Object.assign({ method: 'put', url: url }, transData(req)))
   },
-  patch<T>(url: string, req: data): Promise<T> {
-    return proxy.request<T, any>({ method: 'patch', url: url, headers: req.headers, data: req.req, params: req.params })
+  Patch<T>(url: string, req: data): Promise<T> {
+    return proxy.request<T, any>(Object.assign({ method: 'patch', url: url }, transData(req)))
   },
 }
 
-
 export default webapi
-
-

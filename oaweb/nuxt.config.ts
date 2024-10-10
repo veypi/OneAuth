@@ -4,7 +4,14 @@ export default defineNuxtConfig({
 
   css: [
     '~/assets/css/app.scss',
+    '~/assets/css/tailwind.css',
   ],
+  postcss: {
+    plugins: {
+      tailwindcss: {},
+      autoprefixer: {},
+    },
+  },
 
   ssr: false,
 
@@ -46,5 +53,5 @@ export default defineNuxtConfig({
       ]
     },
   },
-  modules: ["@pinia/nuxt", "@nuxt/ui"]
+  modules: ["@pinia/nuxt"]
 })

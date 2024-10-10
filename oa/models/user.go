@@ -24,7 +24,7 @@ type User struct {
 
 type UserRole struct {
 	BaseModel
-	UserID string `json:"user_id" methods:"post,delete" parse:"json"`
+	UserID string `json:"user_id" methods:"get,list,post,patch,delete" parse:"path"`
 	User   *User  `json:"-" gorm:"foreignKey:UserID;references:ID"`
 
 	RoleID string `json:"role_id" methods:"post,delete" parse:"json"`

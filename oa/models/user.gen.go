@@ -2,12 +2,6 @@ package models
 
 import ()
 
-type UserLogin struct {
-	ID  string `json:"id" parse:"path@user_id"`
-	Pwd string `json:"pwd" parse:"json"`
-	Typ string `json:"typ" parse:"json"`
-}
-
 type UserGet struct {
 	ID string `json:"id" gorm:"primaryKey;type:varchar(32)"  parse:"path@user_id"`
 }
@@ -45,28 +39,31 @@ type UserList struct {
 }
 
 type UserRoleGet struct {
-	ID string `json:"id" gorm:"primaryKey;type:varchar(32)"  parse:"path@user_role_id"`
+	ID     string `json:"id" gorm:"primaryKey;type:varchar(32)"  parse:"path@user_role_id"`
+	UserID string `json:"user_id"  parse:"path"`
 }
 
 type UserRolePatch struct {
 	ID     string  `json:"id" gorm:"primaryKey;type:varchar(32)"  parse:"path@user_role_id"`
 	Status *string `json:"status"  parse:"json"`
+	UserID string  `json:"user_id"  parse:"path"`
 }
 
 type UserRoleDelete struct {
 	ID     string `json:"id" gorm:"primaryKey;type:varchar(32)"  parse:"path@user_role_id"`
 	UserID string `json:"user_id"  parse:"path"`
-	RoleID string `json:"role_id"  parse:"path"`
+	RoleID string `json:"role_id"  parse:"json"`
 	AppID  string `json:"app_id"  parse:"json"`
 }
 
 type UserRolePost struct {
-	UserID string `json:"user_id"  parse:"path"`
-	RoleID string `json:"role_id"  parse:"path"`
 	Status string `json:"status"  parse:"json"`
+	RoleID string `json:"role_id"  parse:"json"`
 	AppID  string `json:"app_id"  parse:"json"`
+	UserID string `json:"user_id"  parse:"path"`
 }
 
 type UserRoleList struct {
 	Status *string `json:"status"  parse:"json"`
+	UserID string  `json:"user_id"  parse:"path"`
 }

@@ -20,10 +20,10 @@ type App struct {
 
 type AppUser struct {
 	BaseModel
-	AppID string `json:"app_id" methods:"get,*list,post" parse:"path"`
+	AppID string `json:"app_id" methods:"get,list,post,patch,delete" parse:"path"`
 	App   *App   `json:"-" gorm:"foreignKey:AppID;references:ID"`
 
-	UserID string `json:"user_id" methods:"get,*list,post" parse:"path"`
+	UserID string `json:"user_id" methods:"get,*list,post" parse:"json"`
 	User   *User  `json:"-" gorm:"foreignKey:UserID;references:ID"`
 
 	Status string `json:"status" methods:"post,*patch,*list" parse:"json"`
@@ -63,7 +63,7 @@ func (m *AppUser) AfterUpdate(tx *gorm.DB) error {
 
 type Resource struct {
 	BaseDate
-	AppID string `json:"app_id" gorm:"primaryKey;type:varchar(32)" methods:"post,list,delete" parse:"json"`
+	AppID string `json:"app_id" methods:"get,list,post,patch,delete" parse:"path"`
 	App   *App   `json:"-" gorm:"foreignKey:AppID;references:ID"`
 	Name  string `json:"name" gorm:"primaryKey" methods:"post,delete" parse:"json"`
 	Des   string `json:"des" methods:"post" parse:"json"`

@@ -6,7 +6,6 @@
  */
 
 import api from './api'
-
 export * from './models'
 export { type Auths, type modelsSimpleAuth } from './models'
 export { api }

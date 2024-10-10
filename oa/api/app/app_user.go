@@ -90,12 +90,6 @@ func appUserPatch(x *rest.X) (any, error) {
 		return nil, err
 	}
 	optsMap := make(map[string]interface{})
-	if opts.AppID != nil {
-		optsMap["app_id"] = opts.AppID
-	}
-	if opts.UserID != nil {
-		optsMap["user_id"] = opts.UserID
-	}
 	if opts.Status != nil {
 		optsMap["status"] = opts.Status
 	}

@@ -31,6 +31,7 @@ func JsonErrorResponse(x *rest.X, err error) {
 
 func errIter(err error) (code int, msg string) {
 	code = 50000
+	msg = err.Error()
 	switch e := err.(type) {
 	case *CodeErr:
 		code = e.Code
@@ -44,7 +45,7 @@ func errIter(err error) (code int, msg string) {
 			msg = "db error"
 		}
 	case interface{ Unwrap() error }:
-		return errIter(e.Unwrap())
+		code, _ = errIter(e.Unwrap())
 	default:
 		if errors.Is(e, gorm.ErrRecordNotFound) {
 			code = NotFound.Code
