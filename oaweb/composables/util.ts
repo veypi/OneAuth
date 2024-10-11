@@ -65,18 +65,17 @@ const util = {
       name + '=' + escape(value) + ';expires=' + exp.toLocaleString()
   },
   getToken() {
-    return localStorage.getItem('auth_token') || ''
+    return localStorage.getItem('token') || ''
   },
   setToken(t: string) {
-    localStorage.setItem('auth_token', t)
+    localStorage.setItem('token', t)
     bus.emit('token', t)
   },
   addTokenOf(url: string) {
-    return url + '?auth_token=' + encodeURIComponent(this.getToken())
+    return url + '?token=' + encodeURIComponent(this.getToken())
   },
   checkLogin() {
-    // return parseInt(this.getCookie('stat')) === 1
-    return Boolean(localStorage.auth_token)
+    return Boolean(localStorage.token)
   },
 
   formatDate(date: Date, fmt: string) {

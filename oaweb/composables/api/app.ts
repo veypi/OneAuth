@@ -7,46 +7,46 @@
 import webapi from "./webapi"
 import * as models from "./models"
 export interface GetOpts { 
-  name: String
+  name: string
 }
-export function Get(app_id: String, json: GetOpts) {
+export function Get(app_id: string, json: GetOpts) {
   return webapi.Get<models.App>(`/app/${app_id}`, { json })
 }
 
-export function AppUserDelete(app_user_id: String, app_id: String) {
+export function AppUserDelete(app_user_id: string, app_id: string) {
   return webapi.Delete<models.AppUser>(`/app/${app_id}/app_user/${app_user_id}`, {  })
 }
 
-export function ResourcePatch(app_id: String) {
+export function ResourcePatch(app_id: string) {
   return webapi.Patch<models.Resource>(`/app/${app_id}/resource`, {  })
 }
 
 export interface PatchOpts { 
-  name?: String
-  icon?: String
-  des?: String
-  participate?: String
-  init_role_id?: String
+  name?: string
+  icon?: string
+  des?: string
+  participate?: string
+  init_role_id?: string
 }
-export function Patch(app_id: String, json: PatchOpts) {
+export function Patch(app_id: string, json: PatchOpts) {
   return webapi.Patch<models.App>(`/app/${app_id}`, { json })
 }
 
 export interface PostOpts { 
-  name: String
-  icon: String
-  des: String
-  participate: String
+  name: string
+  icon: string
+  des: string
+  participate: string
 }
 export function Post(json: PostOpts) {
   return webapi.Post<models.App>(`/app`, { json })
 }
 
 export interface AppUserListOpts { 
-  user_id?: String
-  status?: String
+  user_id?: string
+  status?: string
 }
-export function AppUserList(app_id: String, json: AppUserListOpts) {
+export function AppUserList(app_id: string, json: AppUserListOpts) {
   return webapi.Get<models.AppUser>(`/app/${app_id}/app_user`, { json })
 }
 
@@ -54,59 +54,59 @@ export interface ResourceListQuery {
   created_at?: Date
   updated_at?: Date
 }
-export function ResourceList(app_id: String, query: ResourceListQuery) {
+export function ResourceList(app_id: string, query: ResourceListQuery) {
   return webapi.Get<models.Resource>(`/app/${app_id}/resource`, { query })
 }
 
 export interface ResourcePostOpts { 
-  name: String
-  des: String
+  name: string
+  des: string
 }
-export function ResourcePost(app_id: String, json: ResourcePostOpts) {
+export function ResourcePost(app_id: string, json: ResourcePostOpts) {
   return webapi.Post<models.Resource>(`/app/${app_id}/resource`, { json })
 }
 
-export function Delete(app_id: String) {
+export function Delete(app_id: string) {
   return webapi.Delete<models.App>(`/app/${app_id}`, {  })
 }
 
 export interface ListOpts { 
-  name?: String
+  name?: string
 }
 export function List(json: ListOpts) {
   return webapi.Get<models.App>(`/app`, { json })
 }
 
 export interface AppUserGetOpts { 
-  user_id: String
+  user_id: string
 }
-export function AppUserGet(app_user_id: String, app_id: String, json: AppUserGetOpts) {
+export function AppUserGet(app_user_id: string, app_id: string, json: AppUserGetOpts) {
   return webapi.Get<models.AppUser>(`/app/${app_id}/app_user/${app_user_id}`, { json })
 }
 
-export function ResourceGet(app_id: String) {
+export function ResourceGet(app_id: string) {
   return webapi.Get<models.Resource>(`/app/${app_id}/resource`, {  })
 }
 
 export interface AppUserPatchOpts { 
-  status?: String
+  status?: string
 }
-export function AppUserPatch(app_user_id: String, app_id: String, json: AppUserPatchOpts) {
+export function AppUserPatch(app_user_id: string, app_id: string, json: AppUserPatchOpts) {
   return webapi.Patch<models.AppUser>(`/app/${app_id}/app_user/${app_user_id}`, { json })
 }
 
 export interface AppUserPostOpts { 
-  status: String
-  user_id: String
+  status: string
+  user_id: string
 }
-export function AppUserPost(app_id: String, json: AppUserPostOpts) {
+export function AppUserPost(app_id: string, json: AppUserPostOpts) {
   return webapi.Post<models.AppUser>(`/app/${app_id}/app_user`, { json })
 }
 
 export interface ResourceDeleteOpts { 
-  name: String
+  name: string
 }
-export function ResourceDelete(app_id: String, json: ResourceDeleteOpts) {
+export function ResourceDelete(app_id: string, json: ResourceDeleteOpts) {
   return webapi.Delete<models.Resource>(`/app/${app_id}/resource`, { json })
 }
 

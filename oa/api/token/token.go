@@ -66,7 +66,7 @@ func tokenPost(x *rest.X) (any, error) {
 		if err != nil {
 			return nil, err
 		}
-		if oldClaim.AID == *opts.AppID {
+		if oldClaim.AID == aid {
 			// refresh token
 			claim.AID = oldClaim.AID
 			claim.UID = oldClaim.UID
@@ -95,7 +95,7 @@ func tokenPost(x *rest.X) (any, error) {
 		key := logv.AssertFuncErr(hex.DecodeString(user.Code))
 		de, err := utils.AesDecrypt([]byte(code), key, salt)
 		if err != nil || de != user.ID {
-			return nil, errs.AuthInvalid
+			return nil, errs.AuthFailed
 		}
 		data.UserID = opts.UserID
 		data.AppID = aid
@@ -110,6 +110,7 @@ func tokenPost(x *rest.X) (any, error) {
 		if opts.Device != nil {
 			data.Device = *opts.Device
 		}
+		data.Ip = x.GetRemoteIp()
 		data.ExpiredAt = time.Now().Add(time.Hour)
 		logv.AssertError(cfg.DB().Create(data).Error)
 		claim.ID = data.ID

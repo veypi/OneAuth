@@ -1,11 +1,9 @@
 /*
  * auth.ts
- * Copyright (C) 2023 veypi <i@veypi.com>
- * 2023-10-02 16:44
+ * Copyright (C) 2024 veypi <i@veypi.com>
+ * 2024-10-11 12:01
  * Distributed under terms of the MIT license.
  */
-
-
 
 export interface modelsSimpleAuth {
   level: number

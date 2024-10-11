@@ -88,7 +88,7 @@
 
 <script lang="ts" setup>
 import msg from '@veypi/msg';
-import { Base64 } from 'js-base64';
+import * as crypto from 'crypto-js'
 
 
 definePageMeta({
@@ -120,23 +120,70 @@ const check = () => {
   checks.value.p = !Boolean(!data.value.password || !pReg.test(data.value.password))
   checks.value.p2 = !Boolean(data.value.confirm !== data.value.password)
 }
+
+function deriveKey(password: string, salt: any) {
+  return crypto.PBKDF2(password, salt, {
+    keySize: 256 / 32, iterations:
+      100, hasher: crypto.algo.SHA256
+  })
+}
+
 const login = () => {
   enable_check.value = true
   check()
   if (!checks.value.u || !checks.value.p) {
     return
   }
-  api.user.login(data.value.username,
-    { client: 'vvv', typ: 'sss', pwd: Base64.encodeURL(data.value.password) }).then((data: any) => {
-      util.setToken(data.auth_token)
-      // msg.Info('登录成功')
-      // user.fetchUserData()
-      let url = route.query.redirect || data.redirect || ''
-      console.log([url])
-      redirect(url)
+
+  api.token.TokenSalt({ username: data.value.username }).then(e => {
+    let id = e.id
+    let key = deriveKey(data.value.password, e.salt)
+    let salt = crypto.lib.WordArray.random(128 / 8)
+    let opts = {
+      iv: salt,
+      mode: crypto.mode.CBC,
+      padding: crypto.pad.Pkcs7
+    }
+    let p = crypto.AES.encrypt(e.id, key, opts)
+    api.token.Post({
+      user_id: id, code: p.toString(), salt:
+        salt.toString()
+    }).then(e => {
+      localStorage.setItem('refresh', e)
+      api.token.Post({ user_id: id, token: e }).then(e => {
+        localStorage.setItem('token', e)
+        console.log(e)
+      })
     }).catch(e => {
-      msg.Warn(e)
+      msg.Warn('登录失败：' + (e.err || e))
     })
+  })
+  // api.user.salt(data.value.username).then((e: any) => {
+  //   let id = e.data.id
+  //   let key = deriveKey(data.value.password, e.data.salt)
+  //   let salt = crypto.lib.WordArray.random(128 / 8)
+  //   let opts = {
+  //     iv: salt,
+  //     mode: crypto.mode.CBC,
+  //     padding: crypto.pad.Pkcs7
+  //   }
+  //   let p = crypto.AES.encrypt(id, key, opts)
+  //   api.user.token(id, p.toString(), salt.toString()).then(e => {
+  //     console.log(e)
+  //   })
+  // })
+
+  // api.user.login(data.value.username,
+  //   { client: 'vvv', typ: 'sss', pwd: Base64.encodeURL(data.value.password) }).then((data: any) => {
+  //     util.setToken(data.auth_token)
+  //     // msg.Info('登录成功')
+  //     // user.fetchUserData()
+  //     let url = route.query.redirect || data.redirect || ''
+  //     console.log([url])
+  //     redirect(url)
+  //   }).catch(e => {
+  //     msg.Warn(e)
+  //   })
 }
 const register = () => {
   enable_check.value = true
@@ -144,16 +191,18 @@ const register = () => {
   if (!checks.value.u || !checks.value.p || !checks.value.p2) {
     return
   }
+  let salt = crypto.lib.WordArray.random(128 / 8).toString()
+  let key = deriveKey(data.value.password, salt)
   api.user.reg({
-    username: data.value.username, pwd:
-      Base64.encodeURL(data.value.password)
-  }).then(u => {
-    console.log(u)
+    username: data.value.username,
+    salt: salt,
+    code: key.toString(crypto.enc.Hex)
+  }).then(() => {
     msg.Info('注册成功')
     aOpt.value = ''
   }).catch(e => {
     console.log(e)
-    msg.Warn('注册失败：' + e)
+    msg.Warn('注册失败：' + (e.err || e))
   })
 }
 const reset = () => {
@@ -243,6 +292,7 @@ onMounted(() => {
   position: sticky;
   padding: 2rem;
   width: 50%;
+  max-width: 50rem;
   min-width: 20rem;
   height: 50%;
 

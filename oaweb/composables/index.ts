@@ -6,6 +6,7 @@
  */
 
 import api from './api'
-export * from './models'
-export { type Auths, type modelsSimpleAuth } from './models'
-export { api }
+import * as auth from './auth'
+// export * from './models'
+import * as models from './models'
+export { api, models, auth }

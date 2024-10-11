@@ -5,14 +5,14 @@
  * Distributed under terms of the MIT license.
  */
 
-import { type Auths } from '@/composables/models'
 import { Base64 } from 'js-base64'
+import type { auth, models } from '~/composables';
 
 export const useUserStore = defineStore('user', {
   state: () => ({
     id: '',
-    local: {} as modelsUser,
-    auth: {} as Auths,
+    local: {} as models.User,
+    auth: {} as auth.Auths,
     ready: false
   }),
   getters: {
@@ -30,12 +30,12 @@ export const useUserStore = defineStore('user', {
         return false
       }
       let data = JSON.parse(Base64.decode(token[1]))
-      if (data.id) {
+      if (data.uid) {
         let l = 'access to'
         data.access.map((e: any) => l = l + `\n${e.name}.${e.level}`)
         console.log(l)
         this.auth = NewAuths(data.access)
-        api.user.get(data.id).then((e: modelsUser) => {
+        api.user.Get(data.id).then((e) => {
           this.id = e.id
           this.local = e
           this.ready = true

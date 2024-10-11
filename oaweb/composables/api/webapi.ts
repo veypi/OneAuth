@@ -1,6 +1,6 @@
 //
 // Copyright (C) 2024 veypi <i@veypi.com>
-// 2024-10-11 00:21:45
+// 2024-10-11 01:39:37
 // Distributed under terms of the MIT license.
 //
 
@@ -41,34 +41,44 @@ const responseSuccess = (response: AxiosResponse) => {
   // 这里没有必要进行判断，axios 内部已经判断
   // const isOk = 200 <= response.status && response.status < 300
   let data = response.data
+  if (typeof data === 'object') {
+    if (data.code !== 0) {
+      return responseFailed({ response } as any)
+    }
+    data = data.data
+  }
   return Promise.resolve(data)
 }
 
 const responseFailed = (error: AxiosError) => {
-  const { response, config } = error
+  const { response } = error
+  const config = response?.config
+  const data = response?.data || {} as any
   if (!window.navigator.onLine) {
-
     alert('没有网络')
     return Promise.reject(new Error('请检查网络连接'))
   }
 
-  console.log(response)
-  let needRetry = false
+  let needRetry = true
+  if (response?.status == 404) {
+    needRetry = false
+  } else if (response?.status == 401) {
+    needRetry = false
+    if (data.code === 40103) {
+    }
+  }
   if (!needRetry) {
-    return Promise.reject(response?.data || response?.headers.error)
+    return Promise.reject(data || response)
   };
   // @ts-ignore
   const { __retryCount = 0, retryDelay = 1000, retryTimes } = config;
   // 在请求对象上设置重试次数
   // @ts-ignore
-  config.__retryCount = __retryCount;
+  config.__retryCount = __retryCount + 1;
   // 判断是否超过了重试次数
   if (__retryCount >= retryTimes) {
     return Promise.reject(response?.data || response?.headers.error)
   }
-  // 增加重试次数
-  // @ts-ignore
-  config.__retryCount++;
   // 延时处理
   const delay = new Promise<void>((resolve) => {
     setTimeout(() => {

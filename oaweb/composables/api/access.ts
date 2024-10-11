@@ -7,10 +7,10 @@
 import webapi from "./webapi"
 import * as models from "./models"
 export interface ListOpts { 
-  app_id: String
-  user_id?: String
-  role_id?: String
-  name?: String
+  app_id: string
+  user_id?: string
+  role_id?: string
+  name?: string
 }
 export interface ListQuery { 
   created_at?: Date
@@ -21,12 +21,12 @@ export function List(json: ListOpts, query: ListQuery) {
 }
 
 export interface PostOpts { 
-  app_id: String
-  user_id?: String
-  role_id?: String
-  name: String
-  t_id: String
-  level: Number
+  app_id: string
+  user_id?: string
+  role_id?: string
+  name: string
+  t_id: string
+  level: number
 }
 export function Post(json: PostOpts) {
   return webapi.Post<models.Access>(`/access`, { json })

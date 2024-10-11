@@ -9,6 +9,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"oa/cfg"
 	"oa/errs"
@@ -39,6 +40,9 @@ func ParseJwt(tokenString string) (*Claims, error) {
 		}
 		return []byte(cfg.Config.Key), nil
 	})
+	if errors.Is(err, jwt.ErrTokenExpired) {
+		return nil, errs.AuthExpired
+	}
 
 	if err != nil || !token.Valid {
 		return nil, errs.AuthInvalid
@@ -78,7 +82,7 @@ func Check(target string, pid string, l AuthLevel) func(x *rest.X) error {
 			tid = x.Params.GetStr(pid)
 		}
 		if !claims.Access.Check(target, tid, l) {
-			return errs.AuthFailed
+			return errs.AuthNoPerm
 		}
 		return nil
 	}
