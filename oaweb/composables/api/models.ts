@@ -1,15 +1,17 @@
 export interface Access { 
+  created_at: Date
+  updated_at: Date
   app_id: string
-  app?: App
   user_id?: string
-  user?: User
   role_id?: string
-  role?: Role
   name: string
-  t_id: string
+  tid: string
   level: number
 }
 export interface App { 
+  id: string
+  created_at: Date
+  updated_at: Date
   name: string
   icon: string
   des: string
@@ -18,62 +20,59 @@ export interface App {
   init_role?: Role
   init_url: string
   user_count: number
-  key: string
 }
 export interface AppUser { 
+  id: string
+  created_at: Date
+  updated_at: Date
   app_id: string
-  app?: App
   user_id: string
-  user?: User
   status: string
 }
 export interface Resource { 
+  created_at: Date
+  updated_at: Date
   app_id: string
-  app?: App
   name: string
   des: string
 }
 export interface Role { 
+  id: string
+  created_at: Date
+  updated_at: Date
   name: string
   des: string
   app_id: string
-  app?: App
   user_count: number
-  access: any
-}
-export interface Testb { 
-  test_id: String
-  test?: Test
-  name: String
-}
-export interface Test { 
-  name: String
 }
 export interface Token { 
+  id: string
+  created_at: Date
+  updated_at: Date
   user_id: string
-  user?: User
   app_id: string
-  app?: App
   expired_at: Date
   over_perm: string
   device: string
+  ip: string
 }
 export interface User { 
+  id: string
+  created_at: Date
+  updated_at: Date
   username: string
   nickname: string
   icon: string
   email: string
   phone: string
   status: number
-  salt: string
-  code: string
 }
 export interface UserRole { 
+  id: string
+  created_at: Date
+  updated_at: Date
   user_id: string
-  user?: User
   role_id: string
-  role?: Role
   app_id: string
-  app?: App
   status: string
 }
