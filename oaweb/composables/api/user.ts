@@ -7,7 +7,7 @@
 import webapi from "./webapi"
 import * as models from "./models"
 export function Get(user_id: string) {
-  return webapi.Get<models.User>(`/user/${user_id}`, {})
+  return webapi.Get<models.User>(`/user/${user_id}`, {  })
 }
 
 export interface PatchOpts {
@@ -23,7 +23,7 @@ export function Patch(user_id: string, json: PatchOpts) {
 }
 
 export function Delete(user_id: string) {
-  return webapi.Delete<models.User>(`/user/${user_id}`, {})
+  return webapi.Delete<models.User>(`/user/${user_id}`, {  })
 }
 
 export interface PostOpts {
@@ -47,11 +47,11 @@ export interface ListOpts {
   status?: number
 }
 export function List(json: ListOpts) {
-  return webapi.Get<models.User>(`/user`, { json })
+  return webapi.Get<[models.User]>(`/user`, { json })
 }
 
 export function UserRoleGet(user_role_id: string, user_id: string) {
-  return webapi.Get<models.UserRole>(`/user/${user_id}/user_role/${user_role_id}`, {})
+  return webapi.Get<models.UserRole>(`/user/${user_id}/user_role/${user_role_id}`, {  })
 }
 
 export interface UserRolePatchOpts {
@@ -82,6 +82,6 @@ export interface UserRoleListOpts {
   status?: string
 }
 export function UserRoleList(user_id: string, json: UserRoleListOpts) {
-  return webapi.Get<models.UserRole>(`/user/${user_id}/user_role`, { json })
+  return webapi.Get<[models.UserRole]>(`/user/${user_id}/user_role`, { json })
 }
 

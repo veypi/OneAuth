@@ -1,4 +1,4 @@
-export interface Access { 
+export interface Access {
   created_at: Date
   updated_at: Date
   app_id: string
@@ -8,7 +8,7 @@ export interface Access {
   tid: string
   level: number
 }
-export interface App { 
+export interface App {
   id: string
   created_at: Date
   updated_at: Date
@@ -21,7 +21,7 @@ export interface App {
   init_url: string
   user_count: number
 }
-export interface AppUser { 
+export interface AppUser {
   id: string
   created_at: Date
   updated_at: Date
@@ -29,14 +29,14 @@ export interface AppUser {
   user_id: string
   status: string
 }
-export interface Resource { 
+export interface Resource {
   created_at: Date
   updated_at: Date
   app_id: string
   name: string
   des: string
 }
-export interface Role { 
+export interface Role {
   id: string
   created_at: Date
   updated_at: Date
@@ -45,7 +45,7 @@ export interface Role {
   app_id: string
   user_count: number
 }
-export interface Token { 
+export interface Token {
   id: string
   created_at: Date
   updated_at: Date
@@ -56,7 +56,7 @@ export interface Token {
   device: string
   ip: string
 }
-export interface User { 
+export interface User {
   id: string
   created_at: Date
   updated_at: Date
@@ -67,7 +67,7 @@ export interface User {
   phone: string
   status: number
 }
-export interface UserRole { 
+export interface UserRole {
   id: string
   created_at: Date
   updated_at: Date
@@ -76,3 +76,4 @@ export interface UserRole {
   app_id: string
   status: string
 }
+

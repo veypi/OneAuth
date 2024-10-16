@@ -67,23 +67,24 @@
 </template>
 
 <script setup lang="ts">
+import type { models } from '#imports';
 import msg from '@veypi/msg';
 
 let user = useUserStore()
 
 
-let apps = ref<modelsApp[]>([]);
-let ofApps = ref<modelsApp[]>([]);
+let apps = ref<models.App[]>([]);
+let ofApps = ref<models.App[]>([]);
 
 function getApps() {
-  api.app.list().then(
-    (e: modelsApp[]) => {
+  api.app.List({}).then(
+    (e) => {
       apps.value = e;
-      api.app.user('-').list(user.id).then((aus: modelsAppUser[]) => {
+      api.app.AppUserList("*", { user_id: user.id }).then(aus => {
         for (let i in aus) {
           let ai = apps.value.findIndex(a => a.id === aus[i].app_id)
           if (ai >= 0) {
-            if (aus[i].status === AUStatus.OK) {
+            if (aus[i].status === "ok") {
               ofApps.value.push(apps.value[ai])
               apps.value.splice(ai, 1)
             }
@@ -110,8 +111,10 @@ let rules = {
 };
 
 function create_new() {
-  api.app.create(temp_app.value.name, temp_app.value.icon).then((e:
-    modelsApp) => {
+  api.app.Post({
+    name: temp_app.value.name, icon: temp_app.value.icon,
+    des: "", participate: "auto"
+  }).then((e: models.App) => {
     ofApps.value.push(e);
     msg.Info("创建成功");
     new_flag.value = false;

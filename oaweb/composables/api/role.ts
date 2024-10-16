@@ -10,7 +10,7 @@ export function Get(role_id: string) {
   return webapi.Get<models.Role>(`/role/${role_id}`, {  })
 }
 
-export interface PatchOpts { 
+export interface PatchOpts {
   name?: string
   des?: string
   app_id?: string
@@ -23,7 +23,7 @@ export function Delete(role_id: string) {
   return webapi.Delete<models.Role>(`/role/${role_id}`, {  })
 }
 
-export interface PostOpts { 
+export interface PostOpts {
   name: string
   des: string
   app_id: string
@@ -32,10 +32,10 @@ export function Post(json: PostOpts) {
   return webapi.Post<models.Role>(`/role`, { json })
 }
 
-export interface ListOpts { 
+export interface ListOpts {
   name?: string
 }
 export function List(json: ListOpts) {
-  return webapi.Get<models.Role>(`/role`, { json })
+  return webapi.Get<[models.Role]>(`/role`, { json })
 }
 

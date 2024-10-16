@@ -7,7 +7,7 @@ import (
 
 type App struct {
 	BaseModel
-	Name        string  `json:"name" methods:"get,post,*patch,*list" parse:"json"`
+	Name        string  `json:"name" methods:"post,*patch,*list" parse:"json"`
 	Icon        string  `json:"icon" methods:"post,*patch" parse:"json"`
 	Des         string  `json:"des" methods:"post,*patch" parse:"json"`
 	Participate string  `json:"participate" gorm:"default:auto" methods:"post,*patch" parse:"json"`

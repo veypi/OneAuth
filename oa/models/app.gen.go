@@ -3,8 +3,7 @@ package models
 import "time"
 
 type AppGet struct {
-	ID   string `json:"id" gorm:"primaryKey;type:varchar(32)"  parse:"path@app_id"`
-	Name string `json:"name"  parse:"json"`
+	ID string `json:"id" gorm:"primaryKey;type:varchar(32)"  parse:"path@app_id"`
 }
 
 type AppPatch struct {

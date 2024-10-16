@@ -8,7 +8,6 @@
 
 export * from './api/models'
 export type Dict = { [key: string]: any }
-
 export enum ArgType {
   Text = 'text',
   Password = 'password',
@@ -52,4 +51,12 @@ export interface DocGroup {
   icon: string
   items?: DocItem[]
 }
+
+export enum AUStatus {
+  OK = 0,
+  Disabled = 1,
+  Applying = 2,
+  Deny = 3,
+}
+
 

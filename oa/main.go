@@ -27,6 +27,7 @@ func main() {
 }
 
 func runWeb() error {
+	go cfg.RunNats()
 	app, err := rest.New(&cfg.Config.RestConf)
 	if err != nil {
 		return err

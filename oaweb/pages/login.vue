@@ -152,6 +152,7 @@ const login = () => {
       localStorage.setItem('refresh', e)
       api.token.Post({ user_id: id, token: e }).then(e => {
         localStorage.setItem('token', e)
+        redirect("")
         console.log(e)
       })
     }).catch(e => {
@@ -193,7 +194,7 @@ const register = () => {
   }
   let salt = crypto.lib.WordArray.random(128 / 8).toString()
   let key = deriveKey(data.value.password, salt)
-  api.user.reg({
+  api.user.Post({
     username: data.value.username,
     salt: salt,
     code: key.toString(crypto.enc.Hex)
@@ -225,11 +226,13 @@ function redirect(url: string) {
     url = ''
   }
   if (uuid.value && uuid.value !== app.id) {
-    api.app.get(uuid.value as string).then((app) => {
-      api.token(uuid.value as string).get({
-        token: util.getToken(),
+    api.app.Get(uuid.value as string).then((app) => {
+      api.token.Post({
+        token: localStorage.getItem('refresh') || '',
+        user_id: uuid.value as string,
+        app_id: uuid.value as string,
       }).then(e => {
-        url = url || app.redirect
+        url = url || app.init_url
         // let data = JSON.parse(Base64.decode(e.split('.')[1]))
         // console.log(data)
         e = encodeURIComponent(e)
@@ -269,6 +272,7 @@ onMounted(() => {
   if (ifLogOut.value) {
     util.setToken('')
   } else if (util.checkLogin()) {
+    console.log(util.checkLogin())
     redirect(route.query.redirect as string || '')
   }
 })

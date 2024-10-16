@@ -6,21 +6,21 @@
 
 import webapi from "./webapi"
 import * as models from "./models"
-export interface ListOpts { 
+export interface ListOpts {
   app_id: string
   user_id?: string
   role_id?: string
   name?: string
 }
-export interface ListQuery { 
+export interface ListQuery {
   created_at?: Date
   updated_at?: Date
 }
 export function List(json: ListOpts, query: ListQuery) {
-  return webapi.Get<models.Access>(`/access`, { json, query })
+  return webapi.Get<[models.Access]>(`/access`, { json, query })
 }
 
-export interface PostOpts { 
+export interface PostOpts {
   app_id: string
   user_id?: string
   role_id?: string

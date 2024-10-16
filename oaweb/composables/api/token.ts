@@ -30,7 +30,7 @@ export function Post(json: PostOpts) {
   return webapi.Post<string>(`/token`, { json })
 }
 export function Get(token_id: string) {
-  return webapi.Get<models.Token>(`/token/${token_id}`, {})
+  return webapi.Get<models.Token>(`/token/${token_id}`, {  })
 }
 
 export interface PatchOpts {
@@ -42,7 +42,7 @@ export function Patch(token_id: string, json: PatchOpts) {
 }
 
 export function Delete(token_id: string) {
-  return webapi.Delete<models.Token>(`/token/${token_id}`, {})
+  return webapi.Delete<models.Token>(`/token/${token_id}`, {  })
 }
 
 export interface ListOpts {
@@ -50,6 +50,6 @@ export interface ListOpts {
   app_id: string
 }
 export function List(json: ListOpts) {
-  return webapi.Get<models.Token>(`/token`, { json })
+  return webapi.Get<[models.Token]>(`/token`, { json })
 }
 

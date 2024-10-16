@@ -6,14 +6,11 @@
 
 import webapi from "./webapi"
 import * as models from "./models"
-export interface GetOpts { 
-  name: string
-}
-export function Get(app_id: string, json: GetOpts) {
-  return webapi.Get<models.App>(`/app/${app_id}`, { json })
+export function Get(app_id: string) {
+  return webapi.Get<models.App>(`/app/${app_id}`, {})
 }
 
-export interface PatchOpts { 
+export interface PatchOpts {
   name?: string
   icon?: string
   des?: string
@@ -25,10 +22,10 @@ export function Patch(app_id: string, json: PatchOpts) {
 }
 
 export function Delete(app_id: string) {
-  return webapi.Delete<models.App>(`/app/${app_id}`, {  })
+  return webapi.Delete<models.App>(`/app/${app_id}`, {})
 }
 
-export interface PostOpts { 
+export interface PostOpts {
   name: string
   icon: string
   des: string
@@ -38,21 +35,21 @@ export function Post(json: PostOpts) {
   return webapi.Post<models.App>(`/app`, { json })
 }
 
-export interface ListOpts { 
+export interface ListOpts {
   name?: string
 }
 export function List(json: ListOpts) {
-  return webapi.Get<models.App>(`/app`, { json })
+  return webapi.Get<[models.App]>(`/app`, { json })
 }
 
-export interface AppUserGetOpts { 
+export interface AppUserGetOpts {
   user_id: string
 }
 export function AppUserGet(app_user_id: string, app_id: string, json: AppUserGetOpts) {
   return webapi.Get<models.AppUser>(`/app/${app_id}/app_user/${app_user_id}`, { json })
 }
 
-export interface AppUserPatchOpts { 
+export interface AppUserPatchOpts {
   status?: string
 }
 export function AppUserPatch(app_user_id: string, app_id: string, json: AppUserPatchOpts) {
@@ -60,18 +57,18 @@ export function AppUserPatch(app_user_id: string, app_id: string, json: AppUserP
 }
 
 export function AppUserDelete(app_user_id: string, app_id: string) {
-  return webapi.Delete<models.AppUser>(`/app/${app_id}/app_user/${app_user_id}`, {  })
+  return webapi.Delete<models.AppUser>(`/app/${app_id}/app_user/${app_user_id}`, {})
 }
 
-export interface AppUserListOpts { 
+export interface AppUserListOpts {
   user_id?: string
   status?: string
 }
 export function AppUserList(app_id: string, json: AppUserListOpts) {
-  return webapi.Get<models.AppUser>(`/app/${app_id}/app_user`, { json })
+  return webapi.Get<[models.AppUser]>(`/app/${app_id}/app_user`, { json })
 }
 
-export interface AppUserPostOpts { 
+export interface AppUserPostOpts {
   status: string
   user_id: string
 }
@@ -79,15 +76,15 @@ export function AppUserPost(app_id: string, json: AppUserPostOpts) {
   return webapi.Post<models.AppUser>(`/app/${app_id}/app_user`, { json })
 }
 
-export interface ResourceListQuery { 
+export interface ResourceListQuery {
   created_at?: Date
   updated_at?: Date
 }
 export function ResourceList(app_id: string, query: ResourceListQuery) {
-  return webapi.Get<models.Resource>(`/app/${app_id}/resource`, { query })
+  return webapi.Get<[models.Resource]>(`/app/${app_id}/resource`, { query })
 }
 
-export interface ResourcePostOpts { 
+export interface ResourcePostOpts {
   name: string
   des: string
 }
@@ -95,7 +92,7 @@ export function ResourcePost(app_id: string, json: ResourcePostOpts) {
   return webapi.Post<models.Resource>(`/app/${app_id}/resource`, { json })
 }
 
-export interface ResourceDeleteOpts { 
+export interface ResourceDeleteOpts {
   name: string
 }
 export function ResourceDelete(app_id: string, json: ResourceDeleteOpts) {
@@ -103,10 +100,10 @@ export function ResourceDelete(app_id: string, json: ResourceDeleteOpts) {
 }
 
 export function ResourceGet(app_id: string) {
-  return webapi.Get<models.Resource>(`/app/${app_id}/resource`, {  })
+  return webapi.Get<models.Resource>(`/app/${app_id}/resource`, {})
 }
 
 export function ResourcePatch(app_id: string) {
-  return webapi.Patch<models.Resource>(`/app/${app_id}/resource`, {  })
+  return webapi.Patch<models.Resource>(`/app/${app_id}/resource`, {})
 }
 
