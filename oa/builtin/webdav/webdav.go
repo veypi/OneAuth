@@ -20,16 +20,21 @@ import (
 
 func NewWebdav(p string) func(http.ResponseWriter, *http.Request) {
 	fs := &Handler{
-		FileSystem: Dir(p),
-		LockSystem: NewMemLS(),
+		FileSystem:      Dir(p),
+		LockSystem:      NewMemLS(),
+		EnableDirRender: true,
+		GenSubPathFunc: func(r *http.Request) string {
+			return ""
+		},
 	}
 	return fs.ServeHTTP
 }
 
 type Handler struct {
 	// Prefix is the URL path prefix to strip from WebDAV resource paths.
-	Prefix         string
-	GenSubPathFunc func(*http.Request) string
+	Prefix          string
+	EnableDirRender bool
+	GenSubPathFunc  func(*http.Request) string
 	// FileSystem is the virtual file system.
 	FileSystem FileSystem
 	// LockSystem is the lock management system.
@@ -39,14 +44,22 @@ type Handler struct {
 	Logger func(*http.Request, error)
 }
 
-func (h *Handler) stripPrefix(p string) (string, int, error) {
-	if h.Prefix == "" {
-		return p, http.StatusOK, nil
+func (h *Handler) stripPrefix(p string, r *http.Request) (np string, ns int, ne error) {
+	np = p
+	ns = http.StatusOK
+	if h.Prefix != "" {
+		if tmp := strings.TrimPrefix(p, h.Prefix); len(tmp) < len(p) {
+			np = tmp
+		} else {
+			return p, http.StatusNotFound, errPrefixMismatch
+		}
 	}
-	if r := strings.TrimPrefix(p, h.Prefix); len(r) < len(p) {
-		return r, http.StatusOK, nil
+	if h.GenSubPathFunc != nil {
+		if tmp := h.GenSubPathFunc(r); tmp != "" && tmp != "/" {
+			np = tmp + np
+		}
 	}
-	return p, http.StatusNotFound, errPrefixMismatch
+	return
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -158,7 +171,7 @@ func (h *Handler) confirmLocks(r *http.Request, src, dst string) (release func()
 			if u.Host != r.Host {
 				continue
 			}
-			lsrc, status, err = h.stripPrefix(u.Path)
+			lsrc, status, err = h.stripPrefix(u.Path, r)
 			if err != nil {
 				return nil, status, err
 			}
@@ -180,7 +193,7 @@ func (h *Handler) confirmLocks(r *http.Request, src, dst string) (release func()
 }
 
 func (h *Handler) handleOptions(w http.ResponseWriter, r *http.Request) (status int, err error) {
-	reqPath, status, err := h.stripPrefix(r.URL.Path)
+	reqPath, status, err := h.stripPrefix(r.URL.Path, r)
 	if err != nil {
 		return status, err
 	}
@@ -202,7 +215,7 @@ func (h *Handler) handleOptions(w http.ResponseWriter, r *http.Request) (status 
 }
 
 func (h *Handler) handleGetHeadPost(w http.ResponseWriter, r *http.Request) (status int, err error) {
-	reqPath, status, err := h.stripPrefix(r.URL.Path)
+	reqPath, status, err := h.stripPrefix(r.URL.Path, r)
 	if err != nil {
 		return status, err
 	}
@@ -218,6 +231,10 @@ func (h *Handler) handleGetHeadPost(w http.ResponseWriter, r *http.Request) (sta
 		return http.StatusNotFound, err
 	}
 	if fi.IsDir() {
+		if h.EnableDirRender {
+			dirList(w, r, f)
+			return 0, nil
+		}
 		return http.StatusMethodNotAllowed, nil
 	}
 	etag, err := findETag(ctx, h.FileSystem, h.LockSystem, reqPath, fi)
@@ -231,7 +248,7 @@ func (h *Handler) handleGetHeadPost(w http.ResponseWriter, r *http.Request) (sta
 }
 
 func (h *Handler) handleDelete(w http.ResponseWriter, r *http.Request) (status int, err error) {
-	reqPath, status, err := h.stripPrefix(r.URL.Path)
+	reqPath, status, err := h.stripPrefix(r.URL.Path, r)
 	if err != nil {
 		return status, err
 	}
@@ -261,7 +278,7 @@ func (h *Handler) handleDelete(w http.ResponseWriter, r *http.Request) (status i
 }
 
 func (h *Handler) handlePut(w http.ResponseWriter, r *http.Request) (status int, err error) {
-	reqPath, status, err := h.stripPrefix(r.URL.Path)
+	reqPath, status, err := h.stripPrefix(r.URL.Path, r)
 	if err != nil {
 		return status, err
 	}
@@ -303,7 +320,7 @@ func (h *Handler) handlePut(w http.ResponseWriter, r *http.Request) (status int,
 }
 
 func (h *Handler) handleMkcol(w http.ResponseWriter, r *http.Request) (status int, err error) {
-	reqPath, status, err := h.stripPrefix(r.URL.Path)
+	reqPath, status, err := h.stripPrefix(r.URL.Path, r)
 	if err != nil {
 		return status, err
 	}
@@ -340,12 +357,12 @@ func (h *Handler) handleCopyMove(w http.ResponseWriter, r *http.Request) (status
 		return http.StatusBadGateway, errInvalidDestination
 	}
 
-	src, status, err := h.stripPrefix(r.URL.Path)
+	src, status, err := h.stripPrefix(r.URL.Path, r)
 	if err != nil {
 		return status, err
 	}
 
-	dst, status, err := h.stripPrefix(u.Path)
+	dst, status, err := h.stripPrefix(u.Path, r)
 	if err != nil {
 		return status, err
 	}
@@ -446,7 +463,7 @@ func (h *Handler) handleLock(w http.ResponseWriter, r *http.Request) (retStatus 
 				return http.StatusBadRequest, errInvalidDepth
 			}
 		}
-		reqPath, status, err := h.stripPrefix(r.URL.Path)
+		reqPath, status, err := h.stripPrefix(r.URL.Path, r)
 		if err != nil {
 			return status, err
 		}
@@ -520,7 +537,7 @@ func (h *Handler) handleUnlock(w http.ResponseWriter, r *http.Request) (status i
 }
 
 func (h *Handler) handlePropfind(w http.ResponseWriter, r *http.Request) (status int, err error) {
-	reqPath, status, err := h.stripPrefix(r.URL.Path)
+	reqPath, status, err := h.stripPrefix(r.URL.Path, r)
 	if err != nil {
 		return status, err
 	}
@@ -589,7 +606,7 @@ func (h *Handler) handlePropfind(w http.ResponseWriter, r *http.Request) (status
 }
 
 func (h *Handler) handleProppatch(w http.ResponseWriter, r *http.Request) (status int, err error) {
-	reqPath, status, err := h.stripPrefix(r.URL.Path)
+	reqPath, status, err := h.stripPrefix(r.URL.Path, r)
 	if err != nil {
 		return status, err
 	}
