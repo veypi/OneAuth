@@ -2,9 +2,9 @@ module oa
 
 go 1.22.5
 
-replace github.com/veypi/OneBD => ../../../workspace/OneBD/
+replace github.com/veypi/OneBD => ../../OneBD/
 
-replace github.com/veypi/utils => ../../../workspace/OceanCurrent/utils/
+replace github.com/veypi/utils => ../../utils/
 
 require (
 	github.com/go-sql-driver/mysql v1.7.0

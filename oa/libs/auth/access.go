@@ -32,7 +32,7 @@ func (a *Access) Check(target string, tid string, l AuthLevel) bool {
 		return true
 	}
 	for _, line := range *a {
-		if target == line.Name && l >= line.Level {
+		if line.Name == target && line.Level > l {
 			if line.TID == "" || line.TID == tid {
 				return true
 			}

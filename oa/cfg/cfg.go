@@ -16,9 +16,16 @@ import (
 
 type config struct {
 	rest.RestConf
-	DSN string `json:"dsn"`
-	ID  string `json:"id"`
-	Key string `json:"key"`
+	DSN       string `json:"dsn"`
+	ID        string `json:"id"`
+	Key       string `json:"key"`
+	MediaPath string `json:"media"`
+	AccessUrl string `json:"access_url"`
+	Influxdb  struct {
+		Host  string `json:"host"`
+		Port  string `json:"port"`
+		Token string `json:"token"`
+	} `json:"influxdb"`
 }
 
 var Config = &config{}

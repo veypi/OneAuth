@@ -8,7 +8,9 @@
 package main
 
 import (
+	"net/http"
 	"oa/api"
+	"oa/builtin"
 	"oa/cfg"
 	"oa/errs"
 	_ "oa/models"
@@ -32,6 +34,8 @@ func runWeb() error {
 	if err != nil {
 		return err
 	}
+	builtin.Enable(app)
+	app.Router().Any("/media/*", http.StripPrefix("/media", http.FileServer(http.Dir("/home/v/cache/"))).ServeHTTP)
 	apiRouter := app.Router().SubRouter("api")
 	api.Use(apiRouter)
 	apiRouter.Use(errs.JsonResponse)

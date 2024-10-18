@@ -48,8 +48,8 @@ func errIter(err error) (code int, msg string) {
 		code, _ = errIter(e.Unwrap())
 	default:
 		if errors.Is(e, gorm.ErrRecordNotFound) {
-			code = NotFound.Code
-			msg = NotFound.Msg
+			code = ResourceNotFound.Code
+			msg = ResourceNotFound.Msg
 		} else if errors.Is(e, rest.ErrParse) {
 			code = ArgsInvalid.Code
 			msg = e.Error()
@@ -92,13 +92,14 @@ func New(code int, msg string) *CodeErr {
 }
 
 var (
-	ArgsInvalid  = New(40001, "args invalid")
-	DuplicateKey = New(40002, "duplicate key")
-	AuthNotFound = New(40100, "auth not found")
-	AuthFailed   = New(40101, "auth failed")
-	AuthExpired  = New(40102, "auth expired")
-	AuthInvalid  = New(40103, "auth invalid")
-	AuthNoPerm   = New(40104, "no permission")
-	NotFound     = New(40400, "not found")
-	DBError      = New(50010, "db error")
+	ArgsInvalid      = New(40001, "args invalid")
+	DuplicateKey     = New(40002, "duplicate key")
+	AuthNotFound     = New(40100, "auth not found")
+	AuthFailed       = New(40101, "auth failed")
+	AuthExpired      = New(40102, "auth expired")
+	AuthInvalid      = New(40103, "auth invalid")
+	AuthNoPerm       = New(40104, "no permission")
+	NotFound         = New(40400, "not found")
+	ResourceNotFound = New(40401, "resource not found")
+	DBError          = New(50010, "db error")
 )
