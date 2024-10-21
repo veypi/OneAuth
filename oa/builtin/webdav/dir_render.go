@@ -8,11 +8,12 @@
 package webdav
 
 import (
+	"embed"
 	"fmt"
+	"html/template"
 	"io/fs"
 	"net/http"
 	"net/url"
-	"sort"
 	"strings"
 
 	"github.com/veypi/utils/logv"
@@ -36,54 +37,72 @@ func (d dirEntryDirs) len() int          { return len(d) }
 func (d dirEntryDirs) isDir(i int) bool  { return d[i].IsDir() }
 func (d dirEntryDirs) name(i int) string { return d[i].Name() }
 
-func dirList(w http.ResponseWriter, r *http.Request, f File) {
+//go:embed dir.html
+var dirTemplate embed.FS // 嵌入文件系统
+
+func size2Label(s int64) string {
+	if s < 1024 {
+		return fmt.Sprintf("%d B", s)
+	} else if s < 1048576 {
+		return fmt.Sprintf("%d KB", s/1024)
+	} else if s < 1073741824 {
+		return fmt.Sprintf("%d MB", s/1024/1024)
+	} else {
+		return fmt.Sprintf("%d MB", s/1024/1024/1024)
+	}
+}
+
+func dirList(w http.ResponseWriter, r *http.Request, f File, rootPath string) {
 
 	// Prefer to use ReadDir instead of Readdir,
 	// because the former doesn't require calling
 	// Stat on every entry of a directory on Unix.
-	var dirs anyDirs
 	var err error
+	defer func() {
+		if e := recover(); e != nil {
+			err = fmt.Errorf("%v", e)
+		}
+		if err != nil {
+			logv.Warn().Msgf("http: error reading directory: %v", err)
+			http.Error(w, "Error reading directory", http.StatusInternalServerError)
+		}
+	}()
+	dir_count := 0
+	f_count := 0
+	var file_bytes int64
+	files := make([][4]any, 0, 5)
+	dirs := make([][4]any, 0, 5)
 	if d, ok := f.(fs.ReadDirFile); ok {
-		var list dirEntryDirs
-		list, err = d.ReadDir(-1)
-		dirs = list
+		for _, item := range logv.AssertFuncErr(d.ReadDir(-1)) {
+			if item.IsDir() {
+				name := item.Name() + "/"
+				dir_count += 1
+				fstat, _ := item.Info()
+				furl := url.URL{Path: name}
+				dirs = append(dirs, [4]any{name, furl.String(), "-----", fstat.ModTime().UTC()})
+			} else {
+				name := item.Name()
+				f_count += 1
+				fstat, _ := item.Info()
+				file_bytes += fstat.Size()
+				furl := url.URL{Path: name}
+				files = append(files, [4]any{name, furl.String(), size2Label(fstat.Size()), fstat.ModTime().UTC()})
+			}
+		}
 	} else {
-		var list fileInfoDirs
-		list, err = f.Readdir(-1)
-		dirs = list
+		for _, item := range logv.AssertFuncErr(d.ReadDir(-1)) {
+			name := item.Name()
+			f_count += 1
+			fstat, _ := item.Info()
+			file_bytes += fstat.Size()
+			furl := url.URL{Path: name}
+			files = append(files, [4]any{name, furl.String(), size2Label(fstat.Size()), fstat.ModTime().UTC()})
+		}
 	}
 
-	if err != nil {
-		logv.Warn().Msgf("http: error reading directory: %v", err)
-		http.Error(w, "Error reading directory", http.StatusInternalServerError)
-		return
-	}
-	sort.Slice(dirs, func(i, j int) bool { return dirs.name(i) < dirs.name(j) })
+	dirBody := logv.AssertFuncErr(dirTemplate.ReadFile("dir.html"))
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprintf(w, "<!doctype html>\n")
-	fmt.Fprintf(w, "<meta name=\"viewport\" content=\"width=device-width\">\n")
-	fmt.Fprintf(w, "<pre>\n")
-	for i, n := 0, dirs.len(); i < n; i++ {
-		name := dirs.name(i)
-		if dirs.isDir(i) {
-			name += "/"
-		}
-		// name may contain '?' or '#', which must be escaped to remain
-		// part of the URL path, and not indicate the start of a query
-		// string or fragment.
-		url := url.URL{Path: name}
-		fmt.Fprintf(w, "<a href=\"%s\">%s</a>\n", url.String(), htmlReplacer.Replace(name))
-	}
-	fmt.Fprintf(w, "</pre>\n")
+	tpl := logv.AssertFuncErr(template.New("").Parse(string(dirBody)))
+	logv.AssertError(tpl.Execute(w, map[string]any{"files": append(dirs, files...), "path": strings.Split(rootPath, "/"), "cdir": dir_count, "cfile": f_count, "size": size2Label(file_bytes)}))
 }
-
-var htmlReplacer = strings.NewReplacer(
-	"&", "&amp;",
-	"<", "&lt;",
-	">", "&gt;",
-	// "&#34;" is shorter than "&quot;".
-	`"`, "&#34;",
-	// "&#39;" is shorter than "&apos;" and apos was not in HTML until HTML5.
-	"'", "&#39;",
-)

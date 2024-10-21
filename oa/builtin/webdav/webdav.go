@@ -232,7 +232,7 @@ func (h *Handler) handleGetHeadPost(w http.ResponseWriter, r *http.Request) (sta
 	}
 	if fi.IsDir() {
 		if h.EnableDirRender {
-			dirList(w, r, f)
+			dirList(w, r, f, r.URL.Path)
 			return 0, nil
 		}
 		return http.StatusMethodNotAllowed, nil
