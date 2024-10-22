@@ -21,10 +21,10 @@ type App struct {
 type AppUser struct {
 	BaseModel
 	AppID string `json:"app_id" methods:"get,list,post,patch,delete" parse:"path"`
-	App   *App   `json:"-" gorm:"foreignKey:AppID;references:ID"`
+	App   *App   `json:"app" gorm:"foreignKey:AppID;references:ID"`
 
 	UserID string `json:"user_id" methods:"get,*list,post" parse:"json"`
-	User   *User  `json:"-" gorm:"foreignKey:UserID;references:ID"`
+	User   *User  `json:"user" gorm:"foreignKey:UserID;references:ID"`
 
 	Status string `json:"status" methods:"post,*patch,*list" parse:"json"`
 }

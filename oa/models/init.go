@@ -50,6 +50,9 @@ func init() {
 func InitDBData() error {
 	app := &App{}
 	app.ID = cfg.Config.ID
+	app.Name = "OA"
+	app.Icon = "/favicon.ico"
+	app.Key = cfg.Config.Key
 	logv.AssertError(cfg.DB().Where("id = ?", app.ID).Attrs(app).FirstOrCreate(app).Error)
 	initRole := map[string]map[string]uint{
 		"user": {"admin": 5, "normal": 1},

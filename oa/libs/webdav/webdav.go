@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-func NewWebdav(p string) func(http.ResponseWriter, *http.Request) {
+func NewWebdav(p string) *Handler {
 	fs := &Handler{
 		FileSystem:      Dir(p),
 		LockSystem:      NewMemLS(),
@@ -27,7 +27,7 @@ func NewWebdav(p string) func(http.ResponseWriter, *http.Request) {
 			return ""
 		},
 	}
-	return fs.ServeHTTP
+	return fs
 }
 
 type Handler struct {

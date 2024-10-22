@@ -131,7 +131,7 @@ func userPost(x *rest.X) (any, error) {
 	if opts.Icon != nil {
 		data.Icon = *opts.Icon
 	} else {
-		data.Icon = fmt.Sprintf("/media/icon/%d.jpg", rand.New(rand.NewSource(time.Now().UnixNano())).Intn(230))
+		data.Icon = fmt.Sprintf("https://public.veypi.com/img/avatar/%04d.jpg", rand.New(rand.NewSource(time.Now().UnixNano())).Intn(220))
 	}
 	if opts.Email != nil {
 		data.Email = *opts.Email

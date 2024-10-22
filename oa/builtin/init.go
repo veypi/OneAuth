@@ -11,21 +11,27 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"oa/builtin/webdav"
+	"oa/builtin/fs"
+	"oa/cfg"
 
 	"github.com/veypi/OneBD/rest"
 	"github.com/veypi/utils/logv"
 )
 
 func Enable(app *rest.Application) {
+	if cfg.Config.FsPath != "" {
+		r := app.Router().SubRouter("fs")
+		r.Any("/app/*", fs.NewAppFs("/fs/app"))
+		r.Any("/u/*", fs.NewUserFs("/fs/u"))
+	}
 	tsPorxy := httputil.NewSingleHostReverseProxy(logv.AssertFuncErr(url.Parse("http://v.v:8428")))
-	fsProxy := webdav.NewWebdav("/home/v/cache/")
+	fsProxy := fs.NewFs("/home/v/cache/", "")
 
 	app.SetMux(func(w http.ResponseWriter, r *http.Request) func(http.ResponseWriter, *http.Request) {
 		if r.Host == "ts.oa.v" || r.Header.Get("mux") == "ts" {
 			return tsPorxy.ServeHTTP
 		} else if r.Host == "fs.oa.v" {
-			return fsProxy
+			return fsProxy.ServeHTTP
 		}
 		return nil
 	})
