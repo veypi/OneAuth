@@ -7,57 +7,41 @@
 
 @import "./animate.scss";
 
+:root {
+  --bg-base: #efefef;
+  --fg-base: #090909
+}
+
 .voa {
   user-select: none;
   cursor: pointer;
-  height: 4rem;
-  width: 4rem;
+  height: inherit;
+  width: inherit;
   display: flex;
   justify-content: center;
   align-items: center;
-  .voa-off {
-  }
+
+  .voa-off {}
+
   .voa-on {
     border-radius: 100%;
     background: #999;
-    animation: scale-up 100ms ease-out forwards;
+    height: inherit;
+    width: inherit;
+
+    img {
+      height: inherit;
+      width: inherit;
+      vertical-align: middle;
+      border-radius: 50%;
+    }
   }
+
   :hover {
     opacity: 0.9;
   }
 }
 
-.voa-scale-off {
-  transform-origin: center center;
-  animation: scale-off 200ms ease-out forwards !important;
-}
-.voa-scale-up {
-  animation: scale-up 200ms ease-in;
-}
-
-.hover-line-b {
-  cursor: pointer;
-  position: relative;
-  &:hover {
-    opacity: 0.7;
-  }
-
-  &:after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 0;
-    height: 0.1em;
-    background-color: #000;
-    transition: all 0.3s;
-  }
-
-  &:hover::after {
-    left: 0px;
-    width: 100%;
-  }
-}
 
 .voa-modal {
   user-select: none;
@@ -69,6 +53,7 @@
   z-index: 10000;
   width: 40%;
   min-width: 20rem;
+
   &::before {
     content: "";
     position: absolute;
@@ -78,19 +63,21 @@
     height: 100%;
     border-radius: 2rem;
     background-color: rgba(240, 240, 240, 0.5);
-    backdrop-filter: blur(20px); /* 模糊效果 */
+    backdrop-filter: blur(20px);
+    /* 模糊效果 */
     z-index: -1;
   }
 }
 
-#voa-mask {
+.voa-slide-mask {
   position: fixed;
-  display: none;
+  visibility: hidden;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   z-index: 999;
+
   &::before {
     content: "";
     position: absolute;
@@ -98,10 +85,58 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.01); /* 半透明白色遮罩 */
-    backdrop-filter: blur(1px); /* 模糊效果 */
+    background: rgba(255, 255, 255, 0.11);
+    /* 半透明白色遮罩 */
+    backdrop-filter: blur(1px);
+    /* 模糊效果 */
+  }
+
+  .voa-slide {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 20rem;
+
+    .voa-slide-header {
+      position: relative;
+      width: 100%;
+      height: 4rem;
+      background: linear-gradient(90deg, #6849E1, #b09ef4);
+      z-index: 1;
+    }
+
+    .voa-slide-body {
+      position: relative;
+      width: 100%;
+      height: calc(100% - 4rem);
+      background: var(--bg-base);
+      color: var(--fg-base);
+      transform: translateY(-140%);
+
+      .voa-slide-main {
+        height: calc(100% - 3rem);
+        overflow: auto;
+      }
+
+      .voa-slide-footer {
+        border-top: solid 2px #000;
+        height: 3rem;
+        font-size: 1.5rem;
+        line-height: 3rem;
+        text-align: center;
+        cursor: pointer;
+        box-sizing: border-box;
+        opacity: 0.6;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
   }
 }
+
 
 .voa-logo {
   background-image: url("../favicon.svg");
@@ -114,6 +149,7 @@
   text-align: center;
   display: block;
   border: none;
+
   &::after {
     content: "";
     position: absolute;
@@ -121,10 +157,12 @@
     border-radius: inherit;
     transition: 0.3s;
   }
+
   &:active::after {
     box-shadow: 0 1px 0px 0px rgba(0, 0, 0, 0.5);
     /* opacity: 0; */
   }
+
   &:active {
     opacity: 0.8;
   }
