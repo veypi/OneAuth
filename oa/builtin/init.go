@@ -23,10 +23,8 @@ func Enable(app *rest.Application) {
 
 	app.SetMux(func(w http.ResponseWriter, r *http.Request) func(http.ResponseWriter, *http.Request) {
 		if r.Host == "ts.oa.v" || r.Header.Get("mux") == "ts" {
-			logv.Info().Msg(r.RequestURI)
 			return tsPorxy.ServeHTTP
 		} else if r.Host == "fs.oa.v" {
-			logv.Info().Msg(r.RequestURI)
 			return fsProxy
 		}
 		return nil

@@ -104,5 +104,5 @@ func dirList(w http.ResponseWriter, r *http.Request, f File, rootPath string) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	tpl := logv.AssertFuncErr(template.New("").Parse(string(dirBody)))
-	logv.AssertError(tpl.Execute(w, map[string]any{"files": append(dirs, files...), "path": strings.Split(rootPath, "/"), "cdir": dir_count, "cfile": f_count, "size": size2Label(file_bytes)}))
+	logv.AssertError(tpl.Execute(w, map[string]any{"files": files, "dirs": dirs, "path": strings.Split(rootPath, "/"), "cdir": dir_count, "cfile": f_count, "size": size2Label(file_bytes)}))
 }
